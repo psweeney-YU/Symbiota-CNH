@@ -8,8 +8,8 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 <head>
     <title><?php echo $DEFAULT_TITLE?> About</title>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
-    <link rel="stylesheet" href="css/base.css" type="text/css" />
-    <link rel="stylesheet" href="css/main.css" type="text/css" />
+    <link rel="stylesheet" href="../css/base.css" type="text/css" />
+    <link rel="stylesheet" href="../css/main.css" type="text/css" />
     <meta name='keywords' content='' />
 	<script type="text/javascript">
 		<?php include_once('includes/googleanalytics.php'); ?>

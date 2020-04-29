@@ -5,6 +5,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <html>
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> Data Usage</title>
+		<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/base.css" type="text/css" />
 		<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/main.css" type="text/css" />
 	</head>
 <body>
