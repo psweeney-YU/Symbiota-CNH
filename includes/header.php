@@ -1,4 +1,4 @@
-<SCRIPT LANGUAGE=JAVASCRIPT>
+<SCRIPT>
 <!--
 if (top.frames.length!=0)
   top.location=self.document.location;
@@ -10,43 +10,41 @@ if (top.frames.length!=0)
 			<div style="height:207px;background-repeat:no-repeat;position:relative;">
 			<div style="clear:both;">
 				<div style="clear:both;">
-					<img style="display:block;margin: 0 auto;" src="<?php echo $clientRoot; ?>/images/layout/drupal_header.jpg" />
+					<img style="display:block;margin: 0 auto;" src="<?php echo $CLIENT_ROOT; ?>/images/layout/drupal_header.jpg" />
 				</div>
 			</div>
 		</td>
 	<tr>
 		<td class="menurow" colspan="3">
 				<ul class="navlinks">
-					<li style="border:0;"><a href="/portal/about.php" title="About">About</a></li>
-					<li><a href="/portal" title="Portal">Portal</a></li>
-					<li><a href="/portal/membership.php" title="Membership">Membership</a></li>
-					<li><a href="/portal/governance.php" title="Governance">Governance</a></li>
-					<li><a href="/portal/meetings.php" title="Meetings">Meetings</a></li>
+					<li style="border:0;"><a href="<?php echo $CLIENT_ROOT; ?>/about.php" title="About">About</a></li>
+					<li><a href="<?php echo $CLIENT_ROOT; ?>" title="Portal">Portal</a></li>
+					<li><a href="<?php echo $CLIENT_ROOT; ?>/includes/membership.php" title="Membership">Membership</a></li>
+					<li><a href="<?php echo $CLIENT_ROOT; ?>/includes/governance.php" title="Governance">Governance</a></li>
+					<li><a href="<?php echo $CLIENT_ROOT; ?>/includes/meetings.php" title="Meetings">Meetings</a></li>
 					<!-- <li><a href="http://neherbaria.org/digit_resource" title="Resources">Resources</a></li> -->
 				</ul>
 		</td>
 	<tr>
 	</tr>
     <tr>
-	<?php 
+	<?php
 	if($displayLeftMenu){
-		?> 
-		<!-- <td class='middleleft'  background="<?php echo $clientRoot;?>/images/layout/leftstrip.gif" style="background-repeat:repeat-y;"> -->
-		<td class ='middleleft'>	
+		?>
+		<!-- <td class='middleleft'  background="<?php echo $CLIENT_ROOT;?>/images/layout/leftstrip.gif" style="background-repeat:repeat-y;"> -->
+		<td class ='middleleft'>
 			<div>
-				<?php include($serverRoot."/leftmenu.php"); ?>
+				<?php include($SERVER_ROOT."/includes/leftmenu.php"); ?>
 			</div>
 		</td>
-		<?php 
+		<?php
 	}
 	else{
 		?>
-        <!-- 	<td class="middleleftnomenu" background="<?php echo $clientRoot;?>/images/layout/leftstrip.gif"> -->
+        <!-- 	<td class="middleleftnomenu" background="<?php echo $CLIENT_ROOT;?>/images/layout/leftstrip.gif"> -->
         		<div style='width:20px;'></div>
         	</td>
-        <?php 
+        <?php
 	}
 	?>
 	<td class='middlecenter'>
-
-		

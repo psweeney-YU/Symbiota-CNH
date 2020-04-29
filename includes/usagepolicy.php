@@ -1,24 +1,21 @@
 <?php
-//error_reporting(E_ALL);
- include_once('../config/symbini.php');
- header("Content-Type: text/html; charset=".$charset);
- 
+include_once('../config/symbini.php');
+header("Content-Type: text/html; charset=".$CHARSET);
 ?>
 <html>
 	<head>
-		<title><?php echo $defaultTitle; ?> Data Usage</title>
-		<link rel="stylesheet" href="<?php echo $clientRoot; ?>/css/main.css" type="text/css" />
+		<title><?php echo $DEFAULT_TITLE; ?> Data Usage</title>
+		<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/main.css" type="text/css" />
 	</head>
 <body>
 <?php
-	$displayLeftMenu = true;	
-	include($serverRoot.'/header.php');
-	echo "<div class='navpath'>";
-	echo "<a href='../index.php'>Home</a> &gt; ";
-	echo " <b>Data Usage</b>";
-	echo "</div>";
+	$displayLeftMenu = true;
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
-
+	<div class="navpath">
+		<a href="../index.php">Home</a> &gt;
+		<b>Data Usage</b>
+	</div>
 	<div id="innertext">
 	    <div style="margin:25px;">
 	        <h3 style="margin-top:10px;">Data Usage Policy<sup>1</sup>: </H3>
@@ -46,9 +43,8 @@
 
 	    </div>
 	</div>
-<?php 
-	include($serverRoot.'/footer.php');
+<?php
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
-
 </html>
