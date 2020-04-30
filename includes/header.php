@@ -17,7 +17,7 @@ if (top.frames.length!=0)
 	<tr>
 		<td class="menurow" colspan="3">
 				<ul class="navlinks">
-					<li style="border:0;"><a href="<?php echo $CLIENT_ROOT; ?>/about.php" title="About">About</a></li>
+					<li style="border:0;"><a href="<?php echo $CLIENT_ROOT; ?>/includes/about.php" title="About">About</a></li>
 					<li><a href="<?php echo $CLIENT_ROOT; ?>" title="Portal">Portal</a></li>
 					<li><a href="<?php echo $CLIENT_ROOT; ?>/includes/membership.php" title="Membership">Membership</a></li>
 					<li><a href="<?php echo $CLIENT_ROOT; ?>/includes/governance.php" title="Governance">Governance</a></li>
