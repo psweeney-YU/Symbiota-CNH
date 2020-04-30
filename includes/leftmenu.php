@@ -15,7 +15,7 @@
 		</a>
 	</div>
 	<div class="menuitem">
-		<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/input.php">
+		<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php">
 			Map-guided Search
 		</a>
 	</div>
