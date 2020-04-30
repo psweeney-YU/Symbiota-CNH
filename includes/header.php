@@ -7,7 +7,6 @@ if (top.frames.length!=0)
 <table id="maintable" cellspacing="0">
 	<tr>
 		<td class="header" colspan="3" style="">
-			<div style="height:207px;background-repeat:no-repeat;position:relative;">
 			<div style="clear:both;">
 				<div style="clear:both;">
 					<img style="display:block;margin: 0 auto;" src="<?php echo $CLIENT_ROOT; ?>/images/layout/drupal_header.jpg" />
