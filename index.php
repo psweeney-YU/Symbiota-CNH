@@ -51,10 +51,10 @@ $countRecords = new CountOccurrenceRecords();
 			</div>
 			<hr style="margin: 25px 0;"/>
 			<div style="width:100%;padding:0;">
-				<img style="float: left;margin: 0;" title="Dicentra" src="images/YU_specimen_sm.jpg" alt="Herbarium specimen" height="118" />
-				<img style="margin-left: 27px;" title="Map" src="images/CNH_map.jpg" alt="Map" height="118" />
-				<img style="margin-left: 27px;" title="Data" src="images/spreadsheet.png" alt="data" height="118" />
-				<img style="margin-left: 27px;" title="Plot" src="images/plot.png" alt="plot" height="118" /><br clear="both" />
+				<img style="float: left;margin: 0;" title="Dicentra" src="includes/YU_specimen_sm.jpg" alt="Herbarium specimen" height="118" />
+				<img style="margin-left: 27px;" title="Map" src="includes/CNH_map.jpg" alt="Map" height="118" />
+				<img style="margin-left: 27px;" title="Data" src="includes/spreadsheet.png" alt="data" height="118" />
+				<img style="margin-left: 27px;" title="Plot" src="includes/plot.png" alt="plot" height="118" /><br clear="both" />
 			</div>
 		</div>
 		<!-- end of inner text! -->
