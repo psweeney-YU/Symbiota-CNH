@@ -36,7 +36,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 						<p style="text-align: center;"><strong><br /></strong></p>
 						<p style="text-align: center;"><strong>Map of region</strong></p>
 						&nbsp;
-					<div id="imagecenter"><img title="map" src="../images/CNH_3.jpg" alt="Map of northeastern North America." width="400" /></div>
+					<div id="imagecenter"><img title="map" src="../includes/CNH_3.jpg" alt="Map of northeastern North America." width="400" /></div>
 				</div>
 			</div>
 		</div>
