@@ -53,10 +53,10 @@
 		<hr/>
 	</div>
 	<?php
-	if($userDisplayName){
-	?>
+	if($USER_DISPLAY_NAME){
+		?>
 		<div class='menuitem'>
-			Welcome <?php echo $userDisplayName; ?>!
+			Welcome <?php echo $USER_DISPLAY_NAME; ?>!
 		</div>
 		<div class="menuitem">
 			<a href="<?php echo $CLIENT_ROOT; ?>/profile/viewprofile.php">My Profile</a>
@@ -64,12 +64,12 @@
 		<div class="menuitem">
 			<a href="<?php echo $CLIENT_ROOT; ?>/profile/index.php?submit=logout">Logout</a>
 		</div>
-	<?php
+		<?php
 	}
 	else{
-	?>
+		?>
 		<div class="menuitem">
-			<a href="<?php echo $CLIENT_ROOT."/profile/index.php?refurl=".$_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']; ?>">
+			<a href="<?php echo $CLIENT_ROOT."/profile/index.php?refurl=".$_SERVER['SCRIPT_NAME']."?".htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
 				Log In
 			</a>
 		</div>
@@ -78,7 +78,7 @@
 				New Account
 			</a>
 		</div>
-	<?php
+		<?php
 	}
 	?>
 	<div class='menuitem'>
