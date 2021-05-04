@@ -1,27 +1,25 @@
 <?php
 include_once('../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/ImageLibraryManager.php');
+include_once($SERVER_ROOT.'/classes/ImageLibraryBrowser.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$pManager = new ImageLibraryManager();
+$imgManager = new ImageLibraryBrowser();
 ?>
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Photographer List</title>
-  <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-  ?>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
+	?>
 	<meta name='keywords' content='' />
 </head>
 <body>
@@ -38,7 +36,7 @@ $pManager = new ImageLibraryManager();
 	<!-- This is inner text! -->
 	<div id="innertext" style="height:100%">
 		<?php
-		$pList = $pManager->getPhotographerList();
+		$pList = $imgManager->getPhotographerList();
 		if($pList){
 			echo '<div style="float:left;;margin-right:40px;">';
 			echo '<h2>Image Contributors</h2>';
@@ -57,7 +55,7 @@ $pManager = new ImageLibraryManager();
 			<?php
 			ob_flush();
 			flush();
-			$collList = $pManager->getCollectionImageList();
+			$collList = $imgManager->getCollectionImageList();
 			$specList = $collList['coll'];
 			if($specList){
 				echo '<h2>Specimens</h2>';

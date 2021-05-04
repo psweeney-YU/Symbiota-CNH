@@ -1,42 +1,32 @@
 <?php
 if(!$displayQuery && array_key_exists('displayquery',$_REQUEST)) $displayQuery = $_REQUEST['displayquery'];
 
-$qCatalogNumber=''; $qOtherCatalogNumbers='';
-$qRecordedBy=''; $qRecordNumber=''; $qEventDate='';
-$qRecordEnteredBy=''; $qObserverUid='';$qDateLastModified='';$qDateEntered='';
-$qProcessingStatus='';$qOcrFrag='';$qOrderBy='';$qOrderByDir='';
-$qImgOnly='';$qWithoutImg='';$qExsiccatiId='';
-$qCustomField1='';$qCustomType1='';$qCustomValue1='';
-$qCustomField2='';$qCustomType2='';$qCustomValue2='';
-$qCustomField3='';$qCustomType3='';$qCustomValue3='';
 $qryArr = $occManager->getQueryVariables();
-if($qryArr){
-	$qCatalogNumber = (array_key_exists('cn',$qryArr)?$qryArr['cn']:'');
-	$qOtherCatalogNumbers = (array_key_exists('ocn',$qryArr)?$qryArr['ocn']:'');
-	$qRecordedBy = (array_key_exists('rb',$qryArr)?$qryArr['rb']:'');
-	$qRecordNumber = (array_key_exists('rn',$qryArr)?$qryArr['rn']:'');
-	$qEventDate = (array_key_exists('ed',$qryArr)?$qryArr['ed']:'');
-	$qRecordEnteredBy = (array_key_exists('eb',$qryArr)?$qryArr['eb']:'');
-	$qObserverUid = (array_key_exists('ouid',$qryArr)?$qryArr['ouid']:0);
-	$qProcessingStatus = (array_key_exists('ps',$qryArr)?$qryArr['ps']:'');
-	$qDateEntered = (array_key_exists('de',$qryArr)?$qryArr['de']:'');
-	$qDateLastModified = (array_key_exists('dm',$qryArr)?$qryArr['dm']:'');
-	$qExsiccatiId = (array_key_exists('exsid',$qryArr)?$qryArr['exsid']:'');
-	$qImgOnly = (array_key_exists('io',$qryArr)?$qryArr['io']:0);
-	$qWithoutImg = (array_key_exists('woi',$qryArr)?$qryArr['woi']:0);
-	$qCustomField1 = (array_key_exists('cf1',$qryArr)?$qryArr['cf1']:'');
-	$qCustomType1 = (array_key_exists('ct1',$qryArr)?$qryArr['ct1']:'');
-	$qCustomValue1 = (array_key_exists('cv1',$qryArr)?htmlentities($qryArr['cv1'], ENT_COMPAT, $CHARSET):'');
-	$qCustomField2 = (array_key_exists('cf2',$qryArr)?$qryArr['cf2']:'');
-	$qCustomType2 = (array_key_exists('ct2',$qryArr)?$qryArr['ct2']:'');
-	$qCustomValue2 = (array_key_exists('cv2',$qryArr)?htmlentities($qryArr['cv2'], ENT_COMPAT, $CHARSET):'');
-	$qCustomField3 = (array_key_exists('cf3',$qryArr)?$qryArr['cf3']:'');
-	$qCustomType3 = (array_key_exists('ct3',$qryArr)?$qryArr['ct3']:'');
-	$qCustomValue3 = (array_key_exists('cv3',$qryArr)?htmlentities($qryArr['cv3'], ENT_COMPAT, $CHARSET):'');
-	$qOcrFrag = (array_key_exists('ocr',$qryArr)?htmlentities($qryArr['ocr'], ENT_COMPAT, $CHARSET):'');
-	$qOrderBy = (array_key_exists('orderby',$qryArr)?$qryArr['orderby']:'');
-	$qOrderByDir = (array_key_exists('orderbydir',$qryArr)?$qryArr['orderbydir']:'');
-}
+$qCatalogNumber = (array_key_exists('cn',$qryArr)?$qryArr['cn']:'');
+$qOtherCatalogNumbers = (array_key_exists('ocn',$qryArr)?$qryArr['ocn']:'');
+$qRecordedBy = (array_key_exists('rb',$qryArr)?$qryArr['rb']:'');
+$qRecordNumber = (array_key_exists('rn',$qryArr)?$qryArr['rn']:'');
+$qEventDate = (array_key_exists('ed',$qryArr)?$qryArr['ed']:'');
+$qRecordEnteredBy = (array_key_exists('eb',$qryArr)?$qryArr['eb']:'');
+$qReturnAll = (array_key_exists('returnall',$qryArr)?$qryArr['returnall']:0);
+$qProcessingStatus = (array_key_exists('ps',$qryArr)?$qryArr['ps']:'');
+$qDateEntered = (array_key_exists('de',$qryArr)?$qryArr['de']:'');
+$qDateLastModified = (array_key_exists('dm',$qryArr)?$qryArr['dm']:'');
+$qExsiccatiId = (array_key_exists('exsid',$qryArr)?$qryArr['exsid']:'');
+$qImgOnly = (array_key_exists('io',$qryArr)?$qryArr['io']:0);
+$qWithoutImg = (array_key_exists('woi',$qryArr)?$qryArr['woi']:0);
+$qCustomField1 = (array_key_exists('cf1',$qryArr)?$qryArr['cf1']:'');
+$qCustomType1 = (array_key_exists('ct1',$qryArr)?$qryArr['ct1']:'');
+$qCustomValue1 = (array_key_exists('cv1',$qryArr)?htmlentities($qryArr['cv1'], ENT_COMPAT, $CHARSET):'');
+$qCustomField2 = (array_key_exists('cf2',$qryArr)?$qryArr['cf2']:'');
+$qCustomType2 = (array_key_exists('ct2',$qryArr)?$qryArr['ct2']:'');
+$qCustomValue2 = (array_key_exists('cv2',$qryArr)?htmlentities($qryArr['cv2'], ENT_COMPAT, $CHARSET):'');
+$qCustomField3 = (array_key_exists('cf3',$qryArr)?$qryArr['cf3']:'');
+$qCustomType3 = (array_key_exists('ct3',$qryArr)?$qryArr['ct3']:'');
+$qCustomValue3 = (array_key_exists('cv3',$qryArr)?htmlentities($qryArr['cv3'], ENT_COMPAT, $CHARSET):'');
+$qOcrFrag = (array_key_exists('ocr',$qryArr)?htmlentities($qryArr['ocr'], ENT_COMPAT, $CHARSET):'');
+$qOrderBy = (array_key_exists('orderby',$qryArr)?$qryArr['orderby']:'');
+$qOrderByDir = (array_key_exists('orderbydir',$qryArr)?$qryArr['orderbydir']:'');
 
 //Set processing status
 $processingStatusArr = array();
@@ -46,6 +36,7 @@ if(isset($PROCESSINGSTATUS) && $PROCESSINGSTATUS){
 else{
 	$processingStatusArr = array('unprocessed','unprocessed/NLP','stage 1','stage 2','stage 3','pending review-nfn','pending review','expert required','reviewed','closed');
 }
+//if(!isset($_REQUEST['q_catalognumber'])) $displayQuery = true;
 ?>
 <div id="querydiv" style="clear:both;width:850px;display:<?php echo ($displayQuery?'block':'none'); ?>;">
 	<form name="queryform" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="post" onsubmit="return verifyQueryForm(this)">
@@ -99,24 +90,10 @@ else{
 			if(!$crowdSourceMode){
 				?>
 				<div class="fieldGroupDiv">
-					<?php
-					if($isGenObs && ($IS_ADMIN || ($collId && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"])))){
-						?>
-						<div class="fieldDiv">
-							<input type="checkbox" name="q_observeruid" value="<?php echo $SYMB_UID; ?>" <?php echo ($qObserverUid?'CHECKED':''); ?> />
-							Only My Records
-						</div>
-						<?php
-					}
-					else{
-						?>
-						<input type="hidden" name="q_observeruid" value="<?php echo $isGenObs?$SYMB_UID:''; ?>" />
-						<?php
-					}
-					?>
 					<div class="fieldDiv" style="<?php echo ($isGenObs?'display:none':''); ?>">
 						Entered by:
 						<input type="text" name="q_recordenteredby" value="<?php echo $qRecordEnteredBy; ?>" style="width:70px;" onchange="setOrderBy(this)" />
+						<button type="button" onclick="enteredByCurrentUser()" style="font-size:70%" title="Limit to recent records entered by current user">CU</button>
 					</div>
 					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
 						Date entered:
@@ -162,9 +139,8 @@ else{
 						<div class="fieldGroupDiv" title="Enter Exsiccati Title">
 							<div class="fieldDiv">
 								Exsiccati Title:
-								<select name="q_exsiccatiid" style="width:650px">
+								<select name="q_exsiccatiid" style="max-width:650px">
 									<option value=""></option>
-									<option value="">-------------------------</option>
 									<?php
 									foreach($exsList as $exsID => $exsTitle){
 										echo '<option value="'.$exsID.'" '.($qExsiccatiId==$exsID?'SELECTED':'').'>'.$exsTitle.'</option>';
@@ -199,8 +175,8 @@ else{
 					'georeferenceVerificationStatus'=>'Georeference Verification Status','georeferencedBy'=>'Georeferenced By','habitat'=>'Habitat',
 					'identificationQualifier'=>'Identification Qualifier','identificationReferences'=>'Identification References',
 					'identificationRemarks'=>'Identification Remarks','identifiedBy'=>'Identified By','individualCount'=>'Individual Count',
-					'informationWithheld'=>'Information Withheld','institutionCode'=>'Institution Code (override)','labelProject'=>'Label Project',
-					'lifeStage'=>'Life Stage','locationid'=>'Location ID','locality'=>'Locality',
+					'informationWithheld'=>'Information Withheld','institutionCode'=>'Institution Code (override)','labelProject'=>'Project',
+					'language'=>'Language','lifeStage'=>'Life Stage','locationid'=>'Location ID','locality'=>'Locality',
 					'localitySecurity'=>'Locality Security','localitySecurityReason'=>'Locality Security Reason','locationRemarks'=>'Location Remarks',
 					'username'=>'Modified By','municipality'=>'Municipality','occurrenceRemarks'=>'Notes (Occurrence Remarks)','ocrFragment'=>'OCR Fragment',
 					'otherCatalogNumbers'=>'Other Catalog Numbers','ownerInstitutionCode'=>'Owner Code','preparations'=>'Preparations',
@@ -286,30 +262,40 @@ else{
 				</select>
 				<input name="q_customvalue3" type="text" value="<?php echo $qCustomValue3; ?>" style="width:200px;" />
 			</div>
-			<?php
-			if(!$crowdSourceMode){
-				$qryStr = '';
-				if($qRecordedBy) $qryStr .= '&recordedby='.$qRecordedBy;
-				if($qRecordNumber) $qryStr .= '&recordnumber='.$qRecordNumber;
-				if($qEventDate) $qryStr .= '&eventdate='.$qEventDate;
-				if($qCatalogNumber) $qryStr .= '&catalognumber='.$qCatalogNumber;
-				if($qOtherCatalogNumbers) $qryStr .= '&othercatalognumbers='.$qOtherCatalogNumbers;
-				if($qRecordEnteredBy) $qryStr .= '&recordenteredby='.$qRecordEnteredBy;
-				if($qObserverUid) $qryStr .= '&observeruid='.$qObserverUid;
-				if($qDateEntered) $qryStr .= '&dateentered='.$qDateEntered;
-				if($qDateLastModified) $qryStr .= '&datelastmodified='.$qDateLastModified;
-				if($qryStr){
+			<div class="fieldGroupDiv">
+				<?php
+				if($isGenObs && ($IS_ADMIN || ($collId && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"])))){
 					?>
-					<div style="float:right;margin-top:10px;" title="Go to Label Printing Module">
-						<a href="../reports/labelmanager.php?collid=<?php echo $collId.$qryStr; ?>">
-							<img src="../../images/list.png" style="width:15px;" />
-						</a>
+					<div class="fieldDiv">
+						<input type="checkbox" name="q_returnall" value="1" <?php echo ($qReturnAll?'CHECKED':''); ?> /> Show records for all users (admin control)
 					</div>
 					<?php
 				}
-			}
-			?>
+				?>
+			</div>
 			<div class="fieldGroupDiv">
+				<?php
+				if(!$crowdSourceMode){
+					$qryStr = '';
+					if($qRecordedBy) $qryStr .= '&recordedby='.$qRecordedBy;
+					if($qRecordNumber) $qryStr .= '&recordnumber='.$qRecordNumber;
+					if($qEventDate) $qryStr .= '&eventdate='.$qEventDate;
+					if($qCatalogNumber) $qryStr .= '&catalognumber='.$qCatalogNumber;
+					if($qOtherCatalogNumbers) $qryStr .= '&othercatalognumbers='.$qOtherCatalogNumbers;
+					if($qRecordEnteredBy) $qryStr .= '&recordenteredby='.$qRecordEnteredBy;
+					if($qDateEntered) $qryStr .= '&dateentered='.$qDateEntered;
+					if($qDateLastModified) $qryStr .= '&datelastmodified='.$qDateLastModified;
+					if($qryStr){
+						?>
+						<div style="float:right;margin-top:10px;" title="Go to Label Printing Module">
+							<a href="../reports/labelmanager.php?collid=<?php echo $collId.$qryStr; ?>">
+								<img src="../../images/list.png" style="width:15px;" />
+							</a>
+						</div>
+						<?php
+					}
+				}
+				?>
 				<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
 				<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
 				<input type="hidden" name="occid" value="<?php echo $occManager->getOccId(); ?>" />
@@ -357,3 +343,44 @@ else{
 		</fieldset>
 	</form>
 </div>
+<script>
+	function enteredByCurrentUser(){
+		var f = document.queryform;
+		resetQueryForm(f);
+		f.q_recordenteredby.value = "<?php echo $GLOBALS['USERNAME']?>";
+		var today = new Date();
+		var dd = String(today.getDate()).padStart(2, '0');
+		var mm = String(today.getMonth() + 1).padStart(2, '0');
+		f.q_dateentered.value = today.getFullYear()+'-'+mm+'-'+dd;
+	}
+
+	function resetQueryForm(f){
+		f.occid.value = "";
+		f.occidlist.value = "";
+		f.direction.value = "";
+		f.occindex.value = "0";
+		f.q_catalognumber.value = "";
+		f.q_othercatalognumbers.value = "";
+		f.q_recordedby.value = "";
+		f.q_recordnumber.value = "";
+		f.q_eventdate.value = "";
+		f.q_recordenteredby.value = "";
+		f.q_dateentered.value = "";
+		f.q_datelastmodified.value = "";
+		f.q_processingstatus.value = "";
+		if(f.q_exsiccatiid) f.q_exsiccatiid.value = "";
+		f.q_customfield1.options[0].selected = true;
+		f.q_customtype1.options[0].selected = true;
+		f.q_customvalue1.value = "";
+		f.q_customfield2.options[0].selected = true;
+		f.q_customtype2.options[0].selected = true;
+		f.q_customvalue2.value = "";
+		f.q_customfield3.options[0].selected = true;
+		f.q_customtype3.options[0].selected = true;
+		f.q_customvalue3.value = "";
+		f.q_imgonly.checked = false;
+		f.q_withoutimg.checked = false;
+		f.orderby.value = "";
+		f.orderbydir.value = "ASC";
+	}
+</script>

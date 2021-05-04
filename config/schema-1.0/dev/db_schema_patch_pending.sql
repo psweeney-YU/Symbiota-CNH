@@ -1,18 +1,149 @@
 INSERT IGNORE INTO schemaversion (versionnumber) values ("1.2");
 
+ALTER TABLE `adminlanguages` 
+  ADD COLUMN `ISO 639-3` VARCHAR(3) NULL AFTER `iso639_2`;
+
 ALTER TABLE `lkupstateprovince` 
   CHANGE COLUMN `abbrev` `abbrev` VARCHAR(3) NULL DEFAULT NULL ;
 
 ALTER TABLE `fmprojects` 
   CHANGE COLUMN `fulldescription` `fulldescription` VARCHAR(5000) NULL DEFAULT NULL ;
 
+ALTER TABLE `fmchecklists` 
+  ADD COLUMN `cidKeyLimits` VARCHAR(250) NULL AFTER `Access`;
+
 ALTER TABLE `fmchklstprojlink` 
    ADD COLUMN `sortSequence` INT NULL AFTER `mapChecklist`;
 
+ALTER TABLE `fmchklsttaxalink` 
+  ADD INDEX `FK_chklsttaxalink_tid` (`TID` ASC);
+
+
+ALTER TABLE `kmcharacters` 
+  CHANGE COLUMN `helpurl` `helpurl` VARCHAR(500) NULL DEFAULT NULL AFTER `description`,
+  ADD COLUMN `referenceUrl` VARCHAR(250) NULL AFTER `helpurl`;
+
+ALTER TABLE `kmcharacters` 
+  CHANGE COLUMN `sortsequence` `sortsequence` INT(10) UNSIGNED NULL DEFAULT NULL AFTER `notes`,
+  ADD COLUMN `glossid` INT UNSIGNED NULL AFTER `description`,
+  ADD INDEX `FK_kmchar_glossary_idx` (`glossid` ASC);
+
+ALTER TABLE `kmcharacters` 
+  ADD CONSTRAINT `FK_kmchar_glossary`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `kmcharacters`
+  ADD COLUMN `activationCode` INT NULL AFTER `notes`;
+
+
+ALTER TABLE `kmcharacterlang` 
+  CHANGE COLUMN `language` `language` VARCHAR(45) NULL ;
+
+ALTER TABLE `kmcharheading` 
+  CHANGE COLUMN `language` `language` VARCHAR(45) NULL DEFAULT 'English' ;
+CREATE TABLE `kmcharheadinglang` (
+  `hid` INT UNSIGNED NOT NULL,
+  `langid` INT NOT NULL,
+  `headingname` VARCHAR(100) NOT NULL,
+  `notes` VARCHAR(250) NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`hid`, `langid`),
+  CONSTRAINT `FK_kmcharheadinglang_hid`  FOREIGN KEY (`hid`)  REFERENCES `kmcharheading` (`hid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_kmcharheadinglang_langid`  FOREIGN KEY (`langid`)  REFERENCES `adminlanguages` (`langid`)  ON DELETE CASCADE  ON UPDATE CASCADE
+);
+
+ALTER TABLE `kmcs` 
+  ADD COLUMN `referenceUrl` VARCHAR(250) NULL AFTER `IllustrationUrl`;
+
+ALTER TABLE `kmcs` 
+  ADD COLUMN `glossid` INT UNSIGNED NULL AFTER `referenceUrl`,
+  ADD INDEX `FK_kmcs_glossid_idx` (`glossid` ASC);
+ALTER TABLE `kmcs` 
+  ADD CONSTRAINT `FK_kmcs_glossid`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+
+CREATE TABLE `ctcontrolvocab` (
+  `cvID` INT(11) NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(45) DEFAULT NULL,
+  `definition` VARCHAR(250) DEFAULT NULL,
+  `authors` VARCHAR(150) DEFAULT NULL,
+  `tableName` VARCHAR(45) DEFAULT NULL,
+  `fieldName` VARCHAR(45) DEFAULT NULL,
+  `resourceUrl` VARCHAR(150) DEFAULT NULL,
+  `ontologyClass` VARCHAR(150) DEFAULT NULL,
+  `ontologyUrl` VARCHAR(150) DEFAULT NULL,
+  `limitToList` INT(2) DEFAULT 0,
+  `dynamicProperties` TEXT DEFAULT NULL,
+  `notes` VARCHAR(45) DEFAULT NULL,
+  `createdUid` INT(10) unsigned DEFAULT NULL,
+  `modifiedUid` INT(10) unsigned DEFAULT NULL,
+  `modifiedTimestamp` DATETIME DEFAULT NULL,
+  `initialtimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`cvID`),
+  KEY `FK_ctControlVocab_createUid_idx` (`createdUid`),
+  KEY `FK_ctControlVocab_modUid_idx` (`modifiedUid`),
+  CONSTRAINT `FK_ctControlVocab_createUid` FOREIGN KEY (`createdUid`) REFERENCES `users` (`uid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `FK_ctControlVocab_modUid` FOREIGN KEY (`modifiedUid`) REFERENCES `users` (`uid`) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE `ctcontrolvocabterm` (
+  `cvTermID` INT NOT NULL AUTO_INCREMENT,
+  `cvID` INT NOT NULL,
+  `parentCvTermID` INT NULL,
+  `term` VARCHAR(45) NOT NULL,
+  `inverseRelationship` VARCHAR(45) NULL,
+  `collective` VARCHAR(45) NULL,
+  `definition` VARCHAR(250) DEFAULT NULL,
+  `resourceUrl` VARCHAR(150) DEFAULT NULL,
+  `ontologyClass` VARCHAR(150) DEFAULT NULL,
+  `ontologyUrl` VARCHAR(150) DEFAULT NULL,
+  `notes` VARCHAR(250) NULL,
+  `createdUid` INT UNSIGNED NULL,
+  `modifiedUid` INT UNSIGNED NULL,
+  `modifiedTimestamp` DATETIME NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`cvTermID`),
+  INDEX `FK_ctcontrolVocabTerm_cvID_idx` (`cvID` ASC),
+  INDEX `FK_ctControlVocabTerm_createUid_idx` (`createdUid` ASC),
+  INDEX `FK_ctControlVocabTerm_modUid_idx` (`modifiedUid` ASC),
+  INDEX `IX_controlVocabTerm_term` (`term` ASC),
+  UNIQUE INDEX `UQ_controlVocabTerm` (`cvID` ASC, `term` ASC),
+  CONSTRAINT `FK_ctControlVocabTerm_cvID`
+    FOREIGN KEY (`cvID`) REFERENCES `ctcontrolvocab` (`cvID`)  ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT `FK_ctControlVocabTerm_createUid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  CONSTRAINT `FK_ctControlVocabTerm_modUid`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  CONSTRAINT `FK_ctControlVocabTerm_cvTermID`  FOREIGN KEY (`parentCvTermID`)  REFERENCES `ctcontrolvocabterm` (`cvTermID`)  ON DELETE SET NULL  ON UPDATE CASCADE
+);
+
+INSERT INTO `ctcontrolvocab` VALUES (1,'Occurrence Relationship Terms',NULL,NULL,'omoccurassociations','relationship',NULL,NULL,NULL,1,NULL,NULL,null,NULL,NULL,'2020-12-02 21:35:38'),(2,'Occurrence Relationship subTypes',NULL,NULL,'omoccurassociations','subType',NULL,NULL,NULL,0,NULL,NULL,null,NULL,NULL,'2020-12-02 22:56:13');
+INSERT INTO `ctcontrolvocabterm` VALUES (1,1,NULL,'subsampleOf','originatingSampleOf',NULL,'a sample or occurrence that was subsequently derived from an originating sample',NULL,'has part: http://purl.obolibrary.org/obo/BFO_0000050',NULL,NULL,null,NULL,NULL,'2020-12-02 21:36:51'),(2,1,NULL,'partOf','partOf',NULL,NULL,NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 21:38:32'),(3,1,NULL,'siblingOf','siblingOf',NULL,NULL,NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 21:38:32'),(4,1,NULL,'originatingSampleOf','subsampleOf',NULL,'a sample or occurrence that is the originator of a subsequently modified or partial sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,'originatingSourceOf ??  It isn\'t necessarily a sample.  Could be an observation or occurrence or individual etc',null,NULL,NULL,'2020-12-02 23:27:02'),(5,1,NULL,'sharesOriginatingSample','sharesOriginatingSample',NULL,'two samples or occurrences that were subsequently derived from the same originating sample',NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(6,2,NULL,'tissue',NULL,NULL,'a tissue sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(7,2,NULL,'blood',NULL,NULL,'a blood-tissue sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(8,2,NULL,'fecal',NULL,NULL,'a fecal sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(9,2,NULL,'hair',NULL,NULL,'a hair sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(10,2,NULL,'genetic',NULL,NULL,'a genetic extraction sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(11,1,NULL,'derivedFromSameIndividual','derivedFromSameIndividual',NULL,'a sample or occurrence that is derived from the same biological individual as another occurrence or sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:48:45'),(12,1,NULL,'analyticalStandardOf','hasAnalyticalStandard',NULL,'a sample or occurrence that serves as an analytical standard or control for another occurrence or sample',NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 23:48:45'),(13,1,NULL,'hasAnalyticalStandard','analyticalStandardof',NULL,'a sample or occurrence that has an available analytical standard or control',NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 23:48:45'),(14,1,NULL,'hasHost','hostOf',NULL,'X \'has host\' y if and only if: x is an organism, y is an organism, and x can live on the surface of or within the body of y',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0002454',NULL,null,NULL,NULL,'2020-12-02 23:58:18'),(15,1,NULL,'hostOf','hasHost',NULL,'X is \'Host of\' y if and only if: x is an organism, y is an organism, and y can live on the surface of or within the body of x',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0002453',NULL,null,NULL,NULL,'2020-12-02 23:58:18'),(16,1,NULL,'ecologicallyOccursWith','ecologicallyOccursWith',NULL,'An interaction relationship describing an occurrence occurring with another organism in the same time and space or same environment',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0008506',NULL,null,NULL,NULL,'2020-12-02 23:58:18');
+
+ALTER TABLE `omexsiccatititles` 
+  ADD COLUMN `sourceIdentifier` VARCHAR(150) NULL AFTER `source`;
+
+ALTER TABLE `glossary` 
+  ADD COLUMN `langid` INT UNSIGNED NULL AFTER `language`;
+
+ALTER TABLE `glossaryimages` 
+  ADD COLUMN `sortSequence` INT NULL AFTER `structures`;
+
+
+ALTER TABLE `referenceobject` 
+  CHANGE COLUMN `cheatauthors` `cheatauthors` VARCHAR(400) NULL DEFAULT NULL ,
+  CHANGE COLUMN `cheatcitation` `cheatcitation` VARCHAR(500) NULL DEFAULT NULL ;
+
 
 ALTER TABLE `uploadspectemp` 
+  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `datasetID`,
+  ADD COLUMN `materialSampleID` VARCHAR(150) NULL AFTER `organismID`,
+  ADD COLUMN `locationID` VARCHAR(150) NULL AFTER `preparations`,
+  ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
+  ADD COLUMN `waterBody` VARCHAR(150) NULL AFTER `continent`,
+  ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
+  ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
+  ADD COLUMN `countryCode` VARCHAR(5) NULL AFTER `island`,
+  ADD COLUMN `parentLocationID` VARCHAR(150) NULL AFTER `locationID`,
+  ADD COLUMN `georeferencedDate` DATETIME NULL AFTER `georeferencedBy`,
   ADD COLUMN `paleoJSON` TEXT NULL AFTER `exsiccatiNotes`;
-
 
 ALTER TABLE `uploadspectemp` 
   CHANGE COLUMN `basisOfRecord` `basisOfRecord` VARCHAR(32) NULL DEFAULT NULL COMMENT 'PreservedSpecimen, LivingSpecimen, HumanObservation' ;
@@ -20,6 +151,17 @@ ALTER TABLE `uploadspectemp`
 ALTER TABLE `uploadspectemp` 
   ADD INDEX `Index_uploadspec_othercatalognumbers` (`otherCatalogNumbers` ASC);
 
+ALTER TABLE `uploadspecparameters` 
+  ADD COLUMN `endpointPublic` INT NULL AFTER `cleanupsp`,
+  ADD COLUMN `createdUid` INT UNSIGNED NULL AFTER `dlmisvalid`,
+  ADD INDEX `FK_uploadspecparameters_uid_idx` (`createdUid` ASC);
+
+ALTER TABLE `uploadspecparameters` 
+  ADD CONSTRAINT `FK_uploadspecparameters_uid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE SET NULL;
+
+ALTER TABLE `uploadspecparameters` 
+  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL,
+  CHANGE COLUMN `QueryStr` `QueryStr` TEXT NULL DEFAULT NULL;
 
 ALTER TABLE `uploadimagetemp` 
   CHANGE COLUMN `specimengui` `sourceIdentifier` VARCHAR(150) NULL DEFAULT NULL;
@@ -35,40 +177,71 @@ ALTER TABLE `uploadimagetemp`
 ALTER TABLE `uploadimagetemp` 
   CHANGE COLUMN `url` `url` VARCHAR(255) NULL DEFAULT NULL;
 
-ALTER TABLE `images` 
-  CHANGE COLUMN `url` `url` VARCHAR(255) NULL DEFAULT NULL;
-
-ALTER TABLE `images` 
-  ADD INDEX `Index_images_datelastmod` (`InitialTimeStamp` ASC);
-
-  
-ALTER TABLE `uploadspecparameters` 
-  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL ;
-
 ALTER TABLE `uploadtaxa` 
   CHANGE COLUMN `UnitInd3` `UnitInd3` VARCHAR(45) NULL DEFAULT NULL ;
 
 ALTER TABLE `uploadtaxa` 
   DROP INDEX `UNIQUE_sciname` ,
   ADD UNIQUE INDEX `UNIQUE_sciname` (`SciName` ASC, `RankId` ASC, `Author` ASC, `AcceptedStr` ASC);
+  
+
+ALTER TABLE `images` 
+  CHANGE COLUMN `url` `url` VARCHAR(255) NULL DEFAULT NULL;
+
+ALTER TABLE `images` 
+  ADD INDEX `Index_images_datelastmod` (`InitialTimeStamp` ASC);
+
+ALTER TABLE `images` 
+  ADD COLUMN `sortOccurrence` INT NULL DEFAULT 5 AFTER `sortsequence`;
+
+ALTER TABLE `images` 
+  ADD COLUMN `defaultDisplay` INT NULL AFTER `dynamicProperties`;
 
 
 ALTER TABLE `taxa` 
-  ADD COLUMN `locked` INT NULL AFTER `Hybrid`,
-  CHANGE COLUMN `UnitInd3` `UnitInd3` VARCHAR(15) NULL DEFAULT NULL ;
+  ADD COLUMN `reviewStatus` INT NULL AFTER `PhyloSortSequence`,
+  ADD COLUMN `displayStatus` INT NULL AFTER `reviewStatus`,
+  ADD COLUMN `isLegitimate` INT NULL AFTER `displayStatus`,
+  ADD COLUMN `nomenclaturalStatus` VARCHAR(45) NULL AFTER `isLegitimate`,
+  ADD COLUMN `nomenclaturalCode` VARCHAR(45) NULL AFTER `nomenclaturalStatus`,
+  CHANGE COLUMN `UnitInd3` `unitInd3` VARCHAR(45) NULL DEFAULT NULL,
+  CHANGE COLUMN `Status` `statusNotes` VARCHAR(50) NULL DEFAULT NULL ;
 
 ALTER TABLE `taxstatus` 
-  ADD COLUMN `modifiedBy` VARCHAR(45) NULL AFTER `SortSequence`;
+  ADD COLUMN `taxonomicStatus` VARCHAR(45) NULL AFTER `family`,
+  ADD COLUMN `taxonomicSource` VARCHAR(45) NULL AFTER `taxonomicStatus`,
+  ADD COLUMN `sourceIdentifier` VARCHAR(150) NULL AFTER `taxonomicSource`,
+  ADD COLUMN `modifiedUid` INT UNSIGNED NULL AFTER `SortSequence`,
+  ADD COLUMN `modifiedTimestamp` DATETIME NULL AFTER `modifiedUid`,
+  ADD INDEX `FK_taxstatus_uid_idx` (`modifiedUid` ASC);
+
+ALTER TABLE `taxstatus` 
+  ADD CONSTRAINT `FK_taxstatus_uid`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE SET NULL;
 
 ALTER TABLE `taxstatus` 
   DROP INDEX `Index_hierarchy`;
 
-ALTER TABLE `taxstatus` 
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY USING BTREE (`tid`, `taxauthid`);
+#ALTER TABLE `taxstatus` 
+#  DROP PRIMARY KEY,
+#  ADD PRIMARY KEY USING BTREE (`tid`, `taxauthid`);
 
 ALTER TABLE `taxstatus` 
-ADD INDEX `Index_tid` (`tid` ASC);
+  ADD INDEX `Index_tid` (`tid` ASC);
+
+UPDATE taxavernaculars v INNER JOIN adminlanguages l ON v.language = l.langname 
+SET v.langid = l.langid
+WHERE v.langid IS NULL;
+UPDATE taxavernaculars v INNER JOIN adminlanguages l ON v.language = l.iso639_1 
+SET v.langid = l.langid
+WHERE v.langid IS NULL;
+UPDATE taxavernaculars v INNER JOIN adminlanguages l ON v.language = l.iso639_2 
+SET v.langid = l.langid
+WHERE v.langid IS NULL;
+
+ALTER TABLE `taxavernaculars` 
+  CHANGE COLUMN `Language` `Language` VARCHAR(15) NULL ,
+  DROP INDEX `unique-key` ,
+  ADD UNIQUE INDEX `unique-key` (`VernacularName` ASC, `TID` ASC, `langid` ASC);
 
 ALTER TABLE `taxaresourcelinks` 
   ADD UNIQUE INDEX `UNIQUE_taxaresource` (`tid` ASC, `sourcename` ASC);
@@ -175,38 +348,46 @@ INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
 INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
   SELECT DISTINCT p.stage, 60, "age", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.epoch = g.gtsterm WHERE stage IS NOT NULL;
 
+UPDATE omoccurpaleogts
+SET rankid = 40, rankname = "period", parentgtsid = 13
+WHERE gtsterm IN("Pennsylvanian","Mississippian");
+
+
 DROP TABLE omoccurlithostratigraphy;
 DROP TABLE paleochronostratigraphy;
 
-
-ALTER TABLE `omcollectioncontacts` 
-  DROP FOREIGN KEY `FK_contact_uid`;
-  
-ALTER TABLE `omcollectioncontacts` 
-  DROP FOREIGN KEY `FK_contact_collid`;
-
-ALTER TABLE `omcollectioncontacts` 
-  CHANGE COLUMN `uid` `uid` INT(10) UNSIGNED NULL ,
-  ADD COLUMN `nameoverride` VARCHAR(100) NULL AFTER `uid`,
-  ADD COLUMN `emailoverride` VARCHAR(100) NULL AFTER `nameoverride`,
-  ADD COLUMN `collcontid` INT NOT NULL AUTO_INCREMENT FIRST,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`collcontid`);
-
-ALTER TABLE `omcollectioncontacts` 
-  ADD CONSTRAINT `FK_contact_uid` FOREIGN KEY (`uid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_contact_collid` FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`collid`)  ON DELETE CASCADE  ON UPDATE CASCADE;
-
-ALTER TABLE `omcollectioncontacts` 
-  ADD UNIQUE INDEX `UNIQUE_coll_contact` (`collid` ASC, `uid` ASC, `nameoverride` ASC, `emailoverride` ASC);
 
 ALTER TABLE `omcollections` 
   ADD COLUMN `dynamicProperties` TEXT NULL AFTER `accessrights`,
   ADD COLUMN `datasetID` VARCHAR(250) NULL AFTER `collectionId`;
 
+ALTER TABLE `omcollections` 
+  ADD COLUMN `contactJson` LONGTEXT NULL AFTER `email`;
+ALTER TABLE `omcollections` 
+  CHANGE COLUMN `contactJson` `contactJson` JSON NULL DEFAULT NULL;
+
+UPDATE omcollections
+  SET contactJson = CONCAT('[{"firstName":"","lastName":"',contact,'","email":"',email,'"}]')
+  WHERE contact IS NOT NULL AND contactJson IS NULL;
+
+ALTER TABLE `omcollections` 
+  ADD COLUMN `resourceJson` LONGTEXT NULL AFTER `homepage`;
+ALTER TABLE `omcollections` 
+  CHANGE COLUMN `resourceJson` `resourceJson` JSON NULL DEFAULT NULL;
+
+UPDATE omcollections
+  SET resourceJson = CONCAT('[{"title":{"en":"Homepage"},"url":"',homepage,'"}]')
+  WHERE homepage LIKE "http%" AND resourceJson IS NULL;
+
+
+DROP TABLE `omcollectioncontacts`;
+
 ALTER TABLE `omcollcategories` 
   ADD COLUMN `sortsequence` INT NULL AFTER `notes`;
-  
+
+ALTER TABLE `users` 
+  ADD COLUMN `dynamicProperties` TEXT NULL AFTER `usergroups`;
+
 ALTER TABLE `userroles` 
   ADD UNIQUE INDEX `Unique_userroles` (`uid` ASC, `role` ASC, `tablename` ASC, `tablepk` ASC);
 
@@ -227,6 +408,65 @@ ALTER TABLE `omoccurgenetic`
 ALTER TABLE `omoccurgenetic` 
   ADD UNIQUE INDEX `UNIQUE_omoccurgenetic` (`occid` ASC, `resourceurl` ASC);
 
+ALTER TABLE `omoccuridentifiers` 
+  ADD COLUMN `sortBy` INT NULL AFTER `notes`;
+
+ALTER TABLE `omoccurassociations` 
+  DROP FOREIGN KEY `FK_occurassoc_occidassoc`,
+  DROP FOREIGN KEY `FK_occurassoc_uidcreated`,
+  DROP FOREIGN KEY `FK_occurassoc_uidmodified`;
+
+ALTER TABLE `omoccurassociations` 
+  CHANGE COLUMN `occidassociate` `occidAssociate` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `resourceurl` `resourceUrl` VARCHAR(250) NULL DEFAULT NULL ,
+  CHANGE COLUMN `verbatimsciname` `verbatimSciname` VARCHAR(250) NULL DEFAULT NULL ,
+  CHANGE COLUMN `createduid` `createdUid` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `datelastmodified` `modifiedTimestamp` DATETIME NULL DEFAULT NULL ,
+  CHANGE COLUMN `modifieduid` `modifiedUid` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  ADD COLUMN `subType` VARCHAR(45) NULL AFTER `relationship`;
+
+ALTER TABLE `tmtraits` 
+  ADD COLUMN `projectGroup` VARCHAR(45) NULL AFTER `notes`,
+  ADD COLUMN `isPublic` INT NULL DEFAULT 1 AFTER `projectGroup`,
+  ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;
+
+ALTER TABLE `omoccurassociations` 
+  ADD CONSTRAINT `FK_occurassoc_occidassoc`  FOREIGN KEY (`occidAssociate`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_occurassoc_uidcreated`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_occurassoc_uidmodified`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `omoccurassociations` 
+  ADD UNIQUE INDEX `UQ_omoccurassoc_occid` (`occid` ASC, `occidAssociate` ASC, `relationship` ASC),
+  ADD UNIQUE INDEX `UQ_omoccurassoc_external` (`occid` ASC, `relationship` ASC, `resourceUrl` ASC),
+  ADD UNIQUE INDEX `UQ_omoccurassoc_sciname` (`occid` ASC, `verbatimSciname` ASC);
+
+
+ALTER TABLE `omoccurdatasets` 
+  ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,
+  ADD COLUMN `isPublic` INT NULL AFTER `category`,
+  ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;
+
+ALTER TABLE `omoccurdatasets` 
+  ADD COLUMN `parentDatasetID` INT UNSIGNED NULL AFTER `isPublic`,
+  ADD INDEX `FK_omoccurdatasets_parent_idx` (`parentDatasetID` ASC);
+
+ALTER TABLE `omoccurdatasets` 
+  ADD CONSTRAINT `FK_omoccurdatasets_parent` FOREIGN KEY (`parentDatasetID`) REFERENCES `omoccurdatasets` (`datasetid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+
+CREATE TABLE `referencedatasetlink` (
+  `refid` INT NOT NULL,
+  `datasetid` INT UNSIGNED NOT NULL,
+  `createdUid` INT UNSIGNED NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`refid`, `datasetid`),
+  INDEX `FK_refdataset_datasetid_idx` (`datasetid` ASC),
+  INDEX `FK_refdataset_uid_idx` (`createdUid` ASC),
+  CONSTRAINT `FK_refdataset_refid`  FOREIGN KEY (`refid`)  REFERENCES `referenceobject` (`refid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_refdataset_datasetid`  FOREIGN KEY (`datasetid`)  REFERENCES `omoccurdatasets` (`datasetid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_refdataset_uid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
+
+
 CREATE TABLE `igsnverification` (
   `igsn` VARCHAR(15) NOT NULL,
   `occid` INT UNSIGNED NULL,
@@ -236,11 +476,59 @@ CREATE TABLE `igsnverification` (
   INDEX `INDEX_igsn` (`igsn` ASC),
   CONSTRAINT `FK_igsn_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE);
 
+ALTER TABLE `igsnverification` 
+ ADD COLUMN `catalogNumber` VARCHAR(45) NULL AFTER `occid`;
 
-ALTER TABLE `omoccurrences`
+CREATE TABLE `omoccurloanuser` (
+  `loanid` INT UNSIGNED NOT NULL,
+  `uid` INT UNSIGNED NOT NULL,
+  `accessType` VARCHAR(45) NOT NULL,
+  `notes` VARCHAR(250) NULL,
+  `modifiedByUid` INT UNSIGNED NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`loanid`, `uid`),
+  INDEX `FK_occurloan_uid_idx` (`uid` ASC),
+  INDEX `FK_occurloan_modifiedByUid_idx` (`modifiedByUid` ASC),
+  CONSTRAINT `FK_occurloan_loanid`  FOREIGN KEY (`loanid`)  REFERENCES `omoccurloans` (`loanid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_occurloan_uid`  FOREIGN KEY (`uid`)  REFERENCES `users` (`uid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_occurloan_modifiedByUid`  FOREIGN KEY (`modifiedByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
+
+
+CREATE TABLE `specprocstatus` (
+  `spsID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `occid` INT UNSIGNED NOT NULL,
+  `processName` VARCHAR(45) NOT NULL,
+  `result` VARCHAR(45) NULL,
+  `processVariables` VARCHAR(150) NOT NULL,
+  `processorUid` INT UNSIGNED NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`spsID`),
+  INDEX `specprocstatus_occid_idx` (`occid` ASC),
+  INDEX `specprocstatus_uid_idx` (`processorUid` ASC),
+  CONSTRAINT `specprocstatus_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `specprocstatus_uid` FOREIGN KEY (`processorUid`) REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
+
+
+ALTER TABLE `omoccurrences` 
+  CHANGE COLUMN `eventID` `eventID` VARCHAR(150) NULL DEFAULT NULL,
+  CHANGE COLUMN `locationID` `locationID` VARCHAR(150) NULL DEFAULT NULL,
   CHANGE COLUMN `labelProject` `labelProject` varchar(250) DEFAULT NULL,
   CHANGE COLUMN `georeferenceRemarks` `georeferenceRemarks` VARCHAR(500) NULL DEFAULT NULL,
+  ADD COLUMN `georeferencedDate` DATETIME NULL AFTER `georeferencedBy`,
+  ADD COLUMN `parentLocationID` VARCHAR(150) NULL AFTER `locationID`,
+  ADD COLUMN `samplingProtocol` VARCHAR(150) NULL AFTER `parentLocationID`,
   DROP INDEX `idx_occrecordedby`;
+  
+ALTER TABLE `omoccurrences` 
+  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `datasetID`,
+  ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
+  ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
+  ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
+  ADD COLUMN `countryCode` VARCHAR(5) NULL AFTER `island`,
+  ADD COLUMN `availability` INT(2) NULL AFTER `previousIdentifications`;
+
+ALTER TABLE `omoccurrences` 
+  CHANGE COLUMN `waterBody` `waterBody` VARCHAR(75) NULL DEFAULT NULL AFTER `continent`;
   
 ALTER TABLE `omoccurrences` 
   ADD INDEX `Index_locationID` (`locationID` ASC),
@@ -255,7 +543,7 @@ ALTER TABLE `omoccurrences`
   ADD UNIQUE INDEX `Index_gui` (`occurrenceID` ASC);  
 
 ALTER TABLE `omoccurrences` 
-ADD INDEX `Index_latlng` (`decimalLatitude` ASC, `decimalLongitude` ASC);
+  ADD INDEX `Index_latlng` (`decimalLatitude` ASC, `decimalLongitude` ASC);
 
 DELETE FROM omoccurrencesfulltext 
 WHERE locality IS NULL AND recordedby IS NULL;

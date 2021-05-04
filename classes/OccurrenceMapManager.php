@@ -113,9 +113,8 @@ class OccurrenceMapManager extends OccurrenceManager {
 			$sql .= 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid ';
 			$sql .= $this->getTableJoins($this->sqlWhere);
 			$sql .= $this->sqlWhere;
-			if(is_numeric($start) && $recLimit && is_numeric($recLimit)){
-				$sql .= "LIMIT ".$start.",".$recLimit;
-			}
+			$sql .= 'AND (o.decimallatitude BETWEEN -90 AND 90) AND (o.decimallongitude BETWEEN -180 AND 180) ';
+			if(is_numeric($start) && $recLimit && is_numeric($recLimit)) $sql .= "LIMIT ".$start.",".$recLimit;
 			//echo "<div>SQL: ".$sql."</div>";
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_assoc()){
@@ -187,7 +186,7 @@ class OccurrenceMapManager extends OccurrenceManager {
 
 	private function setRecordCnt(){
 		if($this->sqlWhere){
-			$sql = "SELECT COUNT(o.occid) AS cnt FROM omoccurrences o ".$this->getTableJoins($this->sqlWhere).$this->sqlWhere;
+			$sql = "SELECT COUNT(DISTINCT o.occid) AS cnt FROM omoccurrences o ".$this->getTableJoins($this->sqlWhere).$this->sqlWhere;
 			//echo "<div>Count sql: ".$sql."</div>";
 			$result = $this->conn->query($sql);
 			if($result){

@@ -13,6 +13,7 @@ if(!is_numeric($emode)) $emode = 0;
 
 $dwcaManager = new DwcArchiverPublisher();
 $collManager = new OccurrenceCollectionProfile();
+$collManager->setVerboseMode(2);
 
 $publishGBIF = false;
 $collArr = array();
@@ -351,7 +352,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				$blockSubmitMsg = 'Archive cannot be published until occurrenceID GUID source is set<br/>';
 			}
 			if($recFlagArr['nullBasisRec']){
-				echo '<div style="margin:10px;font-weight:bold;color:red;">There are '.$recFlagArr['nullBasisRec'].' records missing basisOfRecord and will not be published. Please go to <a href="../editor/occurrencetabledisplay.php?q_recordedby=&q_recordnumber=&q_eventdate=&q_catalognumber=&q_othercatalognumbers=&q_observeruid=&q_recordenteredby=&q_dateentered=&q_datelastmodified=&q_processingstatus=&q_customfield1=basisOfRecord&q_customtype1=NULL&q_customvalue1=&q_customfield2=&q_customtype2=EQUALS&q_customvalue2=&q_customfield3=&q_customtype3=EQUALS&q_customvalue3=&collid='.$collid.'&csmode=0&occid=&occindex=0&orderby=&orderbydir=ASC">Edit Existing Occurrence Records</a> to correct this.</div>';
+				echo '<div style="margin:10px;font-weight:bold;color:red;">There are '.$recFlagArr['nullBasisRec'].' records missing basisOfRecord and will not be published. Please go to <a href="../editor/occurrencetabledisplay.php?q_recordedby=&q_recordnumber=&q_catalognumber&collid='.$collid.'&csmode=0&occid=&occindex=0">Edit Existing Occurrence Records</a> to correct this.</div>';
 			}
 			if($publishGBIF && $dwcUri && isset($GBIF_USERNAME) && isset($GBIF_PASSWORD) && isset($GBIF_ORG_KEY) && $GBIF_ORG_KEY){
 				if($collManager->getDatasetKey()){
@@ -466,7 +467,7 @@ include($SERVER_ROOT.'/includes/header.php');
 		if($IS_ADMIN){
 			if($action == 'Create/Refresh Darwin Core Archive(s)'){
 				echo '<ul>';
-				$dwcaManager->setVerboseMode(3);
+				$dwcaManager->setVerboseMode(2);
 				$dwcaManager->setLimitToGuids(true);
 				$dwcaManager->batchCreateDwca($_POST['coll']);
 				echo '</ul>';
@@ -492,9 +493,13 @@ include($SERVER_ROOT.'/includes/header.php');
 									$baseUrl = substr($v['url'],0,strpos($v['url'],'/content')).'/collections/datasets/datapublisher.php';
 									$errMsg = 'Already published on different domain (<a href="'.$baseUrl.'" target="_blank">'.substr($baseUrl,0,strpos($baseUrl,'/',10)).'</a>)';
 								}
-								echo '<input name="coll[]" type="checkbox" value="'.$k.'" '.($errMsg?'DISABLED':'').' />';
+								$inputAttr = '';
+								if($errMsg) $inputAttr = 'DISABLED';
+								elseif($v['url']) $inputAttr = 'CHECKED';
+								echo '<input name="coll[]" type="checkbox" value="'.$k.'" '.$inputAttr.' />';
 								echo '<a href="../misc/collprofiles.php?collid='.$k.'" target="_blank">'.$v['name'].'</a>';
 								if($errMsg) echo '<span style="color:red;margin-left:15px;">'.$errMsg.'</span>';
+								elseif($v['url']) echo '<span> - published</span>';
 								echo '<br/>';
 							}
 							?>

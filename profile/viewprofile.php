@@ -47,6 +47,7 @@ if($isEditor){
 		$zip = array_key_exists("zip",$_REQUEST)?$_REQUEST["zip"]:"";
 		$country = array_key_exists("country",$_REQUEST)?$_REQUEST["country"]:"";
 		$url = array_key_exists("url",$_REQUEST)?$_REQUEST["url"]:"";
+		$guid = array_key_exists('guid',$_REQUEST)?$_REQUEST['guid']:'';
 		$biography = array_key_exists("biography",$_REQUEST)?$_REQUEST["biography"]:"";
 		$isPublic = array_key_exists("ispublic",$_REQUEST)?$_REQUEST["ispublic"]:"";
 
@@ -62,6 +63,7 @@ if($isEditor){
 		$newPerson->setCountry($country);
 		$newPerson->setEmail($email);
 		$newPerson->setUrl($url);
+		$newPerson->setGUID($guid);
 		$newPerson->setBiography($biography);
 		$newPerson->setIsPublic($isPublic);
 
@@ -161,20 +163,20 @@ if($isEditor){
 	<script type="text/javascript" src="../js/symb/profile.viewprofile.js?ver=20170530"></script>
 	<script type="text/javascript" src="../js/symb/shared.js"></script>
 	<style type="text/css">
+		fieldset{ padding:15px;margin:15px; }
+		legend{ font-weight: bold; }
 		.tox-dialog { min-height: 400px }
 	</style>
 </head>
 <body>
-<?php
-$displayLeftMenu = (isset($profile_viewprofileMenu)?$profile_viewprofileMenu:"true");
-include($SERVER_ROOT.'/includes/header.php');
-if(isset($profile_viewprofileCrumbs)){
-	echo "<div class='navpath'>";
-	echo $profile_viewprofileCrumbs;
-	echo " <b>User Profile</b>";
-	echo "</div>";
-}
-?>
+	<?php
+	$displayLeftMenu = (isset($profile_viewprofileMenu)?$profile_viewprofileMenu:"true");
+	include($SERVER_ROOT.'/includes/header.php');
+	?>
+	<div class="navpath">
+		<a href='../index.php'>Home</a> &gt;&gt;
+		<a href="../profile/viewprofile.php">My Profile</a>
+	</div>
 	<!-- inner text -->
 	<div id="innertext">
 	<?php
@@ -192,10 +194,10 @@ if(isset($profile_viewprofileCrumbs)){
 					<?php
 				}
 				?>
-				<li><a href="personalspecmenu.php">Specimen Management</a></li>
+				<li><a href="occurrencemenu.php">Occurrence Management</a></li>
 				<li><a href="userprofile.php?userid=<?php echo $userId; ?>">User Profile</a></li>
 				<?php
-				if ($person->getIsTaxonomyEditor()) {
+				if($person->getIsTaxonomyEditor()) {
 					echo '<li><a href="specimenstoid.php?userid='.$userId.'&action='.$action.'">IDs Needed</a></li>';
 					echo '<li><a href="imagesforid.php">Images for ID</a></li>';
 				}
@@ -206,8 +208,8 @@ if(isset($profile_viewprofileCrumbs)){
 	}
 	?>
 	</div>
-<?php
-include($SERVER_ROOT.'/includes/footer.php');
-?>
+	<?php
+	include($SERVER_ROOT.'/includes/footer.php');
+	?>
 </body>
 </html>

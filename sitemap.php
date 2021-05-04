@@ -11,15 +11,16 @@ $smManager = new SiteMapManager();
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['SITEMAP'];?></title>
 	<?php
-    $activateJQuery = false;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script type="text/javascript">
 		function submitTaxaNoImgForm(f){
@@ -28,9 +29,6 @@ $smManager = new SiteMapManager();
 			}
 			return false;
 		}
-	</script>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript" src="js/symb/shared.js"></script>
 </head>
@@ -78,11 +76,18 @@ $smManager = new SiteMapManager();
 				<li><a href="imagelib/index.php"><?php echo $LANG['IMGLIB'];?></a></li>
 				<li><a href="imagelib/search.php"><?php echo ($LANG['IMAGE_SEARCH']?$LANG['IMAGE_SEARCH']:'Interactive Search Tool'); ?></a></li>
 				<li><a href="imagelib/contributors.php"><?php echo $LANG['CONTRIB'];?></a></li>
-				<li><a href="misc/usagepolicy.php"><?php echo $LANG['USAGEPOLICY'];?></a></li>
+				<li><a href="includes/usagepolicy.php"><?php echo $LANG['USAGEPOLICY'];?></a></li>
 			</ul>
 
-			<div style="margin-top:10px;"><h2><?php echo $LANG['TAXONOMY'];?></h2></div>
+			<div style="margin-top:10px;"><h2><?php echo isset($LANG['ADDITIONAL_RESOURCES'])?$LANG['ADDITIONAL_RESOURCES']:'Additional Resources';?></h2></div>
 			<ul>
+				<?php
+				if($smManager->hasGlossary()){
+					?>
+					<li><a href="glossary/index.php"><?php echo isset($LANG['GLOSSARY'])?$LANG['GLOSSARY']:'Glossary';?></a></li>
+					<?php
+				}
+				?>
 				<li><a href="taxa/taxonomy/taxonomydisplay.php"><?php echo $LANG['TAXTREE'];?></a></li>
 				<li><a href="taxa/taxonomy/taxonomydynamicdisplay.php"><?php echo $LANG['DYNTAXTREE'];?></a></li>
 			</ul>
@@ -93,17 +98,20 @@ $smManager = new SiteMapManager();
 			if($clList && isset($USER_RIGHTS['ClAdmin'])){
 				$clAdmin = array_intersect_key($clList,array_flip($USER_RIGHTS['ClAdmin']));
 			}
-			$projList = $smManager->getProjectList();
-			if($projList){
-				echo '<div style="margin-top:10px;"><h2>'.$LANG['BIOINV'].'</h2></div><ul>';
-				foreach($projList as $pid => $pArr){
-					echo "<li><a href='projects/index.php?pid=".$pid."'>".$pArr["name"]."</a></li>\n";
-					echo "<ul><li>Manager: ".$pArr["managers"]."</li></ul>\n";
-				}
-				echo '</ul>';
-			}
 			?>
-
+			<div style="margin-top:10px;"><h2><?php echo (isset($LANG['BIOTIC_INVENTORIES'])?$LANG['BIOTIC_INVENTORIES']:'Biotic Inventory Projects'); ?></h2></div>
+			<ul>
+				<?php
+				$projList = $smManager->getProjectList();
+				if($projList){
+					foreach($projList as $pid => $pArr){
+						echo "<li><a href='projects/index.php?pid=".$pid."'>".$pArr["name"]."</a></li>\n";
+						echo "<ul><li>Manager: ".$pArr["managers"]."</li></ul>\n";
+					}
+				}
+				?>
+				<li><a href="checklists/index.php"><?php echo (isset($LANG['ALL_CHECKLISTS'])?$LANG['ALL_CHECKLISTS']:'All Public Checklists'); ?></a></li>
+			</ul>
 			<div style="margin-top:10px;"><h2><?php echo $LANG['DYNAMIC'];?></h2></div>
 			<ul>
 				<li>
@@ -157,14 +165,16 @@ $smManager = new SiteMapManager();
 									<?php echo $LANG['SALIX'];?>
 								</a>
 							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/glossary/index.php">
+									<?php echo $LANG['GLOSSARY'];?>
+								</a>
+							</li>
 						</ul>
 						<?php
 					}
-
 					if($KEY_MOD_IS_ACTIVE || array_key_exists("KeyAdmin",$USER_RIGHTS)){
-						?>
-						<h3><?php echo $LANG['IDKEYS'];?></h3>
-						<?php
+						echo '<h3>'.$LANG['IDKEYS'].'</h3>';
 						if(!$KEY_MOD_IS_ACTIVE && array_key_exists("KeyAdmin",$USER_RIGHTS)){
 							?>
 							<div style="color:red;margin-left:10px;">
@@ -193,7 +203,7 @@ $smManager = new SiteMapManager();
 									echo '<li>'.$LANG['CODINGCHARA'].'</li>';
 									echo '<ul>';
 									foreach($clAdmin as $vClid => $name){
-										echo "<li><a href='".$CLIENT_ROOT."/ident/tools/massupdate.php?clid=".$vClid."'>".$name."</a></li>";
+										echo "<li><a href='".$CLIENT_ROOT."/ident/tools/matrixeditor.php?clid=".$vClid."'>".$name."</a></li>";
 									}
 									echo '</ul>';
 								}
@@ -237,7 +247,7 @@ $smManager = new SiteMapManager();
 						?>
 					</ul>
 
-					<h3><?php echo $LANG['BIOINV'];?></h3>
+					<h3><?php echo $LANG['BIOTIC_INVENTORIES'];?></h3>
 					<ul>
 						<?php
 						if($IS_ADMIN){

@@ -3,8 +3,8 @@ include_once('../../config/symbini.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 header('Access-Control-Allow-Origin: http://www.catalogueoflife.org/col/webservice');
 
-if(!file_exists('../../content/occureditor/occurEditorDefaultConf.php')){
-	echo 'ERROR: Portal is not configured properly. Go to directory '.$_SERVER_ROOT.'/content/occureditor/ and rename all file to remove "_template" for the file name. ';
+if(!file_exists('../../content/collections/occureditor/occurEditorDefaultConf.php')){
+	echo 'ERROR: Portal is not configured properly. Go to directory '.$_SERVER_ROOT.'/content/collections/occureditor/ and rename all file to remove "_template" for the file name. ';
 	echo 'Alternatively, you can also run the setup.sh file located within the config directory';
 	exit;
 }
@@ -14,7 +14,6 @@ $tabTarget = array_key_exists('tabtarget',$_REQUEST)?$_REQUEST['tabtarget']:0;
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $goToMode = array_key_exists('gotomode',$_REQUEST)?$_REQUEST['gotomode']:0;
 $occIndex = array_key_exists('occindex',$_REQUEST)?$_REQUEST['occindex']:false;
-$ouid = array_key_exists('ouid',$_REQUEST)?$_REQUEST['ouid']:0;
 $crowdSourceMode = array_key_exists('csmode',$_REQUEST)?$_REQUEST['csmode']:0;
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 if(!$action && array_key_exists('carryloc',$_REQUEST)){
@@ -53,7 +52,6 @@ $navStr = '';
 
 if($SYMB_UID){
 	//Set variables
-	$occManager->setSymbUid($SYMB_UID);
 	$occManager->setOccId($occid);
 	$occManager->setCollId($collid);
 	$collMap = $occManager->getCollMap();
@@ -61,7 +59,7 @@ if($SYMB_UID){
 	if($collMap && $collMap['colltype'] == 'General Observations') $isGenObs = 1;
 
 	//Need to set 3 kinds of config vars: 1) default portal settings, collection defined, and user defined
-	include('../../content/occureditor/occurEditorDefaultConf.php');
+	include('../../content/collections/occureditor/occurEditorDefaultConf.php');
 
 	$isEditor = 0;
 	//0 = not editor, 1 = admin, 2 = editor, 3 = taxon editor, 4 = crowdsource editor or collection allows public edits
@@ -259,10 +257,7 @@ if($SYMB_UID){
 			$occIndex = $qryCnt;
 		}
 	}
-	if($ouid){
-		$occManager->setQueryVariables(array('ouid' => $ouid));
-	}
-	elseif(is_numeric($occIndex)){
+	if(is_numeric($occIndex)){
 		//Query Form has been activated
 		$occManager->setQueryVariables();
 		if($action == 'Delete Occurrence'){
@@ -386,9 +381,9 @@ else{
 	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
 	<?php
 	foreach($CSS_ARR as $cssKey => $cssFile){
-		echo '<link href="'.$CLIENT_ROOT.'/content/occureditor/'.$cssFile.'?ver='.$CACHE_VERSION.'" type="text/css" rel="stylesheet" />'."\n";
+		echo '<link href="'.$CLIENT_ROOT.'/content/collections/occureditor/'.$cssFile.'?ver='.$CACHE_VERSION.'" type="text/css" rel="stylesheet" />'."\n";
 	}
-	if($crowdSourceMode == 1) echo '<link href="'.$CLIENT_ROOT.'/content/occureditor/occureditorcrowdsource.css?ver='.$CACHE_VERSION.'" type="text/css" rel="stylesheet" />'."\n";
+	if($crowdSourceMode == 1) echo '<link href="'.$CLIENT_ROOT.'/content/collections/occureditor/occureditorcrowdsource.css?ver='.$CACHE_VERSION.'" type="text/css" rel="stylesheet" />'."\n";
 	foreach($JS_ARR as $jsVal){
 		echo '<script src="includes/config/'.$jsVal.'?ver=170601" type="text/javascript"></script>';
 	}

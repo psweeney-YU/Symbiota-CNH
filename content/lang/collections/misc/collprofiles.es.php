@@ -6,7 +6,7 @@ Language: Español (Spanish)
 */
 
 $LANG['RSS_FEED'] = 'RSS Feed';
-$LANG['CONTACT'] = 'Contacto';
+$LANG['CONTACT'] = 'Contactos';
 $LANG['HOMEPAGE'] = 'Sitio Web';
 $LANG['MORE_INFO'] = 'M&aacute;s Informaci&oacute;n';
 $LANG['COLLECTION_SEARCH'] = 'P&aacute;gina de B&uacute;squeda de Colecci&oacute;n';
@@ -27,7 +27,10 @@ $LANG['LOAN_MANAGEMENT'] = 'Administraci&oacute;n de Pr&eacute;stamos';
 $LANG['ADMIN_CONTROL'] = 'Panel de Control de Administraci&oacute;n';
 $LANG['VIEW_COMMENTS'] = 'Ver Comentarios Publicados';
 $LANG['UNREVIEWED_COMMENTS'] = 'comentarios no revisados';
-$LANG['EDIT_META'] = 'Editar metadatos e Informaci&oacute;n de Contacto';
+$LANG['OPEN_META'] = 'Metadatos, Direcci&oacute;n, e Informaci&oacute;n de Contacto';
+$LANG['EDIT_META'] = 'Editar Metadatos';
+$LANG['EDIT_ADDRESS'] = 'Editar Direcci&oacute;n de Envio';
+$LANG['EDIT_COLL_PROPS'] = 'Propiedades Especiales';
 $LANG['MANAGE_PERMISSIONS'] = 'Administrar Permisos';
 $LANG['IMPORT_SPECIMEN'] = 'Importar/Actualizar Registros de Espec&iacute;menes';
 $LANG['TEXT_FILE_IMPORT'] = 'Carga R&aacute;pida de Archivos';

@@ -169,7 +169,7 @@ class TaxonProfile extends Manager {
 					$imgUrl = $imgThumbnail;
 				}
 			}
-			echo '<div class="tptnimg"><a href="'.$imgAnchor.'">';
+			echo '<div class="tptnimg"><a href="#" onclick="openPopup(\''.$imgAnchor.'\');return false;">';
 			$titleStr = $imgObj['caption'];
 			if($imgObj['sciname'] != $this->taxonName) $titleStr .= ' (linked from '.$imgObj['sciname'].')';
 			echo '<img src="'.$imgUrl.'" title="'.$titleStr.'" alt="'.$this->taxonName.' image" />';
@@ -355,7 +355,7 @@ class TaxonProfile extends Manager {
 		$retArr = Array();
 		if($this->tid){
 			$rsArr = array();
-			$sql = 'SELECT d.tid, d.tdbid, d.caption, d.source, d.sourceurl, s.tdsid, s.heading, s.statement, s.displayheader, d.language ';
+			$sql = 'SELECT d.tid, d.tdbid, d.caption, d.source, d.sourceurl, s.tdsid, s.heading, s.statement, s.displayheader, d.language, d.langid ';
 			if($this->acceptance){
 				$sql .= 'FROM taxstatus ts INNER JOIN taxadescrblock d ON ts.tid = d.tid '.
 					'INNER JOIN taxadescrstmts s ON d.tdbid = s.tdbid '.
@@ -377,7 +377,16 @@ class TaxonProfile extends Manager {
 			foreach($rsArr as $n => $rowArr){
 				//if($rowArr['tid'] == $this->tid){
 				if(!array_key_exists($rowArr['caption'], $usedCaptionArr) || $rowArr['caption'] != $rowArr['tdbid']){
-					$retArr = $this->loadDescriptionArr($rowArr, $retArr);
+					$indexKey = 0;
+					if(!array_key_exists(strtolower($rowArr['language']), $this->langArr) && !in_array($rowArr['langid'], $this->langArr)){
+						$indexKey = 1;
+					}
+					if(!isset($retArr[$indexKey]) || !array_key_exists($rowArr['tdbid'],$retArr[$indexKey])){
+						$retArr[$indexKey][$rowArr['tdbid']]['caption'] = $rowArr['caption'];
+						$retArr[$indexKey][$rowArr['tdbid']]['source'] = $rowArr['source'];
+						$retArr[$indexKey][$rowArr['tdbid']]['url'] = $rowArr['sourceurl'];
+					}
+					$retArr[$indexKey][$rowArr['tdbid']]['desc'][$rowArr['tdsid']] = ($rowArr['displayheader'] && $rowArr['heading']?'<b>'.$rowArr['heading'].'</b>: ':'').$rowArr['statement'];
 					$usedCaptionArr[$rowArr['caption']] = $rowArr['tdbid'];
 				}
 			}
@@ -385,13 +394,23 @@ class TaxonProfile extends Manager {
 			 //Then add description linked to synonyms ONLY if one doesn't exist with same caption
 			 reset($rsArr);
 			 foreach($rsArr as $n => $rowArr){
-			 if($rowArr['tid'] != $this->tid && !in_array($rowArr['caption'], $usedCaptionArr)){
-			 $retArr = $this->loadDescriptionArr($rowArr, $retArr);
-			 }
+			 	if($rowArr['tid'] != $this->tid && !in_array($rowArr['caption'], $usedCaptionArr)){
+					$indexKey = 0;
+					if(array_key_exists(strtolower($rowArr['language']), $this->langArr) || in_array($rowArr['langid'], $this->langArr)){
+						$indexKey = 1;
+					}
+					if(!isset($retArr[$indexKey]) || !array_key_exists($rowArr['tdbid'],$retArr[$indexKey])){
+						$retArr[$indexKey][$rowArr['tdbid']]["caption"] = $rowArr['caption'];
+						$retArr[$indexKey][$rowArr['tdbid']]["source"] = $rowArr['source'];
+						$retArr[$indexKey][$rowArr['tdbid']]["url"] = $rowArr['sourceurl'];
+					}
+					$retArr[$indexKey][$rowArr['tdbid']]["desc"][$rowArr['tdsid']] = ($rowArr['displayheader'] && $rowArr['heading']?"<b>".$rowArr['heading']."</b>: ":"").$rowArr['statement'];
+			 	}
 			 }
 			 ksort($retArr);
 			*/
 		}
+		ksort($retArr);
 		return $retArr;
 	}
 
@@ -457,20 +476,6 @@ class TaxonProfile extends Manager {
 			$retStr = '<div style="margin:70px 0px 20px 50px">'.$LANG['DESCRIPTION_NOT_AVAILABLE'].'</div>';
 		}
 		return $retStr;
-	}
-
-	private function loadDescriptionArr($rowArr,$retArr){
-		$indexKey = 0;
-		if(!in_array(strtolower($rowArr['language']), $this->langArr)){
-			$indexKey = 1;
-		}
-		if(!isset($retArr[$indexKey]) || !array_key_exists($rowArr['tdbid'],$retArr[$indexKey])){
-			$retArr[$indexKey][$rowArr['tdbid']]["caption"] = $rowArr['caption'];
-			$retArr[$indexKey][$rowArr['tdbid']]["source"] = $rowArr['source'];
-			$retArr[$indexKey][$rowArr['tdbid']]["url"] = $rowArr['sourceurl'];
-		}
-		$retArr[$indexKey][$rowArr['tdbid']]["desc"][$rowArr['tdsid']] = ($rowArr['displayheader'] && $rowArr['heading']?"<b>".$rowArr['heading']."</b>: ":"").$rowArr['statement'];
-		return $retArr;
 	}
 
 	//Taxon Link functions
@@ -539,8 +544,8 @@ class TaxonProfile extends Manager {
 			$result = $this->conn->query($sql);
 			while($row = $result->fetch_object()){
 				$sn = ucfirst(strtolower($row->sciname));
-				$this->sppArray[$sn]["tid"] = $row->tid;
-				$this->sppArray[$sn]["security"] = $row->securitystatus;
+				$this->sppArray[$sn]['tid'] = $row->tid;
+				$this->sppArray[$sn]['security'] = $row->securitystatus;
 				$tids[] = $row->tid;
 			}
 			$result->free();
@@ -548,17 +553,17 @@ class TaxonProfile extends Manager {
 			//If no tids exist because there are no species in default project, grab all species from that taxon
 			if(!$tids){
 				$sql = 'SELECT DISTINCT t.sciname, t.tid, t.securitystatus '.
-					'FROM taxa t INNER JOIN taxstatus ts ON t.Tid = ts.tidaccepted '.
-					'INNER JOIN taxaenumtree te ON ts.tid = te.tid '.
-					'WHERE (te.taxauthid = 1) AND (ts.taxauthid = 1) AND (t.rankid = 220) AND (te.parenttid = '.$this->tid.') '.
+					'FROM taxa t INNER JOIN taxstatus ts ON t.Tid = ts.tid '.
+					'INNER JOIN taxaenumtree te ON t.tid = te.tid '.
+					'WHERE (te.taxauthid = 1) AND (ts.taxauthid = 1) AND (t.rankid = 220) AND (ts.tidaccepted = ts.tid) AND (te.parenttid = '.$this->tid.') '.
 					'ORDER BY t.sciname LIMIT '.$start.','.($taxaLimit+1);
 				//echo $sql;
 
 				$result = $this->conn->query($sql);
 				while($row = $result->fetch_object()){
 					$sn = ucfirst(strtolower($row->sciname));
-					$this->sppArray[$sn]["tid"] = $row->tid;
-					$this->sppArray[$sn]["security"] = $row->securitystatus;
+					$this->sppArray[$sn]['tid'] = $row->tid;
+					$this->sppArray[$sn]['security'] = $row->securitystatus;
 					$tids[] = $row->tid;
 				}
 				$result->free();
@@ -757,7 +762,7 @@ class TaxonProfile extends Manager {
 
 	public function getParentChecklist($clid){
 		$retArr = array();
-		if(is_numeric($clid)){
+		if($clid && is_numeric($clid)){
 			//Direct parent checklist
 			$sql = 'SELECT c.clid, c.name '.
 				'FROM fmchecklists c INNER JOIN fmchklstchildren cp ON c.clid = cp.clid '.
@@ -784,8 +789,8 @@ class TaxonProfile extends Manager {
 
 	public function getProjName($pid){
 		$projName = '';
-		if(is_numeric($pid)){
-			$sql = "SELECT projname FROM fmprojects WHERE (pid = ".$pid.')';
+		if($pid && is_numeric($pid)){
+			$sql = 'SELECT projname FROM fmprojects WHERE (pid = '.$pid.')';
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$projName = $r->projname;
@@ -796,12 +801,15 @@ class TaxonProfile extends Manager {
 	}
 
 	public function setLanguage($lang){
-		$lang = strtolower($lang);
-		if($lang == 'en' || $lang == 'english') $this->langArr = array('en','english');
-		elseif($lang == 'es' || $lang == 'spanish') $this->langArr = array('es','spanish','espanol');
-		elseif($lang == 'fr' || $lang == 'french') $this->langArr =  array('fr','french');
-		else $lang = 'en';
-		return $lang;
+		$sql = 'SELECT langid, langname, iso639_1 FROM adminlanguages ';
+		if(is_numeric($lang)) $sql .= 'WHERE langid = '.$lang;
+		else $sql .= 'WHERE langname = "'.$this->cleanInStr($lang).'" OR iso639_1 = "'.$this->cleanInStr($lang).'"';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$this->langArr[strtolower($r->langname)] = $r->langid;
+			$this->langArr[strtolower($r->iso639_1)] = $r->langid;
+		}
+		$rs->free();
 	}
 }
 ?>

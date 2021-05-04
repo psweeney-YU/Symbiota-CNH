@@ -15,7 +15,6 @@ if(!is_numeric($tabIndex)) $tabIndex = 0;
 if($action && !preg_match('/^[a-zA-Z0-9\s_]+$/',$action)) $action = '';
 
 $datasetManager = new OccurrenceDataset();
-$datasetManager->setSymbUid($SYMB_UID);
 
 $mdArr = $datasetManager->getDatasetMetadata($datasetId);
 $role = '';
@@ -43,11 +42,6 @@ elseif(isset($mdArr['roles'])){
 
 $statusStr = '';
 if($isEditor){
-	if($action == 'Export Selected Occurrences'){
-		if($datasetManager->exportDataset($datasetId, $_POST['occid'], $schema, $format, $cset)){
-			$datasetId = 0;
-		}
-	}
 	if($isEditor < 3){
 		if($action == 'Remove Selected Occurrences'){
 			if($datasetManager->removeSelectedOccurrences($datasetId,$_POST['occid'])){
@@ -62,6 +56,7 @@ if($isEditor){
 		if($action == 'Save Edits'){
 			if($datasetManager->editDataset($_POST['datasetid'],$_POST['name'],$_POST['notes'])){
 				$mdArr = $datasetManager->getDatasetMetadata($datasetId);
+				$statusStr = 'Success! Dataset edits saved. ';
 			}
 			else{
 				$statusStr = implode(',',$datasetManager->getErrorArr());
@@ -91,8 +86,8 @@ if($isEditor){
 				$statusStr = implode(',',$datasetManager->getErrorArr());
 			}
 		}
-		elseif(array_key_exists('adduser',$_POST)){
-			if($datasetManager->addUser($datasetId,$_POST['adduser'],$_POST['role'])){
+		elseif($action == 'addUser'){
+			if($datasetManager->addUser($datasetId,$_POST['uid'],$_POST['role'])){
 				$statusStr = 'User added successfully';
 			}
 			else{
@@ -130,6 +125,7 @@ if($isEditor){
 		<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 		<script type="text/javascript" src="../../js/symb/shared.js"></script>
 		<script type="text/javascript">
+			var isDownloadAction = false;
 			$(document).ready(function() {
 				var dialogArr = new Array("schemanative","schemadwc");
 				var dialogStr = "";
@@ -156,7 +152,10 @@ if($isEditor){
 				$( "#userinput" ).autocomplete({
 					source: "rpc/getuserlist.php",
 					minLength: 3,
-					autoFocus: true
+					autoFocus: true,
+					select: function( event, ui ) {
+						$('#uid-add').val(ui.item.id);
+					}
 				});
 
 			});
@@ -204,13 +203,32 @@ if($isEditor){
 			}
 
 			function validateOccurForm(f){
+				var occidChecked = false;
 				var dbElements = document.getElementsByName("occid[]");
 				for(i = 0; i < dbElements.length; i++){
 					var dbElement = dbElements[i];
-					if(dbElement.checked) return true;
+					if(dbElement.checked){
+						occidChecked = true;
+						break;
+					}
 				}
-			   	alert("Please select at least one specimen!");
-			  	return false;
+				if(!occidChecked){
+				   	alert("Please select at least one specimen!");
+				   	return false;
+				}
+				if(isDownloadAction){
+					f.action = "../download/index.php";
+					targetDownloadPopup(f);
+				}
+			  	return true;
+			}
+
+			function validateUserAddForm(f){
+				if(f.uid.value == ""){
+					alert("Select a user from the list");
+					return false;
+				}
+				return true;
 			}
 
 			function openIndPopup(occid){
@@ -226,7 +244,15 @@ if($isEditor){
 				newWindow.focus();
 				return false;
 			}
+
+			function targetDownloadPopup(f) {
+				window.open('', 'downloadpopup', 'left=100,top=50,width=900,height=700');
+				f.target = 'downloadpopup';
+			}
 		</script>
+		<style>
+			.section-title{ margin:0px 15px; font-weight:bold; text-decoration:underline; }
+		</style>
 	</head>
 	<body>
 	<?php
@@ -235,14 +261,7 @@ if($isEditor){
 	?>
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
-		<?php
-		if(isset($collections_datasets_indexCrumbs)){
-			echo $collections_datasets_indexCrumbs;
-		}
-		else{
-			echo '<a href="../../profile/viewprofile.php?tabindex=1">My Profile</a> &gt;&gt; ';
-		}
-		?>
+		<a href="../../profile/viewprofile.php?tabindex=1">My Profile</a> &gt;&gt;
 		<a href="index.php">
 			Return to Dataset Listing
 		</a> &gt;&gt;
@@ -262,7 +281,7 @@ if($isEditor){
 		}
 		if($datasetId){
 			echo '<div style="margin:10px 0px 5px 20px;font-weight:bold;font-size:130%;">'.$mdArr['name'].'</div>';
-			echo '<div style="margin-left:20px" title="'.$roleLabel.'">Role: '.$role.'</div>';
+			if($role) echo '<div style="margin-left:20px" title="'.$roleLabel.'">Role: '.$role.'</div>';
 			if($isEditor){
 				?>
 				<div id="tabs" style="margin:10px;">
@@ -279,129 +298,76 @@ if($isEditor){
 					</ul>
 					<div id="occurtab">
 						<?php
-						$occArr = $datasetManager->getOccurrences($datasetId);
-						?>
-						<form name="occurform" action="datasetmanager.php" method="post" onsubmit="return validateOccurForm(this)">
-							<div style="float:right;margin-right:10px">
-								<b>Count: <?php echo count($occArr); ?> records</b>
-							</div>
-							<table class="styledtable" style="font-family:Arial;font-size:12px;">
-								<tr>
-									<th><input name="" value="" type="checkbox" onclick="selectAll(this);" title="Select/Deselect all Specimens" /></th>
-									<th>catalog #</th>
-									<th>Collector</th>
-									<th>Scientific Name</th>
-									<th>Locality</th>
-								</tr>
-								<?php
-								$trCnt = 0;
-								foreach($occArr as $occid => $recArr){
-									$trCnt++;
-									?>
-									<tr <?php echo ($trCnt%2?'class="alt"':''); ?>>
-										<td>
-											<input type="checkbox" name="occid[]" value="<?php echo $occid; ?>" />
-										</td>
-										<td>
-											<?php echo $recArr['catnum']; ?>
-											<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;">
-												<img src="../../images/info.png" style="width:15px;" />
-											</a>
-										</td>
-										<td>
-											<?php echo $recArr['coll']; ?>
-										</td>
-										<td>
-											<?php echo $recArr['sciname']; ?>
-										</td>
-										<td>
-											<?php echo $recArr['loc']; ?>
-										</td>
+						if($occArr = $datasetManager->getOccurrences($datasetId)){
+							?>
+							<form name="occurform" action="datasetmanager.php" method="post" onsubmit="return validateOccurForm(this)">
+								<div style="float:right;margin-right:10px">
+									<b>Count: <?php echo count($occArr); ?> records</b>
+								</div>
+								<table class="styledtable" style="font-family:Arial;font-size:12px;">
+									<tr>
+										<th><input name="" value="" type="checkbox" onclick="selectAll(this);" title="Select/Deselect all Specimens" /></th>
+										<th>catalog #</th>
+										<th>Collector</th>
+										<th>Scientific Name</th>
+										<th>Locality</th>
 									</tr>
 									<?php
-								}
-								?>
-							</table>
-							<div style="margin: 15px 50px;">
-								<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
-								<?php
-								if($isEditor < 3){
+									$trCnt = 0;
+									foreach($occArr as $occid => $recArr){
+										$trCnt++;
+										?>
+										<tr <?php echo ($trCnt%2?'class="alt"':''); ?>>
+											<td>
+												<input type="checkbox" name="occid[]" value="<?php echo $occid; ?>" />
+											</td>
+											<td>
+												<?php echo $recArr['catnum']; ?>
+												<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;">
+													<img src="../../images/info.png" style="width:15px;" />
+												</a>
+											</td>
+											<td>
+												<?php echo $recArr['coll']; ?>
+											</td>
+											<td>
+												<?php echo $recArr['sciname']; ?>
+											</td>
+											<td>
+												<?php echo $recArr['loc']; ?>
+											</td>
+										</tr>
+										<?php
+									}
 									?>
-									<div style="margin:5px"><input type="submit" name="submitaction" value="Remove Selected Occurrences" /></div>
+								</table>
+								<div style="margin: 15px;">
+									<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
 									<?php
-								}
-								?>
-								<div style="margin:5px"><input type="submit" name="submitaction" value="Export Selected Occurrences" /></div>
-								<div id='showoptdiv'><a href="#" onclick="toggle('optdiv');toggle('showoptdiv');return false;">Show Options</a></div>
-								<div id="optdiv" style="display:none;">
-									<fieldset>
-										<legend><b>Options</b></legend>
-										<table>
-											<tr>
-												<td valign="top">
-													<div style="margin:10px;">
-														<b>Structure:</b>
-													</div>
-												</td>
-												<td>
-													<div style="margin:10px 0px;">
-														<input type="radio" name="schema" value="symbiota" onclick="georefRadioClicked(this)" CHECKED />
-														Symbiota Native
-														<a id="schemanativeinfo" href="#" onclick="return false" title="More Information">
-															<img src="../../images/info.png" style="width:13px;" />
-														</a><br/>
-														<div id="schemanativeinfodialog">
-															Symbiota native is very similar to Darwin Core except with the addtion of a few fields
-															such as substrate, associated collectors, verbatim description.
-														</div>
-														<input type="radio" name="schema" value="dwc" onclick="georefRadioClicked(this)" />
-														Darwin Core
-														<a id="schemadwcinfo" href="#" target="" title="More Information">
-															<img src="../../images/info.png" style="width:13px;" />
-														</a><br/>
-														<div id="schemadwcinfodialog">
-															Darwin Core (DwC) is a TDWG endorsed exchange standard specifically for biodiversity datasets.
-															For more information on what data fields are included in DwC, visit the
-															<a href="http://rs.tdwg.org/dwc/index.htm"target='_blank'>DwC Quick Reference Guide</a>.
-														</div>
-														*<a href='http://rs.tdwg.org/dwc/index.htm' class='bodylink' target='_blank'>What is Darwin Core?</a>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<td valign="top">
-													<div style="margin:10px;">
-														<b>File Format:</b>
-													</div>
-												</td>
-												<td>
-													<div style="margin:10px 0px;">
-														<input type="radio" name="format" value="csv" CHECKED /> Comma Delimited (CSV)<br/>
-														<input type="radio" name="format" value="tab" /> Tab Delimited<br/>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<td valign="top">
-													<div style="margin:10px;">
-														<b>Character Set:</b>
-													</div>
-												</td>
-												<td>
-													<div style="margin:10px 0px;">
-														<?php
-														$cSet = strtolower($CHARSET);
-														?>
-														<input type="radio" name="cset" value="iso-8859-1" <?php echo ($cSet=='iso-8859-1'?'checked':''); ?> /> ISO-8859-1 (western)<br/>
-														<input type="radio" name="cset" value="utf-8" <?php echo ($cSet=='utf-8'?'checked':''); ?> /> UTF-8 (unicode)
-													</div>
-												</td>
-											</tr>
-										</table>
-									</fieldset>
+									if($occArr && $isEditor < 3){
+										?>
+										<button type="submit" name="submitaction" value="Remove Selected Occurrences">Remove Selected Occurrences</button>
+										<?php
+									}
+									?>
 								</div>
+							</form>
+							<div style="margin: 15px;">
+								<form name="exportAllForm" action="../download/index.php" method="post" onsubmit="targetDownloadPopup(this)">
+									<input name="searchvar" type="hidden" value="datasetid=<?php echo $datasetId; ?>" />
+									<input name="dltype" type="hidden" value="specimen" />
+									<button type="submit" name="submitaction" value="exportAll">Export Dataset</button>
+								</form>
 							</div>
-						</form>
+							<?php
+						}
+						else{
+							?>
+							<div style="font-weight:bold; margin:15px">There are not yet any occurrences linked to this dataset</div>
+							<div style="margin:15px">You can link occurrences via the <a href="../index.php">occurrence search page</a> or via any of the the occurrence profile pages</div>
+							<?php
+						}
+						?>
 					</div>
 					<?php
 					if($isEditor == 1){
@@ -412,13 +378,14 @@ if($isEditor){
 								<form name="editform" action="datasetmanager.php" method="post" onsubmit="return validateEditForm(this)">
 									<div>
 										<b>Name</b><br />
-										<input name="name" type="text" value="<?php echo $mdArr['name']; ?>" style="width:250px" />
+										<input name="name" type="text" value="<?php echo $mdArr['name']; ?>" style="width:400px" />
 									</div>
 									<div>
 										<b>Notes</b><br />
 										<input name="notes" type="text" value="<?php echo $mdArr['notes']; ?>" style="width:90%" />
 									</div>
 									<div style="margin:15px;">
+										<input name="tabindex" type="hidden" value="1" />
 										<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
 										<input name="submitaction" type="submit" value="Save Edits" />
 									</div>
@@ -442,32 +409,34 @@ if($isEditor){
 								$roleArr = array('DatasetAdmin' => 'Full Access Users','DatasetEditor' => 'Read/Write Users','DatasetReader' => 'Read Only Users');
 								foreach($roleArr as $roleStr => $labelStr){
 									?>
-									<div style="margin:0px 15px;"><b><u><?php echo $labelStr; ?></u></b></div>
+									<div class="section-title"><?php echo $labelStr; ?></div>
 									<div style="margin:15px;">
 										<?php
 										if(array_key_exists($roleStr,$userArr)){
-											echo '<ul>';
-											$uArr = $userArr[$roleStr];
-											foreach($uArr as $uid => $name){
-												?>
-												<li>
-													<?php echo $name; ?>
-													<form name="deluserform" method="post" action="datasetmanager.php" style="display:inline;" onsubmit="return confirm('Are you sure you want to remove <?php echo $name; ?>')">
-														<input name="submitaction" type="hidden" value="DelUser" />
-														<input name="role" type="hidden" value="<?php echo $roleStr; ?>" />
-														<input name="uid" type="hidden" value="<?php echo $uid; ?>" />
-														<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
-														<input name="tabindex" type="hidden" value="2" />
-														<input name="submitimage" type="image" src="../../images/drop.png" />
-													</form>
-												</li>
+											?>
+											<ul>
 												<?php
-											}
-											echo '</ul>';
+												$uArr = $userArr[$roleStr];
+												foreach($uArr as $uid => $name){
+													?>
+													<li>
+														<?php echo $name; ?>
+														<form name="deluserform" method="post" action="datasetmanager.php" style="display:inline;" onsubmit="return confirm('Are you sure you want to remove <?php echo $name; ?>')">
+															<input name="submitaction" type="hidden" value="DelUser" />
+															<input name="role" type="hidden" value="<?php echo $roleStr; ?>" />
+															<input name="uid" type="hidden" value="<?php echo $uid; ?>" />
+															<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
+															<input name="tabindex" type="hidden" value="2" />
+															<input name="submitimage" type="image" src="../../images/drop.png" />
+														</form>
+													</li>
+													<?php
+												}
+												?>
+											</ul>
+											<?php
 										}
-										else{
-											echo '<div style="margin:15px;">None Assigned</div>';
-										}
+										else echo '<div style="margin:15px;">None Assigned</div>';
 										?>
 									</div>
 									<?php
@@ -477,9 +446,12 @@ if($isEditor){
 							<div style="margin:15px;">
 								<fieldset>
 									<legend><b>Add User</b></legend>
-									<form name="addform" action="datasetmanager.php" method="post" onsubmit="return validateAddForm(this)">
-										Login:
-										<input id="userinput" name="adduser" type="text" style="width:250px;" /><br />
+									<form name="addform" action="datasetmanager.php" method="post" onsubmit="return validateUserAddForm(this)">
+										<div title="Type login or last name and then select from list">
+											Login/Last Name:
+											<input id="userinput" type="text" style="width:400px;" />
+											<input id="uid-add" name="uid" type="hidden" value="" />
+										</div>
 										Role:
 										<select name="role">
 											<option value="DatasetAdmin">Full Access</option>
@@ -489,7 +461,7 @@ if($isEditor){
 										<div style="margin:10px;">
 											<input name="tabindex" type="hidden" value="2" />
 											<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
-											<input name="submitaction" type="submit" value="Add User" />
+											<button type="submit" name="submitaction" value="addUser">Add User</button>
 										</div>
 									</form>
 								</fieldset>
@@ -501,13 +473,9 @@ if($isEditor){
 				</div>
 				<?php
 			}
-			else{
-				echo '<div><b>You are not authorized to view this dataset</b></div>';
-			}
+			else echo '<div style="margin:30px">You are not authorized to view this dataset</div>';
 		}
-		else{
-			echo '<div><b>ERROR: dataset id not identified</b></div>';
-		}
+		else echo '<div><b>ERROR: dataset id not identified</b></div>';
 		?>
 	</div>
 	<?php
