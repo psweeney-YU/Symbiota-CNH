@@ -1,0 +1,486 @@
+
+body{
+	margin-top:	0px;
+    font-family: arial, trebuchet ms, tahoma, verdana, helvetica;
+    background: #F0E7D8;
+	color: #000000;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+    
+}
+
+/*Main table framework*/
+#maintable{
+    margin-left: auto;
+    margin-right: auto;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+	border-spacing: 0px;
+	width:		925px;
+	height:		350px;
+    background-color: #FFFFFF;
+}
+
+#maintable td{
+ 	vertical-align: top;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+td.header{
+    border-top: 0px;
+    border-bottom: 1px solid black;
+    background-position: center center;
+    background-color: #e7e7e7;
+	font-size: 		11px;
+	font-weight: 	bold;
+}
+
+td.header a{
+	color: black;
+}
+
+td.header a:hover{
+	color: #816E68;
+}
+
+td.menurow{
+    background-color: #eeeeeb;
+    border-bottom: 1px solid black;
+	font-weight: bold;
+    padding: 0.5em 0 0.5em 0;
+}
+
+.navlinks {
+ font-size: 1.4em;
+ background:#eeeeeb none scroll 0 50%;
+ padding: 0em;
+ margin: 0em;
+ 
+}
+
+.navlinks a, .navlinks a:link, .navlinks a:active, .navlinks a:visited {
+color: #816E68;
+text-decoration: none; 
+}
+
+.navlinks a:visited.active {
+color:#000000;
+}
+
+.navlinks li {
+  display: inline;
+  border-left: 1px solid #000;
+  padding: 0em 0.3em 0em 0.5em;
+}
+
+td.middleleft{
+	width:	160px;	
+}
+
+td.middleleftnomenu{
+	width:	20px;	
+}
+
+td.middlecenter{
+    padding:        15px;
+ 	
+ 	height:			350px;
+}
+
+td.middleright{
+}
+
+td.footer{
+}
+
+/*Left menu components*/
+div.menu {
+    /*set visibility to 'hidden' to hide menu.  Change width to 'collapse' div.*/
+    visibility: visible;
+	background-color:   #eeeeeb;
+	margin:				15px;/*0px*/
+	border:   			1px solid #000000;
+	padding-bottom:   	25px;
+	overflow:   		hidden;
+	width:   			150px;
+	/*
+    border-radius: 1.0em;
+	-moz-border-radius: 1.0em;
+	-khtml-border-radius: 1.0em;
+    */
+}
+
+div.menuheader{
+	background-color:   #e7e7e7;
+	font-family:   		Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size:   		14px;
+	color:   			black;
+	font-weight:   		bold;
+	overflow:   		hidden;
+	text-align:   		center;
+	padding:   			1px;
+	margin:			   	0px;
+    border-bottom:      black solid 1px;
+    /*
+    border-radius: 1.0em 1.0em 0 0;
+	-moz-border-radius: 1.0em 1.0em 0 0;
+	-khtml-border-radius: 1.0em 1.0em 0 0;
+    */ 
+}
+
+div.menuheader a{
+	color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    text-decoration: none;
+}
+
+div.menuheader a:hover {
+	color: white;
+	font-family: Arial, Helvetica, sans-serif;
+    text-decoration: underline;
+}
+
+div.menuitem {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	margin: 	10px;
+}
+
+div.menuitem a {
+	color: #816E68;
+    text-decoration: none;	
+}
+
+div.menuitem a:hover {
+	color: darkblue;
+	font-family: Arial, Helvetica, sans-serif;
+    text-decoration: underline;
+}
+
+
+/*Central div in the middle center table div */
+#innertext{
+	margin:	5px 0 0 0;	
+	font-size: 14px;
+}
+
+#innertext div{
+	font: inherit;
+}
+
+#innertext a{
+	font-family: Arial, Helvetica, sans-serif;
+	color: 		#2C405E;
+    text-decoration: none;	
+}
+#innertext a:hover{
+	color: black;
+    text-decoration: underline;
+}
+
+
+/* /checklists/ folder pages */
+#checklisteditform div{
+	margin-top:	2px;
+}
+
+#checklisteditform span{
+	font-weight:	bold;
+}
+
+#addspeciesform div{
+	margin-top:	2px;
+}
+
+#cloptiondiv{
+	margin:		5px;
+	width:		250px;
+	text-align:	left;
+	float:		right;
+}
+
+#taxonfilterdiv{
+	padding:			5px;
+	background-color:	#FFFFCC;
+	border:				1px solid;
+}
+
+#taxonfilterdiv{
+	 margin:	3px;
+}
+
+div.tndiv{
+	float: left;
+	text-align: center;
+	width: 190px;
+	height: 220px;
+}
+
+div.tnimg{
+	width:		170px;
+	height:		170px;
+	border:		1px solid black;
+	overflow:	hidden;
+}
+
+div.tnimg a{
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	height: 100%;
+}
+
+div.tnimg img{
+	height: 100%;
+}	
+
+
+/* /collections/ folder pages */
+#omlisttable{
+	 width:	610px;
+}
+
+#omlisttable img{
+    border: medium double #816E68;
+}
+
+/*Download buttons on the search display pages*/
+div.button {
+	background-color:	#FFFFD7;
+	padding:			3px;
+	border:				1px outset #A0A0A0;
+}
+
+div.button img {
+	border:	0px;	
+}
+
+div.button:hover {
+	border:	1px inset #A0A0A0;
+}
+
+/* Tabs located on the Collection Search display pages (checklists, list, map)*/ 
+/*This section modified by P. Sweeeny.*/
+#tabdiv{
+	width:	620px;
+	height:	25px;
+	margin-top:	15px;
+	margin-left: auto;
+	margin-right: auto;
+	border: 0;
+}
+#tabdiv div{
+	float:left;
+	padding-top:3px;
+	text-align: center;
+	background-repeat: no-repeat;
+	
+}
+#tabdiv div.fronttab{
+	background: #FFFFFF;
+	height:		22px;
+	border-top: solid 1px #000000;
+	border-left: solid 1px #000000;
+	border-right: solid 1px #000000;
+	border-bottom: none;
+	width:		150px;
+	font-size: 	14px;
+	font-weight: bold;
+	
+}
+div.frontendtab{
+ 
+}
+div.midleft{
+	height:	22px;
+	width:29px;
+	border-bottom: solid 1px #000000;
+}
+html>body div.midleft{
+	/*height:22px;*/
+} 
+div.midright{
+	height:	22px;
+	width:29px;
+	border-bottom: solid 1px #000000;
+}
+html>body div.midright{
+	/*height:22px;*/
+} 
+div.backtab{
+	background: #EEEEEB;
+	height:	22px;
+	width:	150px;
+	border-top: solid 1px #000000;
+	border-left: solid 1px #000000;
+	border-right: solid 1px #000000;
+	border-bottom: solid 1px #000000;
+}
+html>body div.backtab{
+	height:21px;
+} 
+div.backtab a{
+	color: #816E68!important;
+	font-size: 12px;
+	font-weight:bold;
+}
+div.backtab a:link{
+	font-size: 12px;
+	font-weight:bold;
+}
+div.backtab a:visited{
+	color: #816E68;
+}
+div.backtab a:hover{
+	color: #669999;
+}
+div.backendleft{
+	height:	22px;
+	width:	50px;
+	border-bottom: solid 1px #000000;
+}
+html>body div.backendleft{
+	/*height:21px;*/
+} 
+div.backendright{
+	height:	22px;
+	width:	50px;
+	border-bottom: solid 1px #000000;
+}
+html>body div.backendright{
+	/*height:21px;*/
+} 
+
+
+/*Misc general items*/
+table{
+	border:	0px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+h1{
+	color: #816E68;
+	font-size: 18px;
+}
+
+h2{
+	color: black;
+	font-size: 16px;
+}
+
+h3{
+	color: black;
+	font-size: 14px;
+}
+
+hr {
+    color:black;
+    background-color:black;
+    height:1px;
+    border:none;
+   }
+
+/*  navpath styles */
+div.navpath {
+	color: #000000;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+}
+
+div.navpath a {
+	font-size: 11px;
+	color: #000000;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+div.navpath a:hover {
+	color: #816E68;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+}
+
+/*Fieldset-like divs */
+div.fieldset {
+	position:	relative;
+	margin-top:	15px;
+	border:		1px solid #75736E;
+	padding: 	15px 10px 10px 10px;
+}
+
+div.legend {
+	padding-left: 	5px;
+	padding-right: 	5px;
+	font-weight: 	bold;
+	font-size:		110%;
+	background: 	#FFF;
+	position:		absolute;
+	top:			-10px;
+	left:			15px;
+}
+
+div.genericpopup{
+	position:				absolute;
+	display:				none;
+	width:					300px;
+	background-color:		#EFEFEF;
+	padding:				10px;
+	-moz-border-radius: 	5px;
+	-webkit-border-radius: 	5px;
+	border:					black solid 3px;
+}
+
+/*Custom styles added by P. Sweeney 2013-03-07*/
+/*custom font size for lists in panel on collections/index.php*/
+div#innertext #specobsdiv{
+	font-size:	85%;
+}
+
+div#innertext #specimendiv{
+	font-size:	85%;
+}
+
+div#innertext #observationdiv{
+	font-size:	85%;
+}
+
+div#imagecenter{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+img.floatRightwrap {
+	float: right;
+	margin: 5px 5px 5px 15px; 
+}
+
+/*Occurrence editor table*/
+table.styledtable{
+	border-collapse:collapse;
+	margin: 5px;
+	border:					black solid 1px;
+}
+
+table.styledtable td{
+	border:					black solid 1px;
+}
+
+table.styledtable th{
+	border:					black solid 1px;
+}
+
+table.styledtable th{
+	background-color:grey;
+	color:white;
+	padding: 2px
+}
+
+table.styledtable td{
+	background-color:white;
+	padding: 2px;
+}
