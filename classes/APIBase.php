@@ -5,7 +5,6 @@ class APIBase extends Manager{
 
 	function __construct($id=null,$conType=null) {
 		parent::__construct($id,$conType);
-		$this->setLogFH('../content/logs/occurrenceWriter_'.date('Y-m-d').'.log');
 	}
 
 	function __destruct(){
@@ -26,6 +25,11 @@ class APIBase extends Manager{
 			return true;
 		}
 		return true;
+	}
+
+	protected function logOrEcho($str, $indexLevel=0, $tag = 'li'){
+		if(!$this->logFH) $this->setLogFH('../content/logs/occurImport/occurrenceWriter_'.date('Y-m-d').'.log');
+		parent::logOrEcho($str, $indexLevel, $tag);
 	}
 }
 ?>

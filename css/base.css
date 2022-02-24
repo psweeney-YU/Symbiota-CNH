@@ -53,26 +53,19 @@ body {
     padding-top: 15px;
 }
 
-#innertext a {}
+#innertext a {
+	color: #215078
+}
 
-#innertext a:hover {}
+#innertext a:hover {
+	color: #337ab7;
+}
 
 form input {
     margin-top: 2px;
 }
 
-a {
-    color: #4a55b9;
-    text-decoration: none;
-}
-
-a:hover {
-    color: #2C405E;
-    text-decoration: underline;
-}
-
 /* Spans that use javascript to add clickable link behaviors */
-
 span[class=link] {
     color: #2C405E;
     text-decoration: none;
@@ -205,15 +198,6 @@ div.button:hover {
 .taxon-div {
     clear: left;
     margin-bottom: 5px;
-}
-
-.taxon-span {
-    font-weight: bold;
-    font-style: italic
-}
-
-.vern-span {
-    font-weight: bold;
 }
 
 .view-specimen-span {

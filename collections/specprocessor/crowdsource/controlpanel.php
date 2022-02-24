@@ -41,7 +41,7 @@ $projArr = $csManager->getProjectDetails();
 		<div style="font-weight:bold;font-size:130%;"><?php echo (($omcsid && $projArr)?$projArr['name']:''); ?></div>
 		<div>
 			This module can be used to submit and manage records for data entry by the
-			general public. For more information, see the <a href="http://symbiota.org/docs/crowdsourcing-within-symbiota-2/">Symbiota documentation on crowdsourcing</a>.
+			general public. For more information, see the <a href="https://symbiota.org/crowdsourcing-within-symbiota-2/">Symbiota documentation on crowdsourcing</a>.
 		</div>
 		<div id="projFormDiv" style="display:none">
 			<fieldset style="margin:15px;">
@@ -58,7 +58,7 @@ $projArr = $csManager->getProjectDetails();
 					<div>
 						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 						<input name="omcsid" type="hidden" value="<?php echo $omcsid; ?>" />
-						<input name="tabindex" type="hidden" value="2" />
+						<input name="tabindex" type="hidden" value="1" />
 						<input name="submitaction" type="submit" value="Edit Crowdsource Project" />
 					</div>
 				</form>
@@ -83,7 +83,7 @@ $projArr = $csManager->getProjectDetails();
 							echo '<a href="../editor/occurrencetabledisplay.php?csmode=1&occindex=0&displayquery=1&reset=1&collid='.$collid.'" target="_blank">';
 							echo $unprocessedCnt;
 							echo '</a> ';
-							echo '<a href="index.php?submitaction=delqueue&tabindex=2&collid='.$collid.'&omcsid='.$omcsid.'">';
+							echo '<a href="index.php?submitaction=delqueue&tabindex=1&collid='.$collid.'&omcsid='.$omcsid.'">';
 							echo '<img src="../../images/drop.png" style="width:12px;" title="Delete all unprocessed records from queue" />';
 							echo '</a>';
 						}
@@ -184,7 +184,7 @@ $projArr = $csManager->getProjectDetails();
 										<div>
 											<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 											<input name="omcsid" type="hidden" value="<?php echo $omcsid; ?>" />
-											<input name="tabindex" type="hidden" value="2" />
+											<input name="tabindex" type="hidden" value="1" />
 											<input name="submitaction" type="submit" value="Add to Queue" />
 										</div>
 									</fieldset>

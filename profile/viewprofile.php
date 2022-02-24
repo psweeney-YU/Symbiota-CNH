@@ -2,6 +2,7 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
 include_once($SERVER_ROOT.'/classes/Person.php');
+@include_once($SERVER_ROOT.'/content/lang/profile/viewprofile.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
@@ -62,13 +63,10 @@ if($isEditor){
 		$newPerson->setZip($zip);
 		$newPerson->setCountry($country);
 		$newPerson->setEmail($email);
-		$newPerson->setUrl($url);
 		$newPerson->setGUID($guid);
-		$newPerson->setBiography($biography);
-		$newPerson->setIsPublic($isPublic);
 
 		if(!$pHandler->updateProfile($newPerson)){
-			$statusStr = "Profile update failed!";
+			$statusStr = (isset($LANG['FAILED'])?$LANG['FAILED']:'Profile update failed!');
 		}
 		$person = $pHandler->getPerson();
 		$tabIndex = 2;
@@ -84,15 +82,15 @@ if($isEditor){
 			$updateStatus = $pHandler->changePassword($newPwd);
 		}
 		if($updateStatus){
-			$statusStr = "<span color='green'>Password update successful!</span>";
+			$statusStr = "<span color='green'>".(isset($LANG['PWORD_SUCCESS'])?$LANG['PWORD_SUCCESS']:'Password update successful')."!</span>";
 		}
 		else{
-			$statusStr = "Password update failed! Are you sure you typed the old password correctly?";
+			$statusStr = (isset($LANG['PWORD_FAILED'])?$LANG['PWORD_FAILED']:'Password update failed! Are you sure you typed the old password correctly?');
 		}
 		$person = $pHandler->getPerson();
 		$tabIndex = 2;
 	}
-	elseif($action == "Change Login"){
+	elseif($action == 'changeLogin'){
 		$pwd = '';
 		if($isSelf && isset($_POST["newloginpwd"])) $pwd = $_POST["newloginpwd"];
 		if(!$pHandler->changeLogin($_POST["newlogin"], $pwd)){
@@ -111,7 +109,7 @@ if($isEditor){
 			header("Location: ../index.php");
 		}
 		else{
-			$statusStr = "Profile deletion failed! Please contact the system administrator";
+			$statusStr = (isset($LANG['DELETE_FAILED'])?$LANG['DELETE_FAILED']:'Profile deletion failed! Please contact the system administrator');
 		}
 	}
 	elseif($action == "delusertaxonomy"){
@@ -130,36 +128,16 @@ if($isEditor){
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?> - View User Profile</title>
-    <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
-	<script type="text/javascript" src="../js/jquery.js"></script>
-	<script type="text/javascript" src="../js/jquery-ui.js"></script>
-	<script type="text/javascript" src="../js/tinymce/tinymce.min.js"></script>
+	<title><?php echo $DEFAULT_TITLE.' - '. (isset($LANG['VIEW_PROFILE'])?$LANG['VIEW_PROFILE']:'View User Profile'); ?></title>
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
-
-		tinymce.init({
-			selector: "textarea",
-			width: "100%",
-			height: 300,
-			menubar: false,
-			plugins: "link,charmap,code,paste",
-			toolbar : "bold italic underline cut copy paste outdent indent undo redo subscript superscript removeformat link charmap code",
-			default_link_target: "_blank",
-			paste_as_text: true
-		});
-
 	</script>
+	<script type="text/javascript" src="../js/jquery.js"></script>
+	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript" src="../js/symb/profile.viewprofile.js?ver=20170530"></script>
 	<script type="text/javascript" src="../js/symb/shared.js"></script>
 	<style type="text/css">
@@ -174,8 +152,8 @@ if($isEditor){
 	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class="navpath">
-		<a href='../index.php'>Home</a> &gt;&gt;
-		<a href="../profile/viewprofile.php">My Profile</a>
+		<a href='../index.php'><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
+		<a href="../profile/viewprofile.php"><?php echo (isset($LANG['MY_PROFILE'])?$LANG['MY_PROFILE']:'My Profile'); ?></a>
 	</div>
 	<!-- inner text -->
 	<div id="innertext">
@@ -190,16 +168,16 @@ if($isEditor){
 				<?php
 				if($floraModIsActive){
 					?>
-					<li><a href="../checklists/checklistadminmeta.php?userid=<?php echo $userId; ?>">Species Checklists</a></li>
+					<li><a href="../checklists/checklistadminmeta.php?userid=<?php echo $userId; ?>"><?php echo (isset($LANG['SPEC_CHECKLIST'])?$LANG['SPEC_CHECKLIST']:'Species Checklists'); ?></a></li>
 					<?php
 				}
 				?>
-				<li><a href="occurrencemenu.php">Occurrence Management</a></li>
-				<li><a href="userprofile.php?userid=<?php echo $userId; ?>">User Profile</a></li>
+				<li><a href="occurrencemenu.php"><?php echo (isset($LANG['OCC_MGMNT'])?$LANG['OCC_MGMNT']:'Occurrence Management'); ?></a></li>
+				<li><a href="userprofile.php?userid=<?php echo $userId; ?>"><?php echo (isset($LANG['USER_PROFILE'])?$LANG['USER_PROFILE']:'User Profile'); ?></a></li>
 				<?php
 				if($person->getIsTaxonomyEditor()) {
-					echo '<li><a href="specimenstoid.php?userid='.$userId.'&action='.$action.'">IDs Needed</a></li>';
-					echo '<li><a href="imagesforid.php">Images for ID</a></li>';
+					echo '<li><a href="specimenstoid.php?userid='.$userId.'&action='.$action.'">'.(isset($LANG['IDS_NEEDED'])?$LANG['IDS_NEEDED']:'IDs Needed').'</a></li>';
+					echo '<li><a href="imagesforid.php">'.(isset($LANG['IMAGES_ID'])?$LANG['IMAGES_ID']:'Images for ID').'</a></li>';
 				}
 				?>
 			</ul>

@@ -1,7 +1,7 @@
 <?php
 /*
 ------------------
-Language: Espa�ol (Spanish)
+Language: Español (Spanish)
 ------------------
 */
 
@@ -44,7 +44,7 @@ $LANG['LL_P-RADIUS_KM'] = 'Kilometros';
 $LANG['LL_P-RADIUS_MI'] = 'Millas';
 $LANG['MAP_AID'] = 'Definir Coordenadas';
 $LANG['COLLECTOR_HEADER'] = 'Datos del Colector';
-$LANG['COLLECTOR_LASTNAME'] = 'Apellido del Colector';
+$LANG['COLLECTOR_LASTNAME'] = 'Colector';
 $LANG['TITLE_TEXT_2'] = 'Usar comas para separar varios t&eacute;rminos, por ejemplo: Guaymas, Hermosillo, Pitiquito; y guiones para delimitar rangos (usar espacio antes y despu&eacute;s del gui&oacute;n), por ejemplo: 3542,3602,3700 - 3750';
 $LANG['COLLECTOR_NUMBER'] = "N&uacute;mero del Colector";
 $LANG['COLLECTOR_DATE'] = 'Fecha de Colecta';
@@ -59,5 +59,5 @@ $LANG['HAS_GENETIC'] = 'Limitar a ejemplares con datos gen&eacute;ticos';
 $LANG['HAS_COORDS'] = 'Limitar a ejemplares con coordenadas geogr&aacute;ficas';
 $LANG['INCLUDE_CULTIVATED'] = 'Incluye ejemplares cultivadas/cautivas';
 $LANG['TRAIT_HEADER'] = 'Criterios de Rasgos';
-$LANG['TRAIT_DESCRIPTION'] = 'La selección de varios rasgos devolverá todos los registros con al menos uno de esos rasgos';
+$LANG['TRAIT_DESCRIPTION'] = 'La selección de varios rasgos devolverá todos los registros con <b>al menos uno</b> de esos rasgos';
 ?>

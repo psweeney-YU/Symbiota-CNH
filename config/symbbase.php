@@ -2,6 +2,7 @@
 header('X-Frame-Options: DENY');
 header('Cache-control: private'); // IE 6 FIX
 date_default_timezone_set('America/Phoenix');
+$CODE_VERSION = '1.2.1.202202';
 
 if(!isset($CLIENT_ROOT) && isset($clientRoot)) $CLIENT_ROOT = $clientRoot;
 if(substr($CLIENT_ROOT,-1) == '/') $CLIENT_ROOT = substr($CLIENT_ROOT,0,strlen($CLIENT_ROOT)-1);
@@ -40,7 +41,7 @@ if(isset($_COOKIE['SymbiotaCrumb']) && !$PARAMS_ARR){
 	}
 }
 
-if(!isset($CSS_BASE_PATH)) $CSS_BASE_PATH = '/css/symb';
+if(!isset($CSS_BASE_PATH)) $CSS_BASE_PATH = $CLIENT_ROOT.'/css/symb';
 $CSS_VERSION = '13';
 $USER_DISPLAY_NAME = (array_key_exists("dn",$PARAMS_ARR)?$PARAMS_ARR["dn"]:"");
 $USERNAME = (array_key_exists("un",$PARAMS_ARR)?$PARAMS_ARR["un"]:0);

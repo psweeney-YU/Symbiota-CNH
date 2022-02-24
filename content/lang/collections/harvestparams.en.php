@@ -44,7 +44,7 @@ $LANG['LL_P-RADIUS_KM'] = 'Kilometers';
 $LANG['LL_P-RADIUS_MI'] = 'Miles';
 $LANG['MAP_AID'] = 'Mapping Aid';
 $LANG['COLLECTOR_HEADER'] = 'Collector Criteria';
-$LANG['COLLECTOR_LASTNAME'] = "Collector&#39;s Last Name";
+$LANG['COLLECTOR_LASTNAME'] = "Collector&#39;s Name";
 $LANG['TITLE_TEXT_2'] = 'Separate multiple terms by commas and ranges by " - " (space before and after dash required), e.g.: 3542,3602,3700 - 3750';
 $LANG['COLLECTOR_NUMBER'] = "Collector&#39;s Number";
 $LANG['COLLECTOR_DATE'] = 'Collection Date';
@@ -59,5 +59,5 @@ $LANG['HAS_GENETIC'] = 'Limit to Specimens with Genetic Data';
 $LANG['HAS_COORDS'] = 'Limit to Specimens with Geocoordinates';
 $LANG['INCLUDE_CULTIVATED'] = 'Include cultivated/captive occurrences';
 $LANG['TRAIT_HEADER'] = 'Trait Criteria';
-$LANG['TRAIT_DESCRIPTION'] = 'Selecting multiple traits will return all records with at least one of those traits';
+$LANG['TRAIT_DESCRIPTION'] = 'Selecting multiple traits will return all records with <b>at least one</b> of those traits';
 ?>

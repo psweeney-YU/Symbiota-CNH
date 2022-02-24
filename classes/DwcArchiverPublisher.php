@@ -3,6 +3,8 @@ include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 
 class DwcArchiverPublisher extends DwcArchiverCore{
 
+	private $materialSampleIsActive = false;
+
 	public function __construct(){
 		parent::__construct('write');
 	}
@@ -29,7 +31,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		$rs->free();
 
 		//Get NULL GUID counts
-		$guidTarget = $this->collArr[$collId]['guidtarget'];
+		$guidTarget = ($this->collArr?$this->collArr[$collId]['guidtarget']:'');
 		if($guidTarget){
 			$sql = 'SELECT COUNT(o.occid) AS cnt FROM omoccurrences o ';
 			if($guidTarget == 'symbiotaUUID'){
@@ -203,7 +205,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 
 		$newDoc->save($rssFile);
 
-		$this->logOrEcho("Done!!\n");
+		$this->logOrEcho("Done!\n");
 	}
 
 	//Misc data retrival functions
@@ -241,7 +243,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 
 	public function getCollectionList($catID){
 		$retArr = array();
-		$sql = 'SELECT c.collid, c.collectionname, CONCAT_WS("-",c.institutioncode,c.collectioncode) as instcode, c.guidtarget, c.dwcaurl, c.managementtype '.
+		$sql = 'SELECT c.collid, c.collectionname, CONCAT_WS("-",c.institutioncode,c.collectioncode) as instcode, c.guidtarget, c.dwcaurl, c.managementtype, c.dynamicProperties '.
 			'FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid '.
 			'LEFT JOIN omcollcatlink l ON c.collid = l.collid '.
 			'WHERE (c.colltype = "Preserved Specimens") AND (s.recordcnt > 0) ';
@@ -251,7 +253,10 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		while($r = $rs->fetch_object()){
 			$retArr[$r->collid]['name'] = $r->collectionname.' ('.$r->instcode.')';
 			$retArr[$r->collid]['guid'] = $r->guidtarget;
-			$retArr[$r->collid]['url'] = $r->dwcaurl;
+			$retArr[$r->collid]['url'] = substr($r->dwcaurl,0,strpos($r->dwcaurl,'/content')).'/collections/datasets/datapublisher.php';
+			if(!$r->guidtarget) $retArr[$r->collid]['err'] = 'MISSING_GUID';
+			elseif($r->dwcaurl && !strpos($r->dwcaurl,str_replace('www.', '', $_SERVER['SERVER_NAME']))) $retArr[$r->collid]['err'] = 'ALREADY_PUB_DOMAIN';
+			if($r->dynamicProperties && strpos($r->dynamicProperties,'matSample":{"status":1')) $this->materialSampleIsActive = true;
 		}
 		$rs->free();
 		return $retArr;
@@ -268,6 +273,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 			while($r = $rs->fetch_object()){
 				$domainName = parse_url($r->portalDomain, PHP_URL_HOST);
 				if(substr($domainName,0,4) == 'www.') $domainName = substr($domainName,4);
+				$domainName = parse_url($r->portalDomain, PHP_URL_SCHEME).'://'.$domainName;
 				if(isset($retArr[$domainName])){
 					$retArr[$domainName]['cnt'] += $r->cnt;
 					if(strpos($retArr[$domainName]['url'],'/www.') && !strpos($r->portalDomain,'/www.')) $retArr[$domainName]['url'] = $r->portalDomain;
@@ -282,17 +288,8 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		return $retArr;
 	}
 
-	public function getCategoryName($catID){
-		$retArr = array();
-		if($catID && preg_match('/^[,\d]+$/', $catID)){
-			$sql = 'SELECT ccpk, category FROM omcollcategories WHERE (ccpk IN('.$catID.'))';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[] = $r->category;
-			}
-			$rs->free();
-		}
-		return $retArr;
+	public function materialSampleIsActive(){
+		return $this->materialSampleIsActive;
 	}
 
 	//Mics functions

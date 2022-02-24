@@ -17,7 +17,7 @@ $clManager->setClid($clid);
 if($action == 'SubmitAdd'){
 	//Anyone with a login can create a checklist
 	$newClid = $clManager->createChecklist($_POST);
-	header('Location: checklist.php?clid='.$newClid.'&emode=1');
+	header('Location: checklist.php?clid='.$newClid);
 }
 
 $statusStr = '';
@@ -68,14 +68,7 @@ if($clArray['defaultsettings']){
 	<title><?php echo $DEFAULT_TITLE.' - '.$LANG['CHECKADMIN'];?></title>
 	<?php
 	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
@@ -90,7 +83,7 @@ if($clArray['defaultsettings']){
 			height: 300,
 			menubar: false,
 			plugins: "link,charmap,code,paste",
-			toolbar : "bold italic underline cut copy paste outdent indent undo redo subscript superscript removeformat link charmap code",
+			toolbar : ["bold italic underline | cut copy paste | outdent indent | subscript superscript | undo redo removeformat | link | charmap | code"],
 			default_link_target: "_blank",
 			paste_as_text: true
 		});
@@ -155,7 +148,7 @@ include($SERVER_ROOT.'/includes/header.php');
 			<ul>
 				<li><a href="#admintab"><span><?php echo $LANG['ADMIN'];?></span></a></li>
 				<li><a href="checklistadminmeta.php?clid=<?php echo $clid.'&pid='.$pid; ?>"><span><?php echo $LANG['DESCRIPTION'];?></span></a></li>
-				<!-- 					<li><a href="#pointtab"><span>Non-vouchered Points</span></a></li> -->
+				<!--					<li><a href="#pointtab"><span>Non-vouchered Points</span></a></li> -->
 				<li><a href="checklistadminchildren.php?clid=<?php echo $clid.'&pid='.$pid; ?>"><span><?php echo $LANG['RELATEDCHECK'];?></span></a></li>
 				<?php
 				if($clManager->hasVoucherProjects()) echo '<li><a href="imgvouchertab.php?clid='.$clid.'">'.(isset($LANG['ADDIMGVOUCHER'])?$LANG['ADDIMGVOUCHER']:'Add Image Voucher').'</a></li>';

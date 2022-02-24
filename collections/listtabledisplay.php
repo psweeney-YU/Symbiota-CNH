@@ -1,6 +1,6 @@
 <?php
 include_once('../config/symbini.php');
-include_once($SERVER_ROOT.'/content/lang/collections/list.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/listtabledisplay.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceListManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -23,7 +23,7 @@ $searchVar = $collManager->getQueryTermStr();
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
-	<title><?php echo $DEFAULT_TITLE; ?> Collections Search Results Table</title>
+	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['COL_RESULTS'])?$LANG['COL_RESULTS']:'Collections Search Results Table'); ?></title>
 	<style type="text/css">
 		table.styledtable td {
 			white-space: nowrap;
@@ -31,14 +31,7 @@ $searchVar = $collManager->getQueryTermStr();
 	</style>
 	<?php
 	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
@@ -87,14 +80,14 @@ $searchVar = $collManager->getQueryTermStr();
 				</div>
 			</div>
 			<fieldset style="padding:5px;width:650px;">
-				<legend><b>Sort Results</b></legend>
+				<legend><b><?php echo (isset($LANG['SORT'])?$LANG['SORT']:'Sort Results'); ?></b></legend>
 				<form name="sortform" action="listtabledisplay.php" method="post">
 					<div style="float:left;">
-						<b>Sort By:</b>
+						<b><?php echo (isset($LANG['SORT_BY'])?$LANG['SORT_BY']:'Sort By'); ?>:</b>
 						<select name="sortfield1">
 							<?php
-							$sortFields = array('c.collectionname' => 'Collection', 'o.catalogNumber' => 'Catalog Number', 'o.family' => 'Family', 'o.sciname' => 'Scientific Name', 'o.recordedBy' => 'Collector',
-								'o.recordNumber' => 'Number', 'o.eventDate' => 'Event Date', 'o.country' => 'Country', 'o.StateProvince' => 'State/Province', 'o.county' => 'County', 'o.minimumElevationInMeters' => 'Elevation');
+							$sortFields = array('c.collectionname' => (isset($LANG['COLLECTION'])?$LANG['COLLECTION']:'Collection'), 'o.catalogNumber' => (isset($LANG['CATALOGNUMBER'])?$LANG['CATALOGNUMBER']:'Catalog Number'), 'o.family' => (isset($LANG['FAMILY'])?$LANG['FAMILY']:'Family'), 'o.sciname' => (isset($LANG['SCINAME'])?$LANG['SCINAME']:'Scientific Name'), 'o.recordedBy' => (isset($LANG['COLLECTOR'])?$LANG['COLLECTOR']:'Collector'),
+								'o.recordNumber' => (isset($LANG['NUMBER'])?$LANG['NUMBER']:'Number'), 'o.eventDate' => (isset($LANG['EVENTDATE'])?$LANG['EVENTDATE']:'Date'), 'o.country' => (isset($LANG['COUNTRY'])?$LANG['COUNTRY']:'Country'), 'o.StateProvince' => (isset($LANG['STATE_PROVINCE'])?$LANG['STATE_PROVINCE']:'State/Province'), 'o.county' => (isset($LANG['COUNTY'])?$LANG['COUNTY']:'County'), 'o.minimumElevationInMeters' => (isset($LANG['ELEVATION'])?$LANG['ELEVATION']:'Elevation'));
 							foreach($sortFields as $k => $v){
 								echo '<option value="'.$k.'" '.($k==$sortField1?'SELECTED':'').'>'.$v.'</option>';
 							}
@@ -102,9 +95,9 @@ $searchVar = $collManager->getQueryTermStr();
 						</select>
 					</div>
 					<div style="float:left;margin-left:10px;">
-						<b>Then By:</b>
+						<b><?php echo (isset($LANG['THEN_BY'])?$LANG['THEN_BY']:'Then By'); ?>:</b>
 						<select name="sortfield2">
-							<option value="">Select Field Name</option>
+							<option value=""><?php echo (isset($LANG['SEL_FIELD'])?$LANG['SEL_FIELD']:'Select Field Name'); ?></option>
 							<?php
 							foreach($sortFields as $k => $v){
 								echo '<option value="'.$k.'" '.($k==$sortField2?'SELECTED':'').'>'.$v.'</option>';
@@ -113,10 +106,10 @@ $searchVar = $collManager->getQueryTermStr();
 						</select>
 					</div>
 					<div style="float:left;margin-left:10px;">
-						<b>Order:</b>
+						<b><?php echo (isset($LANG['ORDER'])?$LANG['ORDER']:'Order'); ?>:</b>
 						<select name="sortorder">
-							<option value="">Ascending</option>
-							<option value="desc" <?php echo ($sortOrder=="desc"?'SELECTED':''); ?>>Descending</option>
+							<option value=""><?php echo (isset($LANG['ASCENDING'])?$LANG['ASCENDING']:'Ascending'); ?></option>
+							<option value="desc" <?php echo ($sortOrder=="desc"?'SELECTED':''); ?>><?php echo (isset($LANG['DESCENDING'])?$LANG['DESCENDING']:'Descending'); ?></option>
 						</select>
 					</div>
 					<div style="float:right;margin-right:10px;">
@@ -137,13 +130,13 @@ $searchVar = $collManager->getQueryTermStr();
 		$qryCnt = $collManager->getRecordCnt();
 		$navStr = '<div style="float:right;">';
 		if($page > 1){
-			$navStr .= '<a href="listtabledisplay.php?'.$searchVar.'&page='.($page-1).'" title="Previous '.$tableCount.' records">&lt;&lt;</a>';
+			$navStr .= '<a href="listtabledisplay.php?'.$searchVar.'&page='.($page-1).'" title="'.$LANG['PAGINATION_PREVIOUS'].' '.$tableCount.' '.$LANG['PAGINATION_RECORDS'].'">&lt;&lt;</a>';
 		}
 		$navStr .= ' | ';
-		$navStr .= ($page==1?1:(($page-1)*$tableCount)).'-'.($qryCnt<$tableCount*$page?$qryCnt:$tableCount*$page).' of '.$qryCnt.' records';
+		$navStr .= ($page==1?1:(($page-1)*$tableCount)).'-'.($qryCnt<$tableCount*$page?$qryCnt:$tableCount*$page).' '.$LANG['PAGINATION_OF'].' '.$qryCnt.' '.$LANG['PAGINATION_RECORDS'];
 		$navStr .= ' | ';
 		if($qryCnt > ($page*$tableCount)){
-			$navStr .= '<a href="listtabledisplay.php?'.$searchVar.'&page='.($page+1).'" title="Next '.$tableCount.' records">&gt;&gt;</a>';
+			$navStr .= '<a href="listtabledisplay.php?'.$searchVar.'&page='.($page+1).'" title="'.$LANG['PAGINATION_NEXT'].' '.$tableCount.' '.$LANG['PAGINATION_RECORDS'].'">&gt;&gt;</a>';
 		}
 		$navStr .= '</div>';
 		?>
@@ -154,10 +147,10 @@ $searchVar = $collManager->getQueryTermStr();
 				?>
 			</div>
 			<div class="navpath">
-				<a href="../index.php">Home</a> &gt;&gt;
-				<a href="index.php">Collections</a> &gt;&gt;
-				<a href="harvestparams.php">Search Criteria</a> &gt;&gt;
-				<b>Specimen Records Table</b>
+				<a href="../index.php"><?php echo (isset($LANG['NAV_HOME'])?$LANG['NAV_HOME']:'Home'); ?></a> &gt;&gt;
+				<a href="index.php"><?php echo (isset($LANG['NAV_COLLECTIONS'])?$LANG['NAV_COLLECTIONS']:'Collections'); ?></a> &gt;&gt;
+				<a href="harvestparams.php"><?php echo (isset($LANG['NAV_SEARCH'])?$LANG['NAV_SEARCH']:'Search Criteria'); ?></a> &gt;&gt;
+				<b><?php echo (isset($LANG['SPEC_REC_TAB'])?$LANG['SPEC_REC_TAB']:'Specimen Records Table'); ?></b>
 			</div>
 		</div>
 		<form name="occurListForm" method="post" action="datasets/index.php" onsubmit="return validateOccurListForm(this)" target="_blank">
@@ -169,23 +162,23 @@ $searchVar = $collManager->getQueryTermStr();
 					<div style="clear:both;height:5px;"></div>
 					<table class="styledtable" style="font-family:Arial;font-size:12px;">
 						<tr>
-							<th>Symbiota ID</th>
-							<th>Collection</th>
-							<th>Catalog Number</th>
-							<th>Family</th>
-							<th>Scientific Name</th>
-							<th>Collector</th>
-							<th>Number</th>
-							<th>Event Date</th>
-							<th>Country</th>
-							<th>State/Province</th>
-							<th>County</th>
-							<th>Locality</th>
-							<th>Decimal Lat.</th>
-							<th>Decimal Long.</th>
-							<th>Habitat</th>
-							<th>Substrate</th>
-							<th>Elevation</th>
+							<th><?php echo (isset($LANG['SYMB_ID'])?$LANG['SYMB_ID']:'Symbiota ID'); ?></th>
+							<th><?php echo (isset($LANG['COLLECTION'])?$LANG['COLLECTION']:'Collection'); ?></th>
+							<th><?php echo (isset($LANG['CATALOGNUMBER'])?$LANG['CATALOGNUMBER']:'Catalog Number'); ?></th>
+							<th><?php echo (isset($LANG['FAMILY'])?$LANG['FAMILY']:'Family'); ?></th>
+							<th><?php echo (isset($LANG['SCINAME'])?$LANG['SCINAME']:'Scientific Name'); ?></th>
+							<th><?php echo (isset($LANG['COLLECTOR'])?$LANG['COLLECTOR']:'Collector'); ?></th>
+							<th><?php echo (isset($LANG['NUMBER'])?$LANG['NUMBER']:'Number'); ?></th>
+							<th><?php echo (isset($LANG['EVENT_DATE'])?$LANG['EVENT_DATE']:'Date'); ?></th>
+							<th><?php echo (isset($LANG['COUNTRY'])?$LANG['COUNTRY']:'Country'); ?></th>
+							<th><?php echo (isset($LANG['STATE_PROVINCE'])?$LANG['STATE_PROVINCE']:'State/Province'); ?></th>
+							<th><?php echo (isset($LANG['COUNTY'])?$LANG['COUNTY']:'County'); ?></th>
+							<th><?php echo (isset($LANG['LOCALITY'])?$LANG['LOCALITY']:'Locality'); ?></th>
+							<th><?php echo (isset($LANG['DEC_LAT'])?$LANG['DEC_LAT']:'Decimal Lat.'); ?></th>
+							<th><?php echo (isset($LANG['DEC_LONG'])?$LANG['DEC_LONG']:'Decimal Long.'); ?></th>
+							<th><?php echo (isset($LANG['HABITAT'])?$LANG['HABITAT']:'Habitat'); ?></th>
+							<th><?php echo (isset($LANG['SUBSTRATE'])?$LANG['SUBSTRATE']:'Substrate'); ?></th>
+							<th><?php echo (isset($LANG['ELEVATION'])?$LANG['ELEVATION']:'Elevation'); ?></th>
 						</tr>
 						<?php
 						$recCnt = 0;
@@ -207,21 +200,21 @@ $searchVar = $collManager->getQueryTermStr();
 									echo '<a href="#" onclick="return openIndPU('.$occid.",".($targetClid?$targetClid:"0").');">'.$occid.'</a> ';
 									if($isEditor || ($SYMB_UID && $SYMB_UID == $occArr['obsuid'])){
 										echo '<a href="editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">';
-										echo '<img src="../images/edit.png" style="height:13px;" title="Edit Record" />';
+										echo '<img src="../images/edit.png" style="height:13px;" title="'.(isset($LANG['EDIT_REC'])?$LANG['EDIT_REC']:'Edit Record').'" />';
 										echo '</a>';
 									}
 									if(isset($occArr['img'])){
-										echo '<img src="../images/image.png" style="height:13px;margin-left:5px;" title="Has Image" />';
+										echo '<img src="../images/image.png" style="height:13px;margin-left:5px;" title="'.(isset($LANG['HAS_IMAGE'])?$LANG['HAS_IMAGE']:'Has Image').'" />';
 									}
 									?>
 								</td>
 								<td><?php echo $collection; ?></td>
 								<td><?php echo $occArr['catnum']; ?></td>
 								<td><?php echo $occArr['family']; ?></td>
-								<td><?php echo $occArr['sciname'].($occArr['author']?" ".$occArr['author']:""); ?></td>
+								<td><?php echo $occArr['sciname'].($occArr['author']?' '.$occArr['author']:''); ?></td>
 								<td><?php echo $occArr['collector']; ?></td>
-								<td><?php echo (array_key_exists("collnum",$occArr)?$occArr['collnum']:""); ?></td>
-								<td><?php echo (array_key_exists("date",$occArr)?$occArr['date']:""); ?></td>
+								<td><?php echo (array_key_exists('collnum',$occArr)?$occArr['collnum']:''); ?></td>
+								<td><?php echo (array_key_exists('date',$occArr)?$occArr['date']:''); ?></td>
 								<td><?php echo $occArr['country']; ?></td>
 								<td><?php echo $occArr['state']; ?></td>
 								<td><?php echo $occArr['county']; ?></td>
@@ -231,11 +224,11 @@ $searchVar = $collManager->getQueryTermStr();
 								if(strlen($locStr)>80) $locStr = substr($locStr,0,80).'...';
 								echo $locStr;
 								?></td>
-								<td><?php if($occArr['declat']) echo $occArr['declat']; ?></td>
-								<td><?php if($occArr['declong']) echo $occArr['declong']; ?></td>
+								<td><?php if(isset($occArr['declat'])) echo $occArr['declat']; ?></td>
+								<td><?php if(isset($occArr['declong'])) echo $occArr['declong']; ?></td>
 								<td><?php if(isset($occArr['habitat'])) echo ((strlen($occArr['habitat'])>80)?substr($occArr['habitat'],0,80).'...':$occArr['habitat']); ?></td>
 								<td><?php if(isset($occArr['substrate'])) echo ((strlen($occArr['substrate'])>80)?substr($occArr['substrate'],0,80).'...':$occArr['substrate']); ?></td>
-								<td><?php echo (array_key_exists("elev",$occArr)?$occArr['elev']:""); ?></td>
+								<td><?php echo (array_key_exists('elev',$occArr)?$occArr['elev']:''); ?></td>
 							</tr>
 							<?php
 							$recCnt++;
@@ -244,11 +237,11 @@ $searchVar = $collManager->getQueryTermStr();
 					</table>
 					<div style="clear:both;height:5px;"></div>
 					<div style="width:790px;"><?php echo $navStr; ?></div>
-					*Click on the Symbiota identifier in the first column to see Full Record Details.';
+					*<?php echo (isset($LANG['CLICK_SYMB'])?$LANG['CLICK_SYMB']:'Click on the Symbiota identifier in the first column to see Full Record Details'); ?>.';
 					<?php
 				}
 				else{
-					echo '<div style="font-weight:bold;font-size:120%;">No records found matching the query</div>';
+					echo '<div style="font-weight:bold;font-size:120%;">'.(isset($LANG['NONE_FOUND'])?$LANG['NONE_FOUND']:'No records found matching the query').'</div>';
 				}
 				?>
 			</div>

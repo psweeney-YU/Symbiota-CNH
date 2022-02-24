@@ -3,7 +3,7 @@ include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceCrowdSource.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID) header('Location: ../../../profile/index.php?refurl=../collections/specprocessor/index.php?tabindex=2?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
+if(!$SYMB_UID) header('Location: ../../../profile/index.php?refurl=../collections/specprocessor/index.php?tabindex=1?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $uid = array_key_exists('uid',$_REQUEST)?$_REQUEST['uid']:0;
@@ -40,9 +40,10 @@ $projArr = $csManager->getProjectDetails();
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Crowdsourcing Reviewer</title>
-    <link href="../../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" rel="stylesheet" type="text/css" />
-    <link href="../../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" rel="stylesheet" type="text/css" />
-	<link href="../../../css/jquery-ui.css" rel="stylesheet" type="text/css" />
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script src="../../../js/jquery.js" type="text/javascript"></script>
 	<script" src="../../../js/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript">
@@ -85,7 +86,7 @@ $projArr = $csManager->getProjectDetails();
 		<a href="../../../index.php">Home</a> &gt;&gt;
 		<a href="index.php">Source Board</a> &gt;&gt;
 		<?php
-		if($collid) echo '<a href="../index.php?tabindex=2&collid='.$collid.'">Control Panel</a> &gt;&gt;';
+		if($collid) echo '<a href="../index.php?tabindex=1&collid='.$collid.'">Control Panel</a> &gt;&gt;';
 		?>
 		<b>Crowdsourcing Review</b>
 	</div>
@@ -299,7 +300,7 @@ $projArr = $csManager->getProjectDetails();
 								There are no more records to review for this user
 							</div>
 							<div style="margin:15px;">
-								Return to <a href="../index.php?tabindex=2&collid=<?php echo $collid; ?>">Control Panel</a>
+								Return to <a href="../index.php?tabindex=1&collid=<?php echo $collid; ?>">Control Panel</a>
 							</div>
 							<div style="margin:15px;">
 								Return to <a href="index.php">Source Board</a>

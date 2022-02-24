@@ -143,6 +143,7 @@ $(document).ready(function() {
 						fieldChanged(k);
 					}
 				});
+				ui.item.value = ui.item.locality; 
 			}
 		});
 		if($( "input[name=localautodeactivated]" ).is(':checked')){
@@ -163,6 +164,7 @@ $(document).ready(function() {
 		},
 		minLength: 3,
 		select: function( event, ui ) {
+			event.preventDefault();
 			$.each(ui.item, function(k, v) {
 				var elem = $( "input[name="+k+"]" );
 				if(!elem.length) elem = $( "textarea[name="+k+"]" );
@@ -172,6 +174,9 @@ $(document).ready(function() {
 					fieldChanged(k);
 				}
 			});
+			let baseValue = ui.item.value;
+			baseValue = baseValue.substring(0,baseValue.indexOf(" || "));
+			this.value = baseValue;
 		}
 	});
 
@@ -274,12 +279,6 @@ $(document).ready(function() {
 	if(getCookie("autodupe") == 1) editForm.autodupe.checked = true; 
 });
 
-function toggleQueryForm(){
-	toggle("querydiv");
-	var statusDiv = document.getElementById('statusdiv');
-	if(statusDiv) statusDiv.style.display = 'none';
-}
-
 //Field changed and verification functions
 function verifyFullFormSciName(){
 	$.ajax({
@@ -317,6 +316,28 @@ function verifyFullFormSciName(){
 			alert("WARNING: Taxon not found. It may be misspelled or needs to be added to taxonomic thesaurus by a taxonomic editor. You can continue entering this specimen using this name and the name will be resolved at a later date.");
 		}
 	});
+}
+
+function addIdentifierField(clickedObj){
+	$(clickedObj).hide();
+	var identDiv = document.getElementById("identifierBody");
+	var insertHtml = '<div class="divTableRow"><div class="divTableCell"><input name="idkey[]" type="hidden" value="newidentifier" /><input name="idname[]" type="text" value="" onchange="fieldChanged(\'idname\');" autocomplete="off" /></div><div class="divTableCell"><input name="idvalue[]" type="text" value="" onchange="fieldChanged(\'idvalue\');searchOtherCatalogNumbers(this.form);" autocomplete="off" /><a href="#" onclick="addIdentifierField(this);return false"><img src="../../images/plus.png" /></a></div></div>';
+	identDiv.insertAdjacentHTML('beforeend', insertHtml);
+}
+
+function deleteIdentifier(identID, occid){
+	if(identID != ""){
+		//alert("rpc/deleteIdentifier.php?identifierID="+identID+"&occid="+occid);
+		$.ajax({
+			type: "POST",
+			url: "rpc/deleteIdentifier.php",
+			dataType: "json",
+			data: { identifierID: identID, occid: occid }
+		}).done(function( response ) {
+			if(response == 1) $("#idRow-"+identID).remove()
+			//else alert("Error deleting identifier");
+		});
+	}
 }
 
 function localitySecurityCheck(){
@@ -799,13 +820,15 @@ function autoIncrementCat(){
 	if(catSeed != ""){
 		let prefix = '';
 		for(let h = 0; h < catSeed.length; h++) {
-			if(isNumeric(catSeed.charAt(h))) break;
-			else prefix = prefix + catSeed.charAt(h);
+			let c = catSeed.charAt(h);
+			if(c >= '0' && c <= '9') break;
+			else prefix = prefix + c;
 		}
 		let suffix = ''; 
 		for(let i = catSeed.length; i > 0; i--) {
-			if(isNumeric(catSeed.charAt(i-1))) break;
-			else suffix =  catSeed.charAt(i-1)+suffix;
+			let c = catSeed.charAt(i-1);
+			if(c >= '0' && c <= '9') break;
+			else suffix =  c+suffix;
 		}
 		let seed = catSeed.substring(prefix.length,(catSeed.length-suffix.length));
 		$("input[id^='clonecat']").each(function(){
@@ -1285,14 +1308,6 @@ function verifyDetForm(f){
 		alert("Sort Sequence field must be a numeric value only");
 		return false;
 	}
-	//If sciname was changed and submit was clicked immediately afterward, wait 5 seconds so that name can be verified 
-	if(pauseSubmit){
-		var date = new Date();
-		var curDate = null;
-		do{ 
-			curDate = new Date(); 
-		}while(curDate - date < 5000 && pauseSubmit);
-	}
 	return true;
 }
 
@@ -1338,7 +1353,7 @@ function verifyImgRemapForm(f){
 
 //Misc
 function dwcDoc(dcTag){
-	dwcWindow=open("http://symbiota.org/docs/symbiota-occurrence-data-fields-2/#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
+	dwcWindow=open("https://symbiota.org/symbiota-occurrence-data-fields-2/#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
 	//dwcWindow=open("http://rs.tdwg.org/dwc/terms/index.htm#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
 	if(dwcWindow.opener == null) dwcWindow.opener = self;
 	dwcWindow.focus();

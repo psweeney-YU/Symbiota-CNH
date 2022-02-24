@@ -1,7 +1,7 @@
 <?php
 /*
 ------------------
-Language: Espa�ol (Spanish)
+Language: Español (Spanish)
 ------------------
 */
 
@@ -20,8 +20,8 @@ $LANG['EXCLUSION_LIST'] = 'Lista de especies de exclusi&oacute;n para';
 $LANG['INCLUDE_TAXA'] = 'Incluye taxa de las siguientes listas';
 $LANG['TAXA_EXCLUDED'] = 'Taxa excluida expl&iacute;citamente';
 $LANG['AUTHORS'] = 'Autores';
-$LANG['MOREDETS'] = 'Mas Detalles';
-$LANG['LESSDETS'] = 'Menos Detalles';
+$LANG['MOREDETAILS'] = 'mas detalles';
+$LANG['LESSDETAILS'] = 'menos detalles';
 $LANG['CITATION'] = 'Publicaci&oacute;n';
 $LANG['OPTIONS'] = 'Opciones';
 $LANG['SEARCH'] = 'Buscar';

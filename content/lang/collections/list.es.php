@@ -1,7 +1,7 @@
 <?php
 /*
 ------------------
-Language: Espa�ol (Spanish)
+Language: Español (Spanish)
 ------------------
 */
 
@@ -11,15 +11,16 @@ $LANG['PAGE_TITLE'] = 'Resultados de Búsqueda de Colecciones';
 $LANG['NAV_SPECIMEN_LIST'] = 'Registros de Ejemplares';
 $LANG['TABLE_DISPLAY'] = 'Mostrar Tabla';
 $LANG['LIST_DISPLAY'] = 'Mostrar Lista';
-$LANG['DOWNLOAD_SPECIMEN_DATA'] = 'Descargar Datos de Ejemplares';
-$LANG['COPY_TO_CLIPBOARD'] = 'Copia URL al Portapapeles';
+$LANG['SHOW_ALL'] = 'mostrar todo';
 $LANG['DATASET'] = 'Conjunto de Datos';
 $LANG['TAXA'] = 'Taxa';
 $LANG['SEARCH_CRITERIA'] = 'Criterios de Búsqueda';
-$LANG['SHOW_ALL'] = 'mostrar todo';
 $LANG['PAGINATION_FIRST'] = 'Primero';
+$LANG['LAST'] = 'último';
 $LANG['PAGINATION_PAGE'] = 'Página';
 $LANG['PAGINATION_RECORDS'] = 'registros';
+$LANG['PAGINATION_PREVIOUS'] = 'Previo';
+$LANG['PAGINATION_NEXT'] = 'Próximo';
 $LANG['PAGINATION_OF'] = 'de';
 $LANG['SELECT_DATASET'] = 'Seleccione un conjunto de datos para agregar ocurrencias o seleccione Crear nuevo conjunto de datos';
 $LANG['SELECT_OCCURRENCE'] = 'Seleccione al menos una ocurrencia para agregar al conjunto de datos';
