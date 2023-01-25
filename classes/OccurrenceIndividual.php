@@ -453,17 +453,17 @@ class OccurrenceIndividual extends Manager{
 
 	private function setSource(){
 		if(isset($GLOBALS['ACTIVATE_PORTAL_INDEX']) && $GLOBALS['ACTIVATE_PORTAL_INDEX']){
-			$sql = 'SELECT o.targetOccid, o.refreshTimestamp, o.verification, i.urlRoot, i.portalName
+			$sql = 'SELECT o.remoteOccid, o.refreshTimestamp, o.verification, i.urlRoot, i.portalName
 				FROM portaloccurrences o INNER JOIN portalpublications p ON o.pubid = p.pubid
 				INNER JOIN portalindex i ON p.portalID = i.portalID
 				WHERE (o.occid = '.$this->occid.') AND (p.direction = "import")';
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$this->occArr['source']['type'] = 'symbiota';
-					$this->occArr['source']['url'] = $r->urlRoot.'/collections/individual/index.php?occid='.$r->targetOccid;
+					$this->occArr['source']['url'] = $r->urlRoot.'/collections/individual/index.php?occid='.$r->remoteOccid;
 					$this->occArr['source']['sourceName'] = $r->portalName;
 					$this->occArr['source']['refreshTimestamp'] = $r->refreshTimestamp;
-					$this->occArr['source']['sourceID'] = $r->targetOccid;
+					$this->occArr['source']['sourceID'] = $r->remoteOccid;
 				}
 				$rs->free();
 			}
@@ -622,7 +622,7 @@ class OccurrenceIndividual extends Manager{
 		if(isset($outArr['name'])){
 			echo '<div style="margin-left:'.$indent.'px">';
 			if(!empty($outArr['url'])) echo '<a href="'.$outArr['url'].'" target="_blank">';
-			echo '<span class="traitName">';
+			echo '<span class="trait-name">';
 			if(!empty($label)) echo $label.' ';
 			echo $outArr['name'];
 			echo '</span>';
