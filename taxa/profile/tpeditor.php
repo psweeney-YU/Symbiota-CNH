@@ -44,7 +44,7 @@ $isEditor = false;
 if($IS_ADMIN || array_key_exists("TaxonProfile",$USER_RIGHTS)) $isEditor = true;
 
 if($isEditor && $action){
-	if($action == "Edit Synonym Sort Order"){
+	if($action == 'editSynonymSort'){
 		$synSortArr = Array();
 		foreach($_REQUEST as $sortKey => $sortValue){
 			if($sortValue && (substr($sortKey,0,4) == "syn-")){
@@ -63,23 +63,23 @@ if($isEditor && $action){
 		if(!$tEditor->deleteVernacular($_REQUEST["delvern"])) $statusStr = $tEditor->getErrorMessage();
 	}
 	elseif($action == 'Add Description Block'){
-		if(!$tEditor->addDescriptionBlock($_POST)){
-			$statusStr = $tEditor->getErrorMessage();
+		if(!$tEditor->insertDescriptionBlock($_POST)){
+			$statusStr = 'ERROR inserting description block: ' . $tEditor->getErrorMessage();
 		}
 	}
 	elseif($action == 'saveDescriptionBlock'){
-		if(!$tEditor->editDescriptionBlock($_POST)){
-			$statusStr = $tEditor->getErrorMessage();
+		if(!$tEditor->updateDescriptionBlock($_POST)){
+			$statusStr = 'ERROR editing description block: '.$tEditor->getErrorMessage();
 		}
 	}
 	elseif($action == 'Delete Description Block'){
 		if(!$tEditor->deleteDescriptionBlock($_POST['tdbid'])){
-			$statusStr = $tEditor->getErrorMessage();
+			$statusStr = 'ERROR deleting description block: ' . $tEditor->getErrorMessage();
 		}
 	}
 	elseif($action == 'remap'){
 		if(!$tEditor->remapDescriptionBlock($_GET['tdbid'])){
-			$statusStr = $tEditor->getErrorMessage();
+			$statusStr = 'ERROR remapping description block: ' . $tEditor->getErrorMessage();
 		}
 	}
 	elseif($action == 'Add Statement'){
@@ -376,7 +376,7 @@ if($isEditor && $action){
 											}
 											?>
 											<div>
-												<input type="submit" name="action" value="<?php echo $LANG['EDIT_SYN_ORDER']; ?>" />
+												<button type="submit" name="action" value="editSynonymSort"><?php echo $LANG['EDIT_SYN_ORDER']; ?></button>
 											</div>
 										</fieldset>
 									</form>

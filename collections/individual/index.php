@@ -95,11 +95,6 @@ if(isset($_SERVER['HTTP_ACCEPT'])){
 
 if($SYMB_UID){
 	//Form action submitted
-	if(array_key_exists('delvouch',$_GET) && $occid){
-		if(!$indManager->deleteVoucher($occid,$_GET['delvouch'])){
-			$statusStr = $indManager->getErrorMessage();
-		}
-	}
 	if(array_key_exists('commentstr',$_POST)){
 		if(!$indManager->addComment($_POST['commentstr'])){
 			$statusStr = $indManager->getErrorMessage();
@@ -123,8 +118,13 @@ if($SYMB_UID){
 			$statusStr = $indManager->getErrorMessage();
 		}
 	}
-	elseif($submit == 'Add Voucher'){
+	elseif($submit == 'addVoucher'){
 		if(!$indManager->linkVoucher($_POST)){
+			$statusStr = $indManager->getErrorMessage();
+		}
+	}
+	elseif(array_key_exists('delvouch',$_GET)){
+		if(!$indManager->deleteVoucher($_GET['delvouch'])){
 			$statusStr = $indManager->getErrorMessage();
 		}
 	}
@@ -405,7 +405,8 @@ $traitArr = $indManager->getTraitArr();
 							<?php
 						}
 						if($occArr['othercatalognumbers']){
-							if(substr($occArr['othercatalognumbers'],0,1)=='{'){
+							$char = substr($occArr['othercatalognumbers'],0,1);
+							if($char == '{' || $char == '['){
 								$otherCatArr = json_decode($occArr['othercatalognumbers'],true);
 								foreach($otherCatArr as $catTag => $catValueArr){
 									if(!$catTag) $catTag = $LANG['OTHER_CATALOG_NUMBERS'];
@@ -1394,7 +1395,7 @@ $traitArr = $indManager->getTraitArr();
 					<?php
 					ob_flush();
 					flush();
-					$rawArchArr = $indManager->checkArchive();
+					$rawArchArr = $indManager->checkArchive($guid);
 					if($rawArchArr && $rawArchArr['obj']){
 						$archArr = $rawArchArr['obj'];
 						if($isEditor){

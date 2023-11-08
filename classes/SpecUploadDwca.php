@@ -89,8 +89,42 @@ class SpecUploadDwca extends SpecUploadBase{
 	}
 
 	private function createTargetSubDir(){
-		$localFolder = str_replace(' ','',$this->collMetadataArr['institutioncode'].($this->collMetadataArr['collectioncode']?$this->collMetadataArr['collectioncode'].'_':'')).time().'/';
-		if(mkdir($this->uploadTargetPath.$localFolder)) $this->uploadTargetPath .= $localFolder;
+		$this->deleteTempFiles();
+		$localFolder = 'collid_'.$this->collId.'/';
+		if(file_exists($this->uploadTargetPath.$localFolder)){
+			//Reset upload directory
+			$this->deleteTempFiles($localFolder, false);
+		}
+		else{
+			if(mkdir($this->uploadTargetPath.$localFolder)) $this->uploadTargetPath .= $localFolder;
+		}
+	}
+
+	private function deleteTempFiles($pathFragment = '', $filetimeLimit = '-2 days'){
+		$dirPath = $this->uploadTargetPath.$pathFragment;
+		$allowedToBeDeleted = array('csv','txt','xml','zip');
+		if($handle = opendir($dirPath)) {
+			$loopCnt = 0;
+			while(false !== ($item = readdir($handle))) {
+				if($item){
+					if(is_file($dirPath.$item) || strtolower(substr($item,-4)) == '.zip'){
+						$ext = pathinfo($dirPath.$item, PATHINFO_EXTENSION);
+						if(in_array(strtolower($ext), $allowedToBeDeleted)){
+							if($filetimeLimit){
+								if(!filemtime($dirPath.$item) || filemtime($dirPath.$item) > strtotime($filetimeLimit)) continue;
+							}
+							if(is_writable($dirPath.$item)) unlink($dirPath.$item);
+						}
+					}
+					elseif(is_dir($dirPath.$item) && $item != '.' && $item != '..'){
+						$this->deleteTempFiles($pathFragment.$item.'/', $filetimeLimit);
+					}
+					if($loopCnt > 15) break;
+				}
+				$loopCnt++;
+			}
+			closedir($handle);
+		}
 	}
 
 	private function unpackArchive(){
@@ -601,10 +635,8 @@ class SpecUploadDwca extends SpecUploadBase{
 									$index = array_shift($indexArr);
 									if(array_key_exists($index,$recordArr)){
 										$valueStr = trim($recordArr[$index]);
-										if($valueStr){
-											if($cset != $this->encoding) $valueStr = $this->encodeString($valueStr);
-											$recMap[$symbField] = $valueStr;
-										}
+										if($cset != $this->encoding) $valueStr = $this->encodeString($valueStr);
+										$recMap[$symbField] = $valueStr;
 									}
 								}
 							}
@@ -725,13 +757,6 @@ class SpecUploadDwca extends SpecUploadBase{
 	private function removeFiles($pathFrag = ''){
 		//First remove files
 		$dirPath = $this->uploadTargetPath.$pathFrag;
-		if(!$pathFrag){
-			//If files were not uploaded to temp directory, don't delete
-			//$this->setUploadTargetPath();
-			if(stripos($dirPath,$this->uploadTargetPath) === false){
-				return false;
-			}
-		}
 		if($handle = opendir($dirPath)) {
 			while(false !== ($item = readdir($handle))) {
 				if($item){
@@ -741,8 +766,7 @@ class SpecUploadDwca extends SpecUploadBase{
 						}
 					}
 					elseif(is_dir($dirPath.$item) && $item != '.' && $item != '..'){
-						$pathFrag .= $item.'/';
-						$this->removeFiles($pathFrag);
+						$this->removeFiles($pathFrag . $item.'/');
 					}
 					if($this->loopCnt > 15) break;
 				}
@@ -751,7 +775,7 @@ class SpecUploadDwca extends SpecUploadBase{
 			closedir($handle);
 		}
 		//Delete directory
-		if(stripos($dirPath,$this->uploadTargetPath) === 0){
+		if(stripos($dirPath, $this->uploadTargetPath) === 0){
 			rmdir($dirPath);
 		}
 	}
@@ -943,11 +967,9 @@ class SpecUploadDwca extends SpecUploadBase{
 			$this->errorStr = '<li style="margin-left:10px">Unable to remove bad taxonomic index links</li>';
 		}
 
-		//Remove occurrenceID GUIDs that already match the values in guidoccurrence table
+		//Remove occurrenceID GUIDs that already match the values in recordID field
 		$this->outputMsg('<li style="margin-left:10px">Syncronizing occurrenceID GUIDs...</li>',1);
-		$sql = 'UPDATE uploadspectemp u INNER JOIN guidoccurrences g ON u.occid = g.occid '.
-			'SET u.occurrenceID = NULL '.
-			'WHERE (u.collid = '.$this->collId.') AND (u.occurrenceID = g.guid)';
+		$sql = 'UPDATE uploadspectemp SET occurrenceID = NULL WHERE (collid = '.$this->collId.') AND (occurrenceID = recordID)';
 		if(!$this->conn->query($sql)){
 			$this->errorStr = '<li style="margin-left:10px">Unable to remove duclicate GUID references</li>';
 		}

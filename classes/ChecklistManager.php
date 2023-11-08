@@ -273,19 +273,21 @@ class ChecklistManager extends Manager{
 				if($this->childClidArr){
 					$clidStr .= ','.implode(',',array_keys($this->childClidArr));
 				}
-				$vSql = 'SELECT DISTINCT v.tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.othercatalognumbers, o.recordedby, o.recordnumber, o.eventdate, o.collid '.
-					'FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid '.
-					'INNER JOIN omcollections c ON o.collid = c.collid '.
-					'WHERE (v.clid IN ('.$clidStr.')) AND v.tid IN('.implode(',',array_keys($this->taxaList)).') '.
-					'ORDER BY o.collid';
+				$vSql = 'SELECT DISTINCT cl.tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.othercatalognumbers, o.recordedby, o.recordnumber, o.eventdate, o.collid
+					FROM fmvouchers v INNER JOIN fmchklsttaxalink cl ON v.clTaxaID = cl.clTaxaID
+					INNER JOIN omoccurrences o ON v.occid = o.occid
+					INNER JOIN omcollections c ON o.collid = c.collid
+					WHERE (cl.clid IN ('.$clidStr.')) AND cl.tid IN('.implode(',',array_keys($this->taxaList)).')
+					ORDER BY o.collid';
 				if($this->thesFilter){
-					$vSql = 'SELECT DISTINCT ts.tidaccepted AS tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.othercatalognumbers, o.recordedby, o.recordnumber, o.eventdate, o.collid '.
-						'FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid '.
-						'INNER JOIN omcollections c ON o.collid = c.collid '.
-						'INNER JOIN taxstatus ts ON v.tid = ts.tid '.
-						'WHERE (ts.taxauthid = '.$this->thesFilter.') AND (v.clid IN ('.$clidStr.')) '.
-						'AND (ts.tidaccepted IN('.implode(',',array_keys($this->taxaList)).')) '.
-						'ORDER BY o.collid';
+					$vSql = 'SELECT DISTINCT ts.tidaccepted AS tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.othercatalognumbers, o.recordedby, o.recordnumber, o.eventdate, o.collid
+						FROM fmvouchers v INNER JOIN fmchklsttaxalink cl ON v.clTaxaID = cl.clTaxaID
+						INNER JOIN omoccurrences o ON v.occid = o.occid
+						INNER JOIN omcollections c ON o.collid = c.collid
+						INNER JOIN taxstatus ts ON cl.tid = ts.tid
+						WHERE (ts.taxauthid = '.$this->thesFilter.') AND (cl.clid IN ('.$clidStr.'))
+						AND (ts.tidaccepted IN('.implode(',',array_keys($this->taxaList)).'))
+						ORDER BY o.collid';
 				}
 				//echo $vSql; exit;
 		 		$vResult = $this->conn->query($vSql);
@@ -327,10 +329,16 @@ class ChecklistManager extends Manager{
 		if($this->taxaList){
 			$matchedArr = array();
 			if($this->limitImagesToVouchers){
+				$clidStr = $this->clid;
+				if($this->childClidArr){
+					$clidStr .= ','.implode(',',array_keys($this->childClidArr));
+				}
 				$sql = 'SELECT i.tid, i.url, i.thumbnailurl, i.originalurl
 					FROM images i INNER JOIN omoccurrences o ON i.occid = o.occid
 					INNER JOIN fmvouchers v ON o.occid = v.occid
-					WHERE (v.clid = 2) AND (i.tid IN('.implode(',',array_keys($this->taxaList)).'))';
+					INNER JOIN fmchklsttaxalink cl ON v.clTaxaID = cl.clTaxaID
+					WHERE (cl.clid = '.$clidStr.') AND (i.tid IN('.implode(',',array_keys($this->taxaList)).'))
+					ORDER BY i.sortOccurrence, i.sortSequence';
 				$matchedArr = $this->setImageSubset($sql);
 			}
 			if($missingArr = array_diff(array_keys($this->taxaList),$matchedArr)){
@@ -343,7 +351,7 @@ class ChecklistManager extends Manager{
 				$matchedArr = $this->setImageSubset($sql);
 				if($missingArr = array_diff(array_keys($this->taxaList),$matchedArr)){
 					//Get children images
-					$sql = 'SELECT i2.tid, i.url, i.thumbnailurl FROM images i INNER JOIN '.
+					$sql = 'SELECT DISTINCT i2.tid, i.url, i.thumbnailurl FROM images i INNER JOIN '.
 						'(SELECT ts1.parenttid AS tid, SUBSTR(MIN(CONCAT(LPAD(i.sortsequence,6,"0"),i.imgid)),7) AS imgid '.
 						'FROM taxstatus ts1 INNER JOIN taxstatus ts2 ON ts1.tidaccepted = ts2.tidaccepted '.
 						'INNER JOIN images i ON ts2.tid = i.tid '.
@@ -358,7 +366,6 @@ class ChecklistManager extends Manager{
 	private function setImageSubset($sql){
 		$matchTidArr = array();
 		if($this->taxaList){
-			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				if(!in_array($r->tid,$matchTidArr)){
@@ -442,12 +449,12 @@ class ChecklistManager extends Manager{
 
 			if(!$limit || $retCnt < 50){
 				//Grab voucher points
-				$sql2 = 'SELECT DISTINCT v.tid, o.occid, o.decimallatitude, o.decimallongitude, '.
-					'CONCAT(o.recordedby," (",IFNULL(o.recordnumber,o.eventdate),")") as notes '.
-					'FROM omoccurrences o INNER JOIN fmvouchers v ON o.occid = v.occid '.
-					'INNER JOIN ('.$this->basicSql.') t ON v.tid = t.tid '.
-					'WHERE v.clid IN ('.$clidStr.') AND o.decimallatitude IS NOT NULL AND o.decimallongitude IS NOT NULL '.
-					'AND (o.localitysecurity = 0 OR o.localitysecurity IS NULL) ';
+				$sql2 = 'SELECT DISTINCT cl.tid, o.occid, o.decimallatitude, o.decimallongitude, CONCAT(o.recordedby," (",IFNULL(o.recordnumber,o.eventdate),")") as notes
+					FROM omoccurrences o INNER JOIN fmvouchers v ON o.occid = v.occid
+					INNER JOIN fmchklsttaxalink cl ON v.clTaxaID = cl.clTaxaID
+					INNER JOIN ('.$this->basicSql.') t ON cl.tid = t.tid
+					WHERE cl.clid IN ('.$clidStr.') AND o.decimallatitude IS NOT NULL AND o.decimallongitude IS NOT NULL
+					AND (o.localitysecurity = 0 OR o.localitysecurity IS NULL) ';
 				if($limit) $sql2 .= 'ORDER BY RAND() LIMIT '.$limit;
 				//echo $sql2;
 				$rs2 = $this->conn->query($sql2);

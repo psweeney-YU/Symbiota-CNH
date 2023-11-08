@@ -2,6 +2,7 @@
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyUtilities.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyHarvester.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceMaintenance.php');
 
 class TaxonomyUpload{
 
@@ -434,13 +435,13 @@ class TaxonomyUpload{
 
 		$sql = 'UPDATE uploadtaxa u INNER JOIN uploadtaxa u2 ON u.sourceParentId = u2.sourceId '.
 			'SET u.parentstr = u2.sciname '.
-			'WHERE (u.parentstr IS NULL) AND (u.sourceParentId IS NOT NULL) AND (u2.sourceId IS NOT NULL)';
+			'WHERE (u.parentstr IS NULL)';
 		if(!$this->conn->query($sql)){
 			$this->outputMsg('ERROR: '.$this->conn->error,1);
 		}
 		$sql = 'UPDATE uploadtaxa u INNER JOIN uploadtaxa u2 ON u.sourceAcceptedId = u2.sourceId '.
 			'SET u.acceptedstr = u2.sciname '.
-			'WHERE (u.acceptedstr IS NULL) AND (u.sourceAcceptedId IS NOT NULL) AND (u2.sourceId IS NOT NULL)';
+			'WHERE (u.acceptedstr IS NULL)';
 		if(!$this->conn->query($sql)){
 			$this->outputMsg('ERROR: '.$this->conn->error,1);
 		}
@@ -451,7 +452,8 @@ class TaxonomyUpload{
 
 		//Link names already in theusaurus
 		$this->outputMsg('Linking names already in thesaurus... ');
-		$sql = 'UPDATE uploadtaxa u INNER JOIN taxa t ON u.sciname = t.sciname SET u.tid = t.tid WHERE (u.tid IS NULL) AND (t.kingdomname = "'.$this->kingdomName.'") ';
+		$sql = 'UPDATE uploadtaxa u INNER JOIN taxa t ON u.sciname = t.sciname SET u.tid = t.tid
+			WHERE (u.tid IS NULL) AND (t.kingdomname = "'.$this->kingdomName.'" OR t.sciname = "'.$this->kingdomName.'" OR t.rankid < 10) ';
 		if(!$this->conn->query($sql)){
 			$this->outputMsg('ERROR: '.$this->conn->error,1);
 		}
@@ -464,7 +466,7 @@ class TaxonomyUpload{
 		}
 		$sql = 'UPDATE uploadtaxa u INNER JOIN taxa t ON u.acceptedstr = t.sciname '.
 			'SET u.tidaccepted = t.tid '.
-			'WHERE (u.tidaccepted IS NULL) AND (t.kingdomname = "'.$this->kingdomName.'")';
+			'WHERE (u.tidaccepted IS NULL) AND (t.kingdomname = "'.$this->kingdomName.'" OR t.sciname = "'.$this->kingdomName.'" OR t.rankid < 10)';
 		if(!$this->conn->query($sql)){
 			$this->outputMsg('ERROR: '.$this->conn->error,1);
 		}
@@ -569,7 +571,9 @@ class TaxonomyUpload{
 			$this->outputMsg('ERROR: '.$this->conn->error,1);
 		}
 
-		$sql = 'UPDATE uploadtaxa up INNER JOIN taxa t ON up.parentstr = t.sciname SET parenttid = t.tid WHERE (parenttid IS NULL) AND (t.kingdomname = "'.$this->kingdomName.'")';
+		$sql = 'UPDATE uploadtaxa up INNER JOIN taxa t ON up.parentstr = t.sciname
+			SET parenttid = t.tid
+			WHERE (parenttid IS NULL) AND (t.kingdomname = "'.$this->kingdomName.'" OR t.sciname = "'.$this->kingdomName.'" OR t.rankid < 10)';
 		if(!$this->conn->query($sql)){
 			$this->outputMsg('ERROR: '.$this->conn->error,1);
 		}
@@ -583,7 +587,7 @@ class TaxonomyUpload{
 		$this->conn->query($sql);
 		$sql = 'UPDATE uploadtaxa up INNER JOIN taxa t ON up.parentstr = t.sciname '.
 			'SET up.parenttid = t.tid '.
-			'WHERE (up.parenttid IS NULL) AND (t.kingdomname = "'.$this->kingdomName.'")';
+			'WHERE (up.parenttid IS NULL) AND (t.kingdomname = "'.$this->kingdomName.'" OR t.sciname = "'.$this->kingdomName.'" OR t.rankid < 10)';
 		$this->conn->query($sql);
 
 		//Load into uploadtaxa parents of species not yet in taxa table
@@ -594,7 +598,7 @@ class TaxonomyUpload{
 		$this->conn->query($sql);
 		$sql = 'UPDATE uploadtaxa up LEFT JOIN taxa t ON up.parentstr = t.sciname '.
 			'SET up.parenttid = t.tid '.
-			'WHERE ISNULL(up.parenttid) AND (t.kingdomname = "'.$this->kingdomName.'")';
+			'WHERE ISNULL(up.parenttid) AND (t.kingdomname = "'.$this->kingdomName.'" OR t.sciname = "'.$this->kingdomName.'" OR t.rankid < 10)';
 		$this->conn->query($sql);
 
 		//Set acceptance to 0 where sciname <> acceptedstr
@@ -810,21 +814,10 @@ class TaxonomyUpload{
 		TaxonomyUtilities::buildHierarchyEnumTree($this->conn, $this->taxAuthId);
 
 		//Update occurrences with new tids
-		TaxonomyUtilities::linkOccurrenceTaxa($this->conn);
-
-		//Update occurrence images with new tids
-		$sql2 = 'UPDATE images i INNER JOIN omoccurrences o ON i.occid = o.occid '.
-			'SET i.tid = o.TidInterpreted '.
-			'WHERE (i.tid IS NULL) AND (o.TidInterpreted IS NOT NULL)';
-		$this->conn->query($sql2);
-
-		//Update geo lookup table
-		$sql3 = 'INSERT IGNORE INTO omoccurgeoindex(tid,decimallatitude,decimallongitude) '.
-			'SELECT DISTINCT o.tidinterpreted, round(o.decimallatitude,2), round(o.decimallongitude,2) '.
-			'FROM omoccurrences o '.
-			'WHERE (o.tidinterpreted IS NOT NULL) AND (o.decimallatitude between -90 and 90) AND (o.decimallongitude between -180 and 180) '.
-			'AND (o.cultivationStatus IS NULL OR o.cultivationStatus = 0) AND (o.coordinateUncertaintyInMeters IS NULL OR o.coordinateUncertaintyInMeters < 10000) ';
-		$this->conn->query($sql3);
+		$occurMaintenance = new OccurrenceMaintenance($this->conn);
+		$occurMaintenance->setCollidStr($this->collid);
+		$occurMaintenance->generalOccurrenceCleaning();
+		$occurMaintenance->batchUpdateGeoreferenceIndex();
 	}
 
 	private function transferVernaculars($secondRound = 0){
@@ -1114,8 +1107,8 @@ class TaxonomyUpload{
 	private function outputMsg($str, $indent = 0){
 		if($this->verboseMode > 0 || substr($str,0,5) == 'ERROR'){
 			echo '<li style="margin-left:'.(10*$indent).'px;'.(substr($str,0,5)=='ERROR'?'color:red':'').'">'.$str.'</li>';
-			ob_flush();
-			flush();
+			@ob_flush();
+			@flush();
 		}
 		if($this->verboseMode == 2){
 			if($this->logFH) fwrite($this->logFH,($indent?str_repeat("\t",$indent):'').strip_tags($str)."\n");

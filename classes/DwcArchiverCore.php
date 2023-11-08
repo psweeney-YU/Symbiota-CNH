@@ -43,7 +43,7 @@ class DwcArchiverCore extends Manager{
 	private $includeDets = 1;
 	private $includeImgs = 1;
 	private $includeAttributes = 0;
-	private $includeMaterialSample = 0;		// 0 = off, 1 = on, 2 = active (activated within at least one collection)
+	private $includeMaterialSample = 0;
 	private $hasPaleo = false;
 	private $redactLocalities = 1;
 	private $rareReaderArr = array();
@@ -191,7 +191,6 @@ class DwcArchiverCore extends Manager{
 									if (isset($modArr['paleo']['status'])) $this->hasPaleo = true;
 									elseif (isset($modArr['matSample']['status'])){
 										$this->collArr[$r->collid]['matSample'] = 1;
-										$this->includeMaterialSample = 2;
 									}
 								}
 							}
@@ -290,7 +289,7 @@ class DwcArchiverCore extends Manager{
 				} elseif ($field == 'traitid') {
 					$sqlFrag .= 'AND (s.traitid IN(' . implode(',', $condArr['EQUALS']) . ')) ';
 				} elseif ($field == 'clid') {
-					$sqlFrag .= 'AND (v.clid IN(' . implode(',', $condArr['EQUALS']) . ')) ';
+					$sqlFrag .= 'AND (ctl.clid IN(' . implode(',', $condArr['EQUALS']) . ')) ';
 				} elseif (($field == 'sciname' || $field == 'family') && isset($condArr['EQUALS'])) {
 					$taxaManager = new OccurrenceTaxaManager();
 					$taxaArr = array();
@@ -314,7 +313,7 @@ class DwcArchiverCore extends Manager{
 							if ($cond == 'NOTEQUALS' || $cond == 'NOTLIKE') $sqlFrag2 .= ' OR id.identifierValue IS NULL';
 							$sqlFrag2 .= ')) ';
 						} else {
-							$sqlFrag2 = $this->getSqlFragment($field, $cond, $valueArr);
+							$sqlFrag2 .= $this->getSqlFragment($field, $cond, $valueArr);
 						}
 					}
 					if ($sqlFrag2) $sqlFrag .= 'AND (' . substr($sqlFrag2, 4) . ') ';
@@ -374,9 +373,9 @@ class DwcArchiverCore extends Manager{
 			if (stripos($this->conditionSql, 'e.parenttid')) {
 				$sql .= 'LEFT JOIN taxaenumtree e ON o.tidinterpreted = e.tid ';
 			}
-			if (stripos($this->conditionSql, 'v.clid')) {
+			if (stripos($this->conditionSql, 'ctl.clid')) {
 				//Search criteria came from custom search page
-				$sql .= 'LEFT JOIN fmvouchers v ON o.occid = v.occid ';
+				$sql .= 'LEFT JOIN fmvouchers v ON o.occid = v.occid LEFT JOIN fmchklsttaxalink ctl ON v.clTaxaID = ctl.clTaxaID ';
 			}
 			if (stripos($this->conditionSql, 'd.datasetid')) {
 				$sql .= 'INNER JOIN omoccurdatasetlink d ON o.occid = d.occid ';
@@ -511,8 +510,8 @@ class DwcArchiverCore extends Manager{
 								break;
 							default:
 								if (isset($occurTermArr[$key])) {
-									$ns = RdfUtility::namespaceAbbrev($occurTermArr[$key]);
-									$returnvalue .= $separator . "   " . $ns . " \"$value\"";
+									//$ns = RdfUtility::namespaceAbbrev($occurTermArr[$key]);
+									//$returnvalue .= $separator . "   " . $ns . " \"$value\"";
 								}
 						}
 					}
@@ -648,9 +647,9 @@ class DwcArchiverCore extends Manager{
 								break;
 							default:
 								if (isset($occurTermArr[$key])) {
-									$ns = RdfUtility::namespaceAbbrev($occurTermArr[$key]);
-									$elem = $newDoc->createElement($ns);
-									$elem->appendChild($newDoc->createTextNode($value));
+									//$ns = RdfUtility::namespaceAbbrev($occurTermArr[$key]);
+									//$elem = $newDoc->createElement($ns);
+									//$elem->appendChild($newDoc->createTextNode($value));
 								}
 						}
 						if ($elem != null) {
@@ -706,8 +705,9 @@ class DwcArchiverCore extends Manager{
 			$urlPathPrefix = $this->serverDomain . $GLOBALS['CLIENT_ROOT'] . (substr($GLOBALS['CLIENT_ROOT'], -1) == '/' ? '' : '/');
 			$cnt = 0;
 			while ($r = $rs->fetch_assoc()) {
+				if(!$this->collArr) $this->setCollArr($r['collID']);
 				//Protect sensitive records
-				if ($this->redactLocalities && $r["localitySecurity"] == 1 && !in_array($r['collid'], $this->rareReaderArr)) {
+				if ($this->redactLocalities && $r["localitySecurity"] == 1 && !in_array($r['collID'], $this->rareReaderArr)) {
 					$protectedFields = array();
 					foreach ($this->securityArr as $v) {
 						if (array_key_exists($v, $r) && $r[$v]) {
@@ -721,7 +721,7 @@ class DwcArchiverCore extends Manager{
 				}
 				if (!$r['occurrenceID']) {
 					//Set occurrence GUID based on GUID target, but only if occurrenceID field isn't already populated
-					$guidTarget = $this->collArr[$r['collid']]['guidtarget'];
+					$guidTarget = $this->collArr[$r['collID']]['guidtarget'];
 					if ($guidTarget == 'catalogNumber') {
 						$r['occurrenceID'] = $r['catalogNumber'];
 					} elseif ($guidTarget == 'symbiotaUUID') {
@@ -731,10 +731,10 @@ class DwcArchiverCore extends Manager{
 
 				$r['recordID'] = $r['recordID'];
 				//Add collection GUID based on management type
-				$managementType = $this->collArr[$r['collid']]['managementtype'];
+				$managementType = $this->collArr[$r['collID']]['managementtype'];
 				if ($managementType && $managementType == 'Live Data') {
 					if (array_key_exists('collectionID', $r) && !$r['collectionID']) {
-						$guid = $this->collArr[$r['collid']]['collectionguid'];
+						$guid = $this->collArr[$r['collID']]['collectionguid'];
 						if (strlen($guid) == 36) $guid = 'urn:uuid:' . $guid;
 						$r['collectionID'] = $guid;
 					}
@@ -743,11 +743,11 @@ class DwcArchiverCore extends Manager{
 					unset($r['localitySecurity']);
 				}
 				if ($this->schemaType == 'dwc' || $this->schemaType == 'backup') {
-					unset($r['collid']);
+					unset($r['collID']);
 				}
 				if ($this->schemaType == 'pensoft') {
 					unset($r['localitySecurity']);
-					unset($r['collid']);
+					unset($r['collID']);
 					if ($r['typeStatus']) {
 						$typeValue = strtolower($r['typeStatus']);
 						$typeInvalid = true;
@@ -1054,7 +1054,7 @@ class DwcArchiverCore extends Manager{
 		}
 
 		//MaterialSample extension
-		if ($this->includeMaterialSample == 2 && isset($this->fieldArrMap['materialSample'])) {
+		if ($this->includeMaterialSample && isset($this->fieldArrMap['materialSample'])) {
 			$extElem3 = $newDoc->createElement('extension');
 			$extElem3->setAttribute('encoding', $this->charSetOut);
 			$extElem3->setAttribute('fieldsTerminatedBy', $this->delimiter);
@@ -1119,25 +1119,23 @@ class DwcArchiverCore extends Manager{
 			//Dataset contains multiple collection data
 			$emlArr['title'] = $GLOBALS['DEFAULT_TITLE'] . ' general data extract';
 			if (isset($GLOBALS['SYMB_UID']) && $GLOBALS['SYMB_UID']) {
-				$sql = 'SELECT uid, lastname, firstname, title, institution, department, address, city, state, zip, country, phone, email, ispublic FROM users WHERE (uid = ' . $GLOBALS['SYMB_UID'] . ')';
+				$sql = 'SELECT uid, lastname, firstname, title, institution, department, address, city, state, zip, country, phone, email FROM users WHERE (uid = ' . $GLOBALS['SYMB_UID'] . ')';
 				$rs = $this->conn->query($sql);
 				if ($r = $rs->fetch_object()) {
 					$emlArr['associatedParty'][0]['individualName']['surName'] = $r->lastname;
 					if ($r->firstname) $emlArr['associatedParty'][0]['individualName']['givenName'] = $r->firstname;
 					if ($r->email) $emlArr['associatedParty'][0]['electronicMailAddress'] = $r->email;
 					$emlArr['associatedParty'][0]['role'] = 'datasetOriginator';
-					if ($r->ispublic) {
-						if ($r->institution) $emlArr['associatedParty'][0]['organizationName'] = $r->institution;
-						if ($r->title) $emlArr['associatedParty'][0]['positionName'] = $r->title;
-						if ($r->phone) $emlArr['associatedParty'][0]['phone'] = $r->phone;
-						if ($r->state) {
-							if ($r->department) $emlArr['associatedParty'][0]['address']['deliveryPoint'][] = $r->department;
-							if ($r->address) $emlArr['associatedParty'][0]['address']['deliveryPoint'][] = $r->address;
-							if ($r->city) $emlArr['associatedParty'][0]['address']['city'] = $r->city;
-							$emlArr['associatedParty'][0]['address']['administrativeArea'] = $r->state;
-							if ($r->zip) $emlArr['associatedParty'][0]['address']['postalCode'] = $r->zip;
-							if ($r->country) $emlArr['associatedParty'][0]['address']['country'] = $r->country;
-						}
+					if ($r->institution) $emlArr['associatedParty'][0]['organizationName'] = $r->institution;
+					if ($r->title) $emlArr['associatedParty'][0]['positionName'] = $r->title;
+					if ($r->phone) $emlArr['associatedParty'][0]['phone'] = $r->phone;
+					if ($r->state) {
+						if ($r->department) $emlArr['associatedParty'][0]['address']['deliveryPoint'][] = $r->department;
+						if ($r->address) $emlArr['associatedParty'][0]['address']['deliveryPoint'][] = $r->address;
+						if ($r->city) $emlArr['associatedParty'][0]['address']['city'] = $r->city;
+						$emlArr['associatedParty'][0]['address']['administrativeArea'] = $r->state;
+						if ($r->zip) $emlArr['associatedParty'][0]['address']['postalCode'] = $r->zip;
+						if ($r->country) $emlArr['associatedParty'][0]['address']['country'] = $r->country;
 					}
 					$rs->free();
 				}
@@ -1766,7 +1764,7 @@ class DwcArchiverCore extends Manager{
 
 				$batchOccidArr[] = $r['occid'];
 				if (count($batchOccidArr) > 1000) {
-					if ($this->includeMaterialSample == 2) $this->writeMaterialSampleData($materialSampleHandler, $batchOccidArr);
+					if ($this->includeMaterialSample) $this->writeMaterialSampleData($materialSampleHandler, $batchOccidArr);
 					if ($pubID && $portalManager) $portalManager->insertPortalOccurrences($pubID, $batchOccidArr);
 					unset($batchOccidArr);
 					$batchOccidArr = array();
@@ -1783,7 +1781,7 @@ class DwcArchiverCore extends Manager{
 			if ($batchOccidArr) {
 				if ($pubID && $portalManager) $portalManager->insertPortalOccurrences($pubID, $batchOccidArr);
 			}
-			if ($this->includeMaterialSample == 2){
+			if ($this->includeMaterialSample){
 				$this->writeMaterialSampleData($materialSampleHandler, $batchOccidArr);
 				$materialSampleHandler->__destruct();
 			}
@@ -1802,7 +1800,7 @@ class DwcArchiverCore extends Manager{
 			$this->logOrEcho($this->errorMessage);
 		}
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
-		if ($this->includeMaterialSample == 2) $this->logOrEcho('Material Sample extension file created (' . date('h:i:s A') . ')... ');
+		if ($this->includeMaterialSample) $this->logOrEcho('Material Sample extension file created (' . date('h:i:s A') . ')... ');
 		return $filePath;
 	}
 
@@ -2162,19 +2160,19 @@ class DwcArchiverCore extends Manager{
 	}
 
 	public function setIncludeDets($includeDets){
-		$this->includeDets = $includeDets;
+		if($includeDets) $this->includeDets = true;
 	}
 
 	public function setIncludeImgs($includeImgs){
-		$this->includeImgs = $includeImgs;
+		if($includeImgs) $this->includeImgs = true;
 	}
 
 	public function setIncludeAttributes($include){
-		$this->includeAttributes = $include;
+		if($include) $this->includeAttributes = true;
 	}
 
 	public function setIncludeMaterialSample($include){
-		$this->includeMaterialSample = $include;
+		if($include) $this->includeMaterialSample = true;
 	}
 
 	public function hasAttributes(){
