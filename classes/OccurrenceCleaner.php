@@ -10,12 +10,14 @@ class OccurrenceCleaner extends Manager{
 	private $obsUid;
 	private $featureCount = 0;
 	private $googleApi;
+	private $lkupTablesExist = false;
 
 	public function __construct(){
 		parent::__construct(null,'write');
 		$urlPrefix = 'http://';
 		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
 		$this->googleApi = $urlPrefix.'maps.googleapis.com/maps/api/geocode/json?sensor=false';
+		$this->setLkupTablesExist();
 	}
 
 	public function __destruct(){
@@ -43,7 +45,7 @@ class OccurrenceCleaner extends Manager{
 		}
 		$rs->free();
 
-		$retArr = array();
+		$stagingArr = array();
 		if($dupArr){
 			$sqlFrag = '';
 			if($type=='cat'){
@@ -52,13 +54,15 @@ class OccurrenceCleaner extends Manager{
 			else{
 				$sqlFrag = 'occid, otherCatalogNumbers, otherCatalogNumbers AS dupid FROM omoccurrences WHERE collid = '.$this->collid.' AND otherCatalogNumbers IN("'.implode('","', $dupArr).'") ORDER BY otherCatalogNumbers';
 			}
-			$retArr = $this->getDuplicates($sqlFrag);
+			$stagingArr = $this->getDuplicates($sqlFrag);
 		}
 
 		if($type=='other' && count($dupArr) < $limit){
-			$retArr = array_merge($retArr, $this->setAdditionalIdentifiers($cnt, ($limit - count($dupArr))));
+			$stagingArr = array_merge($stagingArr, $this->setAdditionalIdentifiers($cnt, ($limit - count($dupArr))));
 		}
 
+		//Replace catalog number keys with renumbered numeric keys, thus avoid unusual characters interferring with naming form target element
+		$retArr = array_values($stagingArr);
 		return $retArr;
 	}
 
@@ -150,7 +154,7 @@ class OccurrenceCleaner extends Manager{
 			$sqlFragment;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_assoc()){
-			$retArr[$row['dupid']][$row['occid']] = array_change_key_case($row);
+			$retArr[strtolower($row['dupid'])][$row['occid']] = array_change_key_case($row);
 		}
 		$rs->free();
 		return $retArr;
@@ -160,6 +164,7 @@ class OccurrenceCleaner extends Manager{
 		$status = true;
 		$this->verboseMode = 2;
 		$editorManager = new OccurrenceEditorManager($this->conn);
+		$editorManager->setCollId($this->collid);
 		foreach($occidArr as $target => $occArr){
 			$mergeArr = array($target);
 			foreach($occArr as $source){
@@ -339,6 +344,11 @@ class OccurrenceCleaner extends Manager{
 		$sql = 'SELECT COUNT(DISTINCT o.country) AS cnt '.
 			'FROM omoccurrences o LEFT JOIN lkupcountry l ON o.country = l.countryname '.
 			'WHERE o.country IS NOT NULL AND o.collid = '.$this->collid.' AND l.countryid IS NULL ';
+		if(!$this->lkupTablesExist){
+			$sql = 'SELECT COUNT(DISTINCT country) AS cnt
+				FROM omoccurrences
+				WHERE country IS NOT NULL AND collid = 1 AND country NOT IN(SELECT geoterm FROM geographicthesaurus WHERE geolevel = 50)';
+		}
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
 			$retCnt = $r->cnt;
@@ -353,6 +363,12 @@ class OccurrenceCleaner extends Manager{
 			'FROM omoccurrences o LEFT JOIN lkupcountry l ON o.country = l.countryname '.
 			'WHERE o.country IS NOT NULL AND o.collid = '.$this->collid.' AND l.countryid IS NULL '.
 			'GROUP BY o.country ';
+		if(!$this->lkupTablesExist){
+			$sql = 'SELECT country, count(occid) as cnt
+				FROM omoccurrences
+				WHERE country IS NOT NULL AND collid = 1 AND country NOT IN(SELECT geoterm FROM geographicthesaurus WHERE geolevel = 50)
+				GROUP BY country';
+		}
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->country] = $r->cnt;
@@ -367,6 +383,11 @@ class OccurrenceCleaner extends Manager{
 		$retArr = array();
 		if($includeStates){
 			$sql = 'SELECT c.countryname, s.statename FROM lkupcountry c LEFT JOIN lkupstateprovince s ON c.countryid = s.countryid ';
+			if(!$this->lkupTablesExist){
+				$sql = 'SELECT g1.geoterm as countryname, g2.geoterm AS statename
+					FROM geographicthesaurus g1 INNER JOIN geographicthesaurus g2 ON g1.geoThesID = g2.parentID
+					WHERE g1.geoLevel = 50 AND g2.geoLevel = 60';
+			}
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->countryname][] = $r->statename;
@@ -376,6 +397,9 @@ class OccurrenceCleaner extends Manager{
 		}
 		else{
 			$sql = 'SELECT countryname FROM lkupcountry';
+			if(!$this->lkupTablesExist){
+				$sql = 'SELECT geoterm AS countryname FROM geographicthesaurus WHERE geolevel = 50';
+			}
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[] = $r->countryname;
@@ -419,7 +443,14 @@ class OccurrenceCleaner extends Manager{
 	//States cleaning functions
 	public function getBadStateCount($country = ''){
 		$retCnt = array();
-		$sql = 'SELECT COUNT(DISTINCT o.stateprovince) as cnt '.$this->getBadStateSqlBase();
+		$sql = '';
+		if(!$this->lkupTablesExist){
+			$sql = 'SELECT COUNT(DISTINCT stateprovince) as cnt
+				FROM omoccurrences o WHERE (country IN(SELECT geoterm FROM geographicthesaurus WHERE geolevel = 50)) AND (stateprovince IS NOT NULL)
+				AND (collid = '.$this->collid.') AND (stateprovince NOT IN(SELECT geoterm FROM geographicthesaurus WHERE geolevel = 60)) ';
+		}else{
+			$sql = 'SELECT COUNT(DISTINCT o.stateprovince) as cnt '.$this->getBadStateSqlBase();
+		}
 		if($country) $sql .= 'AND o.country = "'.$this->cleanInStr($country).'" ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -433,9 +464,15 @@ class OccurrenceCleaner extends Manager{
 		$retArr = array();
 		$sqlFrag = $this->getBadStateSqlBase();
 		if($sqlFrag){
-			$sql = 'SELECT o.country, o.stateprovince, count(DISTINCT o.occid) as cnt '.
-				$this->getBadStateSqlBase().
-				'GROUP BY o.stateprovince ';
+			if(!$this->lkupTablesExist){
+				$sql = 'SELECT country, stateprovince, count(DISTINCT occid) as cnt
+					FROM omoccurrences
+					WHERE (country IN(SELECT geoterm FROM geographicthesaurus WHERE geolevel = 50)) AND (stateprovince IS NOT NULL)
+					AND (collid = '.$this->collid.') AND (stateprovince NOT IN(SELECT geoterm FROM geographicthesaurus WHERE geolevel = 60))
+					GROUP BY stateprovince ';
+			}else{
+				$sql = 'SELECT o.country, o.stateprovince, count(DISTINCT o.occid) as cnt '.$this->getBadStateSqlBase().'GROUP BY o.stateprovince ';
+			}
 			$rs = $this->conn->query($sql);
 			$cnt = 0;
 			while($r = $rs->fetch_object()){
@@ -476,6 +513,12 @@ class OccurrenceCleaner extends Manager{
 			$sql = 'SELECT c.countryname, s.statename, co.countyname '.
 				'FROM lkupstateprovince s INNER JOIN lkupcountry c ON s.countryid = c.countryid '.
 				'LEFT JOIN lkupcounty co ON s.stateid = co.stateid ';
+			if(!$this->lkupTablesExist){
+				$sql = 'SELECT g1.geoterm as countryname, g2.geoterm AS statename, g3.geoterm AS countyname
+					FROM geographicthesaurus g1 INNER JOIN geographicthesaurus g2 ON g1.geoThesID = g2.parentID
+					LEFT JOIN geographicthesaurus g3 ON g2.geoThesID = g3.parentID
+					WHERE g1.geoLevel = 50 AND g2.geoLevel = 60 AND g3.geoLevel = 70 ';
+			}
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[strtoupper($r->countryname)][ucwords(strtolower($r->statename))][] = str_replace(array(' county',' co.',' co'),'',strtolower($r->countyname));
@@ -485,6 +528,11 @@ class OccurrenceCleaner extends Manager{
 		else{
 			$sql = 'SELECT c.countryname, s.statename '.
 				'FROM lkupstateprovince s INNER JOIN lkupcountry c ON s.countryid = c.countryid ';
+			if(!$this->lkupTablesExist){
+				$sql = 'SELECT g1.geoterm as countryname, g2.geoterm AS statename
+					FROM geographicthesaurus g1 INNER JOIN geographicthesaurus g2 ON g1.geoThesID = g2.parentID
+					WHERE g1.geoLevel = 50 AND g2.geoLevel = 60';
+			}
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->countryname][] = $r->statename;
@@ -531,7 +579,15 @@ class OccurrenceCleaner extends Manager{
 	//Bad Counties
 	public function getBadCountyCount($state = ''){
 		$retCnt = array();
-		$sql = 'SELECT COUNT(DISTINCT o.county) as cnt '.$this->getBadCountySqlFrag();
+		$sql = '';
+		if(!$this->lkupTablesExist){
+			$sql = 'SELECT COUNT(DISTINCT county) as cnt
+				FROM omoccurrences o WHERE (county IS NOT NULL) AND (country = "USA") AND (stateprovince IN(SELECT geoterm FROM geographicthesaurus WHERE geolevel = 60)) '.
+				'AND (collid = '.$this->collid.') AND (county NOT IN(SELECT geoterm FROM geographicthesaurus WHERE geolevel = 70)) ';
+		}
+		else{
+			$sql = 'SELECT COUNT(DISTINCT o.county) as cnt '.$this->getBadCountySqlFrag();
+		}
 		if($state) $sql .= 'AND o.stateprovince = "'.$this->cleanInStr($state).'" ';
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
@@ -543,7 +599,16 @@ class OccurrenceCleaner extends Manager{
 
 	public function getBadCountyArr(){
 		$retArr = array();
-		$sql = 'SELECT o.country, o.stateprovince, o.county, count(o.occid) as cnt '.$this->getBadCountySqlFrag().'GROUP BY o.country, o.stateprovince, o.county ';
+		$sql = '';
+		if(!$this->lkupTablesExist){
+			$sql = 'SELECT country, stateprovince, county, count(occid) as cnt
+				FROM omoccurrences WHERE (county IS NOT NULL) AND (country = "USA") AND (stateprovince IN(SELECT geoterm FROM geographicthesaurus WHERE geolevel = 60))
+				AND (collid = '.$this->collid.') AND (county NOT IN(SELECT geoterm FROM geographicthesaurus WHERE geolevel = 70))
+				GROUP BY country, stateprovince, county ';
+		}
+		else{
+			$sql = 'SELECT o.country, o.stateprovince, o.county, count(o.occid) as cnt '.$this->getBadCountySqlFrag().'GROUP BY o.country, o.stateprovince, o.county ';
+		}
 		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
 		$cnt = 0;
@@ -569,8 +634,8 @@ class OccurrenceCleaner extends Manager{
 		$rs->free();
 		if($stateyArr){
 			$retStr = 'FROM omoccurrences o LEFT JOIN lkupcounty l ON o.county = l.countyname '.
-			'WHERE (o.county IS NOT NULL) AND (o.country = "USA") AND (o.stateprovince IN("'.implode('","', $stateyArr).'")) '.
-			'AND (o.collid = '.$this->collid.') AND (l.countyid IS NULL) ';
+				'WHERE (o.county IS NOT NULL) AND (o.country = "USA") AND (o.stateprovince IN("'.implode('","', $stateyArr).'")) '.
+				'AND (o.collid = '.$this->collid.') AND (l.countyid IS NULL) ';
 		}
 		return $retStr;
 	}
@@ -580,6 +645,12 @@ class OccurrenceCleaner extends Manager{
 		$sql = 'SELECT DISTINCT statename, REPLACE(countyname," County","") AS countyname '.
 			'FROM lkupcounty c INNER JOIN lkupstateprovince s ON c.stateid = s.stateid '.
 			'ORDER BY c.countyname';
+		if(!$this->lkupTablesExist){
+			$sql = 'SELECT DISTINCT g1.geoterm as stateName, REPLACE(g2.geoterm," County","") as countyName
+				FROM geographicthesaurus g1 INNER JOIN geographicthesaurus g2 ON g1.geoThesID = g2.parentID
+				WHERE g1.geoLevel = 60 AND g2.geoLevel = 70
+				ORDER BY g2.geoterm';
+		}
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[strtolower($r->statename)][] = $r->countyname;
@@ -624,6 +695,16 @@ class OccurrenceCleaner extends Manager{
 			'WHERE (collid = '.$this->collid.') AND (county IS NULL) AND (locality IS NOT NULL) '.
 			'AND country IN("USA","United States") AND (stateprovince IS NOT NULL) AND (stateprovince NOT IN("District Of Columbia","DC")) ';
 		return $retStr;
+	}
+
+	private function setLkupTablesExist(){
+		// Check to see is old deprecated lookup tables exist
+		$sql = 'SHOW tables LIKE "lkupcountry"';
+		$rs = $this->conn->query($sql);
+		if($rs->num_rows){
+			$this->lkupTablesExist = true;
+		}
+		$rs->free();
 	}
 
 	//Coordinate field verifier

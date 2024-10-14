@@ -530,7 +530,7 @@ class ImageShared{
 				copyright, locality, occid, notes, username, sortsequence, sortoccurrence, sourceIdentifier, rights, accessrights, recordID)
 				VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			if($stmt = $this->conn->prepare($sql)) {
-				$userName = $this->cleanInStr($GLOBALS['USERNAME']);
+				$userName = $GLOBALS['USERNAME'];
 				if($stmt->bind_param('issssissssssissiissss', $this->tid, $this->imgWebUrl, $this->imgTnUrl, $this->imgLgUrl, $this->photographer, $this->photographerUid, $this->format,
 					$this->caption, $this->owner, $this->sourceUrl, $this->copyright, $this->locality, $this->occid, $this->notes, $userName, $this->sortSeq, $this->sortOccurrence,
 					$this->sourceIdentifier, $this->rights, $this->accessRights, $guid)){
@@ -1081,6 +1081,7 @@ class ImageShared{
 						$block_size = hexdec($block_size[1]);
 						while(!feof($handle)) {
 							$i += $block_size;
+							if(!$block_size) return false;
 							$new_block .= fread($handle, $block_size);
 							if(isset($new_block[$i]) && $new_block[$i]=="\xFF") {
 								// New block detected, check for SOF marker
@@ -1142,7 +1143,6 @@ class ImageShared{
 	private function cleanInStr($str){
 		$newStr = trim($str);
 		$newStr = preg_replace('/\s\s+/', ' ',$newStr);
-		$newStr = $this->conn->real_escape_string($newStr);
 		return $newStr;
 	}
 }
