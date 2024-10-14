@@ -46,7 +46,7 @@ $countRecords = new CountOccurrenceRecords();
 				<p>Use of any specimen data and related material (e.g., images, species checklists, etc.) accessed through this portal requires agreement to the terms and conditions in the <a style="color:#816E68;font-weight:bold;" href="/portal/includes/usagepolicy.php">CNH data usage policy.</a></p>
 				<p>If your institution is interested in sharing data and is willing to abide by the terms of our <a style="color:#816E68;font-weight:bold;" href="/portal/misc/sharingpolicy.php">data sharing</a> and <a style="color:#816E68;font-weight:bold;" href="/portal/includes/usagepolicy.php">data usage</a> policies, email <a style="color:#816E68;font-weight:bold;" href="mailto:patrick.sweeney@yale.edu">Patrick Sweeney</a> for further instructions about how to make this happen.
 				<h4>Acknowledgements:</h4>
-				<p>The CNH specimen portal utilizes the Symbiota framework.  The Symbiota Software Project (<a href="http://www.symbiota.org">www.symbiota.org</a>) is an NSF funded endeavor based at Arizona State University.  We are particularly indebted to Edward Gilbert for assiting CNH in implementing this Symbiota instance.
+				<p>The CNH specimen portal utilizes <a href="https://symbiota.org">Symbiota</a>  and is supported by the Symbiota Support Hub, a domain of iDigBio (NSF Award #2027654).
 				</p>
 			</div>
 			<hr style="margin: 25px 0;"/>
