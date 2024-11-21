@@ -1,33 +1,24 @@
 <?php
 include_once('../config/symbini.php');
-include_once ($SERVER_ROOT.'/classes/UtilityFunctions.php');
-header("Content-Type: text/html; charset=" . $CHARSET);
-$serverHost = UtilityFunctions::getDomain();
+header("Content-Type: text/html; charset=".$CHARSET);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-	<title><?php echo $DEFAULT_TITLE; ?> Data Usage Policy</title>
-	<?php
-
-	include_once($SERVER_ROOT . '/includes/head.php');
-	?>
-</head>
-
+<html>
+	<head>
+		<title><?php echo $DEFAULT_TITLE; ?> Data Usage</title>
+		<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/base.css" type="text/css" />
+		<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/main.css" type="text/css" />
+	</head>
 <body>
-	<?php
+<?php
 	$displayLeftMenu = true;
-	include($SERVER_ROOT . '/includes/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class="navpath">
-		<a href="<?php echo htmlspecialchars($CLIENT_ROOT, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE); ?>/index.php">Home</a> &gt;&gt;
-		<b>Data Usage Policy</b>
+		<a href="../index.php">Home</a> &gt;
+		<b>Data Usage</b>
 	</div>
-	<!-- This is inner text! -->
-	<div role="main" id="innertext">
-		<div id="innertext">
-	    <div>
+	<div id="innertext">
+	    <div style="margin:25px;">
 	        <h3 style="margin-top:10px;">Data Usage Policy<sup>1</sup>: </H3>
 	        <p>The Consortium of Northeastern Herbaria (CNH) provides access to specimen data and related material (e.g., images, floristics lists, etc.; hereafter referred to simply as "data") from multiple institutions. These institutions have agreed to make their data available for scientific research and for public information and education. Use of any data accessed through the CNH Portal requires agreement to the terms and conditions in the following data usage policy:</p>
 	        <ol>
@@ -53,9 +44,8 @@ $serverHost = UtilityFunctions::getDomain();
 
 	    </div>
 	</div>
-	<?php
-	include($SERVER_ROOT . '/includes/footer.php');
-	?>
+<?php
+include($SERVER_ROOT.'/includes/footer.php');
+?>
 </body>
-
 </html>

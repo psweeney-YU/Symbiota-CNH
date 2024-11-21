@@ -1,14 +1,19 @@
 <?php
 include_once('../config/symbini.php');
-header("Content-Type: text/html; charset=".$CHARSET);
+include_once ($SERVER_ROOT.'/classes/UtilityFunctions.php');
+header("Content-Type: text/html; charset=" . $CHARSET);
+$serverHost = UtilityFunctions::getDomain();
 ?>
-<html>
-	<head>
-		<title><?php echo $DEFAULT_TITLE; ?> Data Usage</title>
-		<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/base.css" type="text/css" />
-		<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/main.css" type="text/css" />
-	</head>
-<body>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title><?php echo $DEFAULT_TITLE; ?> Data Sharing Policy</title>
+	<?php
+
+	include_once($SERVER_ROOT . '/includes/head.php');
+	?>
+</head>
 <?php
 	$displayLeftMenu = true;
 	include($SERVER_ROOT.'/includes/header.php');

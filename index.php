@@ -40,8 +40,8 @@ $countRecords = new CountOccurrenceRecords();
 				-->
 				<h4>About:</h4>
 				<p>The CNH portal provides access to herbarium specimen data housed in member institutions, with particular emphasis on specimens collected in the region. The database includes taxa traditionally found in herbaria, including plants, fungi, diatoms, algae, and lichens.</p>
-				<p>Use of any specimen data and related material (e.g., images, species checklists, etc.) accessed through this portal requires agreement to the terms and conditions in the <a style="font-weight:bold;" href="/portal/includes/usagepolicy.php">CNH data usage policy.</a></p>
-				<p>If your institution is interested in sharing data and is willing to abide by the terms of our <a style="font-weight:bold;" href="/portal/misc/sharingpolicy.php">data sharing</a> and <a style="font-weight:bold;" href="/portal/includes/usagepolicy.php">data usage</a> policies, email <a style="color:#816E68;font-weight:bold;" href="mailto:patrick.sweeney@yale.edu">Patrick Sweeney</a> for further instructions about how to make this happen.
+				<p>Use of any specimen data and related material (e.g., images, species checklists, etc.) accessed through this portal requires agreement to the terms and conditions in the <a style="font-weight:bold;" href="<?= $CLIENT_ROOT ?>/includes/usagepolicy.php">CNH data usage policy.</a></p>
+				<p>If your institution is interested in sharing data and is willing to abide by the terms of our <a style="font-weight:bold;" href="<?= $CLIENT_ROOT ?>/includes/sharingpolicy.php">data sharing</a> and <a style="font-weight:bold;" href="<?= $CLIENT_ROOT ?>/includes/usagepolicy.php">data usage</a> policies, email <a style="color:#816E68;font-weight:bold;" href="mailto:patrick.sweeney@yale.edu">Patrick Sweeney</a> for further instructions about how to make this happen.
 				<h4>Acknowledgements:</h4>
 				<p>The CNH specimen portal utilizes <a href="https://symbiota.org">Symbiota</a>  and is supported by the Symbiota Support Hub, a domain of iDigBio (NSF Award #2027654).
 				</p>
