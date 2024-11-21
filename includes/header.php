@@ -1,53 +1,105 @@
-<SCRIPT>
-<!--
-if (top.frames.length!=0)
-  top.location=self.document.location;
-// -->
-</SCRIPT>
-<table id="maintable" cellspacing="0">
-<tr>
-<td colspan="3">
-</td>
-</tr>
-	<tr>
-		<td class="header" colspan="3" style="">
-			<div style="clear:both;">
-				<div style="clear:both;">
-					<img style="display:block;margin: 0 auto;" src="<?php echo $CLIENT_ROOT; ?>/images/layout/drupal_header.jpg" />
+<?php
+if($LANG_TAG == 'en' || !file_exists($SERVER_ROOT.'/content/lang/templates/header.' . $LANG_TAG . '.php'))
+	include_once($SERVER_ROOT . '/content/lang/templates/header.en.php');
+else include_once($SERVER_ROOT . '/content/lang/templates/header.' . $LANG_TAG . '.php');
+$SHOULD_USE_HARVESTPARAMS = $SHOULD_USE_HARVESTPARAMS ?? false;
+$collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '/collections/search/index.php';
+?>
+<div class="header-wrapper">
+	<header>
+		<div class="top-wrapper">
+			<a class="screen-reader-only" href="#end-nav"><?= $LANG['H_SKIP_NAV'] ?></a>
+			<nav class="top-login" aria-label="horizontal-nav">
+				<?php
+				if ($USER_DISPLAY_NAME) {
+					?>
+					<div class="welcome-text bottom-breathing-room-rel">
+						<?= $LANG['H_WELCOME'] . ' ' . $USER_DISPLAY_NAME ?>!
+					</div>
+					<span style="white-space: nowrap;" class="button button-tertiary bottom-breathing-room-rel">
+						<a href="<?= $CLIENT_ROOT ?>/profile/viewprofile.php"><?= $LANG['H_MY_PROFILE'] ?></a>
+					</span>
+					<span style="white-space: nowrap;" class="button button-secondary bottom-breathing-room-rel">
+						<a href="<?= $CLIENT_ROOT ?>/profile/index.php?submit=logout"><?= $LANG['H_LOGOUT'] ?></a>
+					</span>
+					<?php
+				} else {
+					?>
+					<span class="button button-secondary">
+						<a href="<?= $CLIENT_ROOT . "/profile/index.php?refurl=" . htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . "?" . htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
+							<?= $LANG['H_LOGIN'] ?>
+						</a>
+					</span>
+					<?php
+				}
+				?>
+			</nav>
+			<div class="top-brand">
+				<a href="<?= $CLIENT_ROOT ?>">
+					<div class="image-container">
+						<img src="<?= $CLIENT_ROOT ?>/images/layout/CNH_logo.png" alt="Consortium of Northeastern Herbaria logo">
+					</div>
+				</a>
+				<div class="brand-name">
+					<h1>Consortium of Northeastern Herbaria</h1>
+					<h2></h2>
 				</div>
 			</div>
-		</td>
-	<tr>
-		<td class="menurow" colspan="3">
-				<ul class="navlinks">
-					<li style="border:0;"><a href="<?php echo $CLIENT_ROOT; ?>/includes/about.php" title="About">About</a></li>
-					<li><a href="<?php echo $CLIENT_ROOT; ?>" title="Portal">Portal</a></li>
-					<li><a href="<?php echo $CLIENT_ROOT; ?>/includes/membership.php" title="Membership">Membership</a></li>
-					<li><a href="<?php echo $CLIENT_ROOT; ?>/includes/governance.php" title="Governance">Governance</a></li>
-					<li><a href="<?php echo $CLIENT_ROOT; ?>/includes/meetings.php" title="Meetings">Meetings</a></li>
-					<!-- <li><a href="http://neherbaria.org/digit_resource" title="Resources">Resources</a></li> -->
+		</div>
+		<div class="menu-wrapper">
+			<!-- Hamburger icon -->
+			<input class="side-menu" type="checkbox" id="side-menu" name="side-menu" />
+			<label class="hamb hamb-line hamb-label" for="side-menu" tabindex="0">☰</label>
+			<!-- Menu -->
+			<nav class="top-menu" aria-label="hamburger-nav">
+				<ul class="menu">
+					<li>
+						<a href="<?= $CLIENT_ROOT ?>/index.php">
+							<?= $LANG['H_HOME'] ?>
+						</a>
+					</li>
+					<li>
+						<a href="#"><?= $LANG['H_SEARCH'] ?></a>
+						<ul>
+							<li>
+								<a href="<?= $CLIENT_ROOT . $collectionSearchPage ?>">Text-based Search</a>
+							</li>
+							<li>
+								<a href="<?= $CLIENT_ROOT ?>/collections/map/index.php" rel="noopener noreferrer"><?= $LANG['H_MAP_SEARCH'] ?></a>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<a href="<?= $CLIENT_ROOT ?>/includes/about.php">About</a>
+						<ul>
+							<li>
+								<a href="<?= $CLIENT_ROOT ?>/collections/misc/collprofiles.php">Collections</a>
+							</li>
+							<li>
+								<a href="<?= $CLIENT_ROOT ?>/includes/membership.php">Membership</a>
+							</li>
+							<li>
+								<a href="<?= $CLIENT_ROOT ?>/includes/governance.php">Governance</a>
+							</li>
+							<li>
+								<a href="<?= $CLIENT_ROOT ?>/includes/meetings.php">Meetings</a>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<a href="<?= $CLIENT_ROOT ?>/checklists/index.php">Species Lists</a>
+					</li>
+					<li>
+						<a href="<?= $CLIENT_ROOT ?>/collections/specprocessor/crowdsource/central.php">Crowdsourcing</a>
+					</li>
+					<li>
+						<a href='<?= $CLIENT_ROOT ?>/sitemap.php'>
+							<?= $LANG['H_SITEMAP'] ?>
+						</a>
+					</li>
 				</ul>
-		</td>
-	<tr>
-	</tr>
-    <tr>
-	<?php
-	if($displayLeftMenu){
-		?>
-		<!-- <td class='middleleft'  background="<?php echo $CLIENT_ROOT;?>/images/layout/leftstrip.gif" style="background-repeat:repeat-y;"> -->
-		<td class ='middleleft'>
-			<div>
-				<?php include($SERVER_ROOT."/includes/leftmenu.php"); ?>
-			</div>
-		</td>
-		<?php
-	}
-	else{
-		?>
-        <!-- 	<td class="middleleftnomenu" background="<?php echo $CLIENT_ROOT;?>/images/layout/leftstrip.gif"> -->
-        		<div style='width:20px;'></div>
-        	</td>
-        <?php
-	}
-	?>
-	<td class='middlecenter'>
+			</nav>
+		</div>
+		<div id="end-nav"></div>
+	</header>
+</div>

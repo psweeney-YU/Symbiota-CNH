@@ -1,19 +1,16 @@
 <?php
 include_once("../config/symbini.php");
-header("Content-Type: text/html; charset=".$CHARSET);
-header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
-header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 ?>
-<html>
+
+<!DOCTYPE html>
+<html lang="en">
+	
 <head>
-	<title><?php echo $DEFAULT_TITLE?> Membership</title>
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
-	<link rel="stylesheet" href="../css/base.css" type="text/css" />
-	<link rel="stylesheet" href="../css/main.css" type="text/css" />
-	<meta name='keywords' content='' />
-	<script type="text/javascript">
-		<?php include_once('includes/googleanalytics.php'); ?>
-	</script>
+		<title><?php echo $DEFAULT_TITLE; ?> Membership</title>
+		<?php
+			include_once($SERVER_ROOT . '/includes/head.php');
+			include_once('includes/googleanalytics.php');
+		?>
 </head>
 <body>
 	<?php
@@ -32,7 +29,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 					New York, Pennsylvania, Rhode Island, and Vermont in the United States.</p>
 
 					<p>Membership is open to herbaria within our geographic scope whose collections include regional holdings.  We hope to represent the interests of all of the
-					official plant collections in the area â€“ from large ones with millions of specimens to the very smallest with only a single herbarium cabinet.</p>
+					official plant collections in the area — from large ones with millions of specimens to the very smallest with only a single herbarium cabinet.</p>
 
 					<p>We expect that member collections are permanently housed in the region, maintained to accepted curatorial standards, managed by trained personnel,
 					and accessible for consultation.</p>
@@ -40,11 +37,11 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 					<p>Our organismal scope includes taxa traditionally found in herbaria, including plants, fungi, diatoms, algae, and lichens.</p>
 
 					<p>Specimen occurrence data from member institutions can be shared through our data sharing portal.  If your institution is interested in sharing data and are
-					willing to abide by the terms of our <a style=color:blue; href="<?php echo $CLIENT_ROOT; ?>/includes/sharingpolicy.php">data sharing</a> and
-					<a style=color:blue; href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">data usage</a> policies, email
-					<a style=color:blue; href="mailto:patrick.sweeney@yale.edu">Patrick Sweeney</a> for further instructions about how to make this happen.</p>
+					willing to abide by the terms of our <a href="<?php echo $CLIENT_ROOT; ?>/includes/sharingpolicy.php">data sharing</a> and
+					<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">data usage</a> policies, email
+					<a href="mailto:patrick.sweeney@yale.edu">Patrick Sweeney</a> for further instructions about how to make this happen.</p>
 
-					<p>To join CNH click <a style=color:blue; href="https://docs.google.com/forms/d/e/1FAIpQLSc2GqOSktOg7GzmtuQDiBAOJXUS9FxOt87K_f-86rQTyo-vYQ/viewform">here</a>.</p>
+					<p>To join CNH click <a href="https://docs.google.com/forms/d/e/1FAIpQLSc2GqOSktOg7GzmtuQDiBAOJXUS9FxOt87K_f-86rQTyo-vYQ/viewform">here</a>.</p>
 					<!-- <p>Visit this <a style=color:blue; href="http://neherbaria.org">page</a> to join CNH.</p> -->
 				</div>
 			</div>

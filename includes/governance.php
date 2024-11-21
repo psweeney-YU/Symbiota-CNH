@@ -1,19 +1,16 @@
 <?php
 include_once("../config/symbini.php");
-header("Content-Type: text/html; charset=".$CHARSET);
-header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
-header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 ?>
-<html>
+
+<!DOCTYPE html>
+<html lang="en">
+	
 <head>
-    <title><?php echo $DEFAULT_TITLE?> Governance</title>
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
-    <link rel="stylesheet" href="../css/base.css" type="text/css" />
-    <link rel="stylesheet" href="../css/main.css" type="text/css" />
-    <meta name='keywords' content='' />
-	<script type="text/javascript">
-		<?php include_once('includes/googleanalytics.php'); ?>
-	</script>
+		<title><?php echo $DEFAULT_TITLE; ?> Governance</title>
+		<?php
+			include_once($SERVER_ROOT . '/includes/head.php');
+			include_once('includes/googleanalytics.php');
+		?>
 </head>
 <body>
 	<?php

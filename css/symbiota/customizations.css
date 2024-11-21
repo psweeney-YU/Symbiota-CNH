@@ -3,3 +3,28 @@ Place your CSS customizations here.
 This stylesheet is defined last and will override all previously loaded sheets. You may reference variables defined in variables.css 
  */
  
+ /*Custom styles added by P. Sweeney 2013-03-07*/
+/*custom font size for lists in panel on collections/index.php*/
+ div#innertext #specobsdiv{
+	font-size:	85%;
+}
+
+div#innertext #specimendiv{
+	font-size:	85%;
+}
+
+div#innertext #observationdiv{
+	font-size:	85%;
+}
+
+div#imagecenter{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+img.floatRightwrap {
+	float: right;
+	margin: 5px 5px 5px 15px; 
+}

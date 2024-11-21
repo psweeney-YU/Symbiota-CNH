@@ -3,33 +3,30 @@
 //ini_set('display_errors', '1');
 include_once('config/symbini.php');
 include_once('classes/CountOccurrenceRecords.php');
-//include_once('content/lang/index.'.$LANG_TAG.'.php');
-header('Content-Type: text/html; charset='.$CHARSET);
-header('Cache-Control: no-cache, must-revalidate'); // HTTP/1.1
-header('Expires: Sat, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+if($LANG_TAG == 'en' || !file_exists($SERVER_ROOT.'/content/lang/templates/index.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/templates/index.en.php');
+else include_once($SERVER_ROOT.'/content/lang/templates/index.'.$LANG_TAG.'.php');
+header('Content-Type: text/html; charset=' . $CHARSET);
 
 $countRecords = new CountOccurrenceRecords();
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="<?php echo $LANG_TAG ?>">
 <head>
     <title><?php echo $DEFAULT_TITLE; ?> Home</title>
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
 	<?php
 	$activateJQuery = false;
 	include_once($SERVER_ROOT.'/includes/head.php');
+	include_once($SERVER_ROOT . '/includes/googleanalytics.php');
+
 	?>
     <meta name='keywords' content='' />
-	<script type="text/javascript">
-		<?php include_once('includes/googleanalytics.php'); ?>
-	</script>
 </head>
 <body>
 	<?php
-	$displayLeftMenu = true;
 	include($SERVER_ROOT."/includes/header.php");
 	?>
         <!-- This is inner text! -->
-        <div  id="innertext">
+        <main  id="innertext">
         	<div>
             	<h1>Herbarium Specimen Data Sharing Portal for CNH</h1>
 				<?php
@@ -40,11 +37,11 @@ $countRecords = new CountOccurrenceRecords();
  				<div style="margin-bottom:20px;">
  				<!--
 				<h4 style="color:red">NOTE: As of Wednesday, October 21, images for some specimens are not available. This is due to a recent upgrade of iPlant servers that host NEVP images. We hope to resolve this issue soon. Sorry for the inconvenience.</h4>
-				--!>
+				-->
 				<h4>About:</h4>
 				<p>The CNH portal provides access to herbarium specimen data housed in member institutions, with particular emphasis on specimens collected in the region. The database includes taxa traditionally found in herbaria, including plants, fungi, diatoms, algae, and lichens.</p>
-				<p>Use of any specimen data and related material (e.g., images, species checklists, etc.) accessed through this portal requires agreement to the terms and conditions in the <a style="color:#816E68;font-weight:bold;" href="/portal/includes/usagepolicy.php">CNH data usage policy.</a></p>
-				<p>If your institution is interested in sharing data and is willing to abide by the terms of our <a style="color:#816E68;font-weight:bold;" href="/portal/misc/sharingpolicy.php">data sharing</a> and <a style="color:#816E68;font-weight:bold;" href="/portal/includes/usagepolicy.php">data usage</a> policies, email <a style="color:#816E68;font-weight:bold;" href="mailto:patrick.sweeney@yale.edu">Patrick Sweeney</a> for further instructions about how to make this happen.
+				<p>Use of any specimen data and related material (e.g., images, species checklists, etc.) accessed through this portal requires agreement to the terms and conditions in the <a style="font-weight:bold;" href="/portal/includes/usagepolicy.php">CNH data usage policy.</a></p>
+				<p>If your institution is interested in sharing data and is willing to abide by the terms of our <a style="font-weight:bold;" href="/portal/misc/sharingpolicy.php">data sharing</a> and <a style="font-weight:bold;" href="/portal/includes/usagepolicy.php">data usage</a> policies, email <a style="color:#816E68;font-weight:bold;" href="mailto:patrick.sweeney@yale.edu">Patrick Sweeney</a> for further instructions about how to make this happen.
 				<h4>Acknowledgements:</h4>
 				<p>The CNH specimen portal utilizes <a href="https://symbiota.org">Symbiota</a>  and is supported by the Symbiota Support Hub, a domain of iDigBio (NSF Award #2027654).
 				</p>
@@ -56,9 +53,7 @@ $countRecords = new CountOccurrenceRecords();
 				<img style="margin-left: 27px;" title="Data" src="includes/spreadsheet.png" alt="data" height="118" />
 				<img style="margin-left: 27px;" title="Plot" src="includes/plot.png" alt="plot" height="118" /><br clear="both" />
 			</div>
-		</div>
-		<!-- end of inner text! -->
-
+		</main>
 	<?php
 	//include($SERVER_ROOT."/includes/footer.php");
 	?>
