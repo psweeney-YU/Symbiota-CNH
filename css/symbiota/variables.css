@@ -1,8 +1,8 @@
 /* Variables
    ========================================================================== */
 :root {
-  --header-bg-image: url("");
-  --header-bg-color: #e7e7e5; /** Transparent color if adding header bg-image **/
+  --header-bg-image: url("../../images/layout/banner_alt_2a.jpg");
+  --header-bg-color: ; /** Transparent color if adding header bg-image **/
   --header-font-color: #000000;
   --brand-font-size: 2.5rem;
   --title-font-family: "Averia Serif Libre", serif;
@@ -19,7 +19,7 @@
   --darkest-color: #282825;
   --medium-color: #766b62;
   --light-color: #ede5da;
-  --bright-color: #98a1a0;
+  --bright-color: #83a8d5;
   --danger-color: #b31b1b;
   --max-innertext-width: 1024px;
 }

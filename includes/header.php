@@ -25,7 +25,7 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 					<?php
 				} else {
 					?>
-					<span class="button button-secondary">
+					<span class="button button-secondary" style="margin-left:7rem;">
 						<a href="<?= $CLIENT_ROOT . "/profile/index.php?refurl=" . htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . "?" . htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
 							<?= $LANG['H_LOGIN'] ?>
 						</a>
@@ -35,14 +35,16 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 				?>
 			</nav>
 			<div class="top-brand">
+				<!--
 				<a href="<?= $CLIENT_ROOT ?>">
 					<div class="image-container">
 						<img src="<?= $CLIENT_ROOT ?>/images/layout/CNH_logo.png" alt="Consortium of Northeastern Herbaria logo">
 					</div>
 				</a>
+				-->
 				<div class="brand-name">
-					<h1>Consortium of Northeastern Herbaria</h1>
-					<h2></h2>
+					<h1>CNH</h1>
+					<h2>Consortium of Northeastern Herbaria</h2>
 				</div>
 			</div>
 		</div>
@@ -73,16 +75,19 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 						<a href="<?= $CLIENT_ROOT ?>/includes/about.php">About</a>
 						<ul>
 							<li>
-								<a href="<?= $CLIENT_ROOT ?>/collections/misc/collprofiles.php">Collections</a>
-							</li>
-							<li>
-								<a href="<?= $CLIENT_ROOT ?>/includes/membership.php">Membership</a>
+								<a href="<?= $CLIENT_ROOT ?>/includes/about.php">About the CNH</a>
 							</li>
 							<li>
 								<a href="<?= $CLIENT_ROOT ?>/includes/governance.php">Governance</a>
 							</li>
 							<li>
+								<a href="<?= $CLIENT_ROOT ?>/collections/misc/collprofiles.php">Collections</a>
+							</li>
+							<li>
 								<a href="<?= $CLIENT_ROOT ?>/includes/meetings.php">Meetings</a>
+							</li>
+							<li>
+								<a href="<?= $CLIENT_ROOT ?>/includes/membership.php">Membership</a>
 							</li>
 						</ul>
 					</li>

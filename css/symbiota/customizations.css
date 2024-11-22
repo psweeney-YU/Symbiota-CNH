@@ -28,3 +28,18 @@ img.floatRightwrap {
 	float: right;
 	margin: 5px 5px 5px 15px; 
 }
+
+.welcome-text {
+	display: flex;
+	align-items: center;
+	margin-left: 1rem;
+	font-weight: bold;
+	text-shadow: 0 0 5px white;
+  }
+
+  
+.button-tertiary {
+	background-color: none;
+	border: 3px solid var(--bright-color);
+	padding: 0.5rem 0.9rem;
+  }
