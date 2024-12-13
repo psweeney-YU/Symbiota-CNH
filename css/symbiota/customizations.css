@@ -37,9 +37,9 @@ img.floatRightwrap {
 	text-shadow: 0 0 5px white;
   }
 
-  
 .button-tertiary {
-	background-color: none;
+	background-color: transparent;
+	color: var(--darkest-color);
 	border: 3px solid var(--bright-color);
 	padding: 0.5rem 0.9rem;
   }
