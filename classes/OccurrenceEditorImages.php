@@ -14,9 +14,9 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 
 	public function __construct(){
  		parent::__construct();
- 		$this->imageRootPath = $GLOBALS["imageRootPath"];
+ 		$this->imageRootPath = $GLOBALS['IMAGE_ROOT_PATH'];
  		if(substr($this->imageRootPath,-1) != "/") $this->imageRootPath .= "/";
- 		$this->imageRootUrl = $GLOBALS["imageRootUrl"];
+ 		$this->imageRootUrl = $GLOBALS['IMAGE_ROOT_URL'];
  		if(substr($this->imageRootUrl,-1) != "/") $this->imageRootUrl .= "/";
 	}
 
@@ -62,7 +62,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 						if($ocrSource) $ocrSource .= ': '.date('Y-m-d');
 						$sql = 'INSERT INTO specprocessorrawlabels(imgid, rawstr, source) VALUES('.$this->activeImgId.',"'.$this->cleanRawFragment($rawStr).'","'.$this->cleanInStr($ocrSource).'")';
 						if(!$this->conn->query($sql)){
-							$this->errorStr = $LANG['ERROR_LOAD_OCR'].': '.$this->conn->error;
+							$this->errorArr[] = $LANG['ERROR_LOAD_OCR'].': '.$this->conn->error;
 						}
 					}
 				}
@@ -228,7 +228,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		$status = true;
 		$imgManager = new ImageShared();
 		if(!$imgManager->deleteImage($imgIdDel, $removeImg)){
-			$this->errorStr = implode('',$imgManager->getErrArr());
+			$this->errorArr[] = implode('',$imgManager->getErrArr());
 			$status = false;
 		}
 		return $status;
@@ -394,13 +394,13 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		}
 
 		//Set image metadata variables
-		if(array_key_exists('caption',$postArr)) $imgManager->setCaption($postArr['caption']);
-		if(array_key_exists('photographeruid',$postArr)) $imgManager->setPhotographerUid($postArr['photographeruid']);
-		if(array_key_exists('photographer',$postArr)) $imgManager->setPhotographer($postArr['photographer']);
-		if(array_key_exists('sourceurl',$postArr)) $imgManager->setSourceUrl($postArr['sourceurl']);
-		if(array_key_exists('copyright',$postArr)) $imgManager->setCopyright($postArr['copyright']);
-		if(array_key_exists('notes',$postArr)) $imgManager->setNotes($postArr['notes']);
-		if(array_key_exists('sortoccurrence',$postArr)) $imgManager->setSortOccurrence($postArr['sortoccurrence']);
+		if(!empty($postArr['caption'])) $imgManager->setCaption($postArr['caption']);
+		if(!empty($postArr['photographeruid'])) $imgManager->setPhotographerUid($postArr['photographeruid']);
+		if(!empty($postArr['photographer'])) $imgManager->setPhotographer($postArr['photographer']);
+		if(!empty($postArr['sourceurl'])) $imgManager->setSourceUrl($postArr['sourceurl']);
+		if(!empty($postArr['copyright'])) $imgManager->setCopyright($postArr['copyright']);
+		if(!empty($postArr['notes'])) $imgManager->setNotes($postArr['notes']);
+		if(!empty($postArr['sortoccurrence'])) $imgManager->setSortOccurrence($postArr['sortoccurrence']);
 		if(strpos($this->collMap['colltype'], 'Observations') !== false)  $imgManager->setSortSeq(40);
 
 		$sourceImgUri = $postArr['imgurl'];
@@ -434,7 +434,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		$status = $imgManager->insertImageTags($postArr);
 
 		//Get errors and warnings
-		$this->errorStr = $imgManager->getErrStr();
+		$this->errorArr[] = $imgManager->getErrStr();
 		return $status;
 	}
 
