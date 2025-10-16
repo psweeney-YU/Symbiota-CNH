@@ -563,9 +563,12 @@ class SpecProcessorOcr extends Manager{
 
 	private function imageTrimBorder($c=0,$t=100){
 		$img = imagecreatefromjpeg($this->imgUrlLocal);
+		if(!$img){
+			return false;
+		}
 		if (!is_numeric($c) || $c < 0 || $c > 255) {
 			// Color ($c) not valid, thus grab the color from the top left corner and use that as default
-			$rgb = imagecolorat($im, 2, 2); // 2 pixels in to avoid messy edges
+			$rgb = imagecolorat($img, 2, 2); // 2 pixels in to avoid messy edges
 			$r = ($rgb >> 16) & 0xFF;
 			$g = ($rgb >> 8) & 0xFF;
 			$b = $rgb & 0xFF;
