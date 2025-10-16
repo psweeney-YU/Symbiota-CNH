@@ -550,7 +550,7 @@ class SpecProcessorOcr extends Manager{
 						//$status = imagejpeg($dest,str_replace('_img.jpg','_crop.jpg',$this->imgUrlLocal));
 						$status = imagejpeg($dest,$this->imgUrlLocal);
 					}
-					imagedestroy($dest);
+					if($dest)imagedestroy($dest);
 					imagedestroy($img);
 				}
 			}
@@ -649,10 +649,11 @@ class SpecProcessorOcr extends Manager{
 			if(imagecopy($dest, $img, 0, 0, $bLeft, $bTop, $w, $h)){
 				$status = imagejpeg($dest,$this->imgUrlLocal);
 			}
-			imagedestroy($dest);
+			if($dest) imagedestroy($dest);
 			imagedestroy($img);
 			return true;
 		}
+		if($img) imagedestroy($img);
 		return false;
 	}
 
