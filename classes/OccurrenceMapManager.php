@@ -1,6 +1,7 @@
 <?php
 include_once('OccurrenceManager.php');
 include_once('OccurrenceAccessStats.php');
+include_once($SERVER_ROOT . '/classes/utilities/QueryUtil.php');
 
 class OccurrenceMapManager extends OccurrenceManager {
 
@@ -54,9 +55,10 @@ class OccurrenceMapManager extends OccurrenceManager {
 			if(is_numeric($start) && $limit){
 				$sql .= "LIMIT ".$start.",".$limit;
 			}
-			$result = $this->conn->query($sql);
-			if(!$result){
-				$this->errorMessage = 'ERROR executing coordinate query: ' . $this->conn->error;
+			try {
+				$result = QueryUtil::executeQuery($this->conn, $sql);
+			} catch (mysqli_sql_exception $e) {
+				$this->errorMessage = 'ERROR executing coordinate query: ' . $e->getMessage();
 				return array();
 			}
 			$color = 'e69e67';
@@ -107,7 +109,12 @@ class OccurrenceMapManager extends OccurrenceManager {
 			$sql .= $this->sqlWhere;
 			if(is_numeric($start) && $recLimit && is_numeric($recLimit)) $sql .= "LIMIT ".$start.",".$recLimit;
 			//echo '<div>SQL: ' . $sql . '</div>';
-			$rs = $this->conn->query($sql);
+			try {
+				$rs = QueryUtil::executeQuery($this->conn, $sql);
+			} catch (mysqli_sql_exception $e) {
+				$this->errorMessage = 'ERROR executing mapping data query: ' . $e->getMessage();
+				return array();
+			}
 			$occidArr = array();
 			while($r = $rs->fetch_assoc()){
 				$sciname = $r['sciname'];
@@ -182,15 +189,14 @@ class OccurrenceMapManager extends OccurrenceManager {
 	private function setRecordCnt(){
 		if($this->sqlWhere){
 			$sql = "SELECT COUNT(DISTINCT o.occid) AS cnt FROM omoccurrences o ".$this->getTableJoins($this->sqlWhere).$this->sqlWhere;
-			$result = $this->conn->query($sql);
-			if($result){
+			try {
+				$result = QueryUtil::executeQuery($this->conn, $sql);
 				if($row = $result->fetch_object()){
 					$this->recordCount = $row->cnt;
 				}
 				$result->free();
-			}
-			else{
-				$this->errorMessage = 'ERROR executing record count query: ' . $this->conn->error;
+			} catch (mysqli_sql_exception $e) {
+				$this->errorMessage = 'ERROR executing record count query: ' . $e->getMessage();
 			}
 		}
 	}
@@ -332,8 +338,8 @@ class OccurrenceMapManager extends OccurrenceManager {
 				'FROM omoccurrences o LEFT JOIN omoccurdatasetlink dl ON o.occid = dl.occid '.
 				'WHERE dl.datasetid = '.$datasetId.' '.
 				'ORDER BY o.sciname ';
-			$rs = $this->conn->query($sql);
-			if($rs){
+			try {
+				$rs = QueryUtil::executeQuery($this->conn, $sql);
 				while($r = $rs->fetch_object()){
 					$retArr[$r->occid]['occid'] = $r->occid;
 					$retArr[$r->occid]['sciname'] = $r->sciname;
@@ -345,9 +351,8 @@ class OccurrenceMapManager extends OccurrenceManager {
 					$retArr[$r->occid]['long'] = $r->DecimalLongitude;
 				}
 				$rs->free();
-			}
-			else{
-				$this->errorMessage = 'ERROR executing occurrence query: ' . $this->conn->error;
+			} catch (mysqli_sql_exception $e) {
+				$this->errorMessage = 'ERROR executing occurrence query: ' . $e->getMessage();
 			}
 		}
 		if(count($retArr)>1){
@@ -366,32 +371,30 @@ class OccurrenceMapManager extends OccurrenceManager {
 			'FROM omoccurdatasets '.
 			'WHERE (uid = '.$uid.') '.
 			'ORDER BY name';
-		$rs = $this->conn->query($sql);
-		if($rs){
+		try {
+			$rs = QueryUtil::executeQuery($this->conn, $sql);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->datasetid]['datasetid'] = $r->datasetid;
 				$retArr[$r->datasetid]['name'] = $r->name;
 				$retArr[$r->datasetid]['role'] = "DatasetAdmin";
 			}
-		}
-		else{
-			$this->errorMessage = 'ERROR executing personal record sets query: ' . $this->conn->error;
+		} catch (mysqli_sql_exception $e) {
+			$this->errorMessage = 'ERROR executing personal record sets query: ' . $e->getMessage();
 		}
 		$sql2 = 'SELECT d.datasetid, d.name, r.role '.
 			'FROM omoccurdatasets d LEFT JOIN userroles r ON d.datasetid = r.tablepk '.
 			'WHERE (r.uid = '.$uid.') AND (r.role IN("DatasetAdmin","DatasetEditor","DatasetReader")) '.
 			'ORDER BY sortsequence,name';
-		$rs = $this->conn->query($sql2);
-		if($rs){
+		try {
+			$rs = QueryUtil::executeQuery($this->conn, $sql2);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->datasetid]['datasetid'] = $r->datasetid;
 				$retArr[$r->datasetid]['name'] = $r->name;
 				$retArr[$r->datasetid]['role'] = $r->role;
 			}
 			$rs->free();
-		}
-		else{
-			$this->errorMessage = 'ERROR executing personal record sets with certain user roles query: ' . $this->conn->error;
+		} catch (mysqli_sql_exception $e) {
+			$this->errorMessage = 'ERROR executing personal record sets with certain user roles query: ' . $e->getMessage();
 		}
 		return $retArr;
 	}
@@ -400,15 +403,14 @@ class OccurrenceMapManager extends OccurrenceManager {
 	public function getObservationIds(){
 		$retVar = array();
 		$sql = 'SELECT collid FROM omcollections WHERE CollType IN("Observations","General Observations") ';
-		$rs = $this->conn->query($sql);
-		if($rs){
+		try {
+			$rs = QueryUtil::executeQuery($this->conn, $sql);
 			while($r = $rs->fetch_object()){
 				$retVar[] = $r->collid;
 			}
 			$rs->free();
-		}
-		else{
-			$this->errorMessage = 'ERROR executing observation collections query: ' . $this->conn->error;
+		} catch (mysqli_sql_exception $e) {
+			$this->errorMessage = 'ERROR executing observation collections query: ' . $e->getMessage();
 		}
 		return $retVar;
 	}
