@@ -55,6 +55,10 @@ class OccurrenceMapManager extends OccurrenceManager {
 				$sql .= "LIMIT ".$start.",".$limit;
 			}
 			$result = $this->conn->query($sql);
+			if(!$result){
+				$this->errorMessage = 'ERROR executing coordinate query: ' . $this->conn->error;
+				return array();
+			}
 			$color = 'e69e67';
 			$occidArr = array();
 			while($row = $result->fetch_object()){
@@ -184,6 +188,9 @@ class OccurrenceMapManager extends OccurrenceManager {
 					$this->recordCount = $row->cnt;
 				}
 				$result->free();
+			}
+			else{
+				$this->errorMessage = 'ERROR executing record count query: ' . $this->conn->error;
 			}
 		}
 	}
@@ -326,17 +333,22 @@ class OccurrenceMapManager extends OccurrenceManager {
 				'WHERE dl.datasetid = '.$datasetId.' '.
 				'ORDER BY o.sciname ';
 			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[$r->occid]['occid'] = $r->occid;
-				$retArr[$r->occid]['sciname'] = $r->sciname;
-				$retArr[$r->occid]['catnum'] = $r->catalognumber;
-				$retArr[$r->occid]['coll'] = $r->collector;
-				$retArr[$r->occid]['eventdate'] = $r->eventdate;
-				$retArr[$r->occid]['occid'] = $r->occid;
-				$retArr[$r->occid]['lat'] = $r->DecimalLatitude;
-				$retArr[$r->occid]['long'] = $r->DecimalLongitude;
+			if($rs){
+				while($r = $rs->fetch_object()){
+					$retArr[$r->occid]['occid'] = $r->occid;
+					$retArr[$r->occid]['sciname'] = $r->sciname;
+					$retArr[$r->occid]['catnum'] = $r->catalognumber;
+					$retArr[$r->occid]['coll'] = $r->collector;
+					$retArr[$r->occid]['eventdate'] = $r->eventdate;
+					$retArr[$r->occid]['occid'] = $r->occid;
+					$retArr[$r->occid]['lat'] = $r->DecimalLatitude;
+					$retArr[$r->occid]['long'] = $r->DecimalLongitude;
+				}
+				$rs->free();
 			}
-			$rs->free();
+			else{
+				$this->errorMessage = 'ERROR executing occurrence query: ' . $this->conn->error;
+			}
 		}
 		if(count($retArr)>1){
 			return $retArr;
@@ -355,22 +367,32 @@ class OccurrenceMapManager extends OccurrenceManager {
 			'WHERE (uid = '.$uid.') '.
 			'ORDER BY name';
 		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->datasetid]['datasetid'] = $r->datasetid;
-			$retArr[$r->datasetid]['name'] = $r->name;
-			$retArr[$r->datasetid]['role'] = "DatasetAdmin";
+		if($rs){
+			while($r = $rs->fetch_object()){
+				$retArr[$r->datasetid]['datasetid'] = $r->datasetid;
+				$retArr[$r->datasetid]['name'] = $r->name;
+				$retArr[$r->datasetid]['role'] = "DatasetAdmin";
+			}
+		}
+		else{
+			$this->errorMessage = 'ERROR executing personal record sets query: ' . $this->conn->error;
 		}
 		$sql2 = 'SELECT d.datasetid, d.name, r.role '.
 			'FROM omoccurdatasets d LEFT JOIN userroles r ON d.datasetid = r.tablepk '.
 			'WHERE (r.uid = '.$uid.') AND (r.role IN("DatasetAdmin","DatasetEditor","DatasetReader")) '.
 			'ORDER BY sortsequence,name';
 		$rs = $this->conn->query($sql2);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->datasetid]['datasetid'] = $r->datasetid;
-			$retArr[$r->datasetid]['name'] = $r->name;
-			$retArr[$r->datasetid]['role'] = $r->role;
+		if($rs){
+			while($r = $rs->fetch_object()){
+				$retArr[$r->datasetid]['datasetid'] = $r->datasetid;
+				$retArr[$r->datasetid]['name'] = $r->name;
+				$retArr[$r->datasetid]['role'] = $r->role;
+			}
+			$rs->free();
 		}
-		$rs->free();
+		else{
+			$this->errorMessage = 'ERROR executing personal record sets with certain user roles query: ' . $this->conn->error;
+		}
 		return $retArr;
 	}
 
@@ -379,10 +401,15 @@ class OccurrenceMapManager extends OccurrenceManager {
 		$retVar = array();
 		$sql = 'SELECT collid FROM omcollections WHERE CollType IN("Observations","General Observations") ';
 		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retVar[] = $r->collid;
+		if($rs){
+			while($r = $rs->fetch_object()){
+				$retVar[] = $r->collid;
+			}
+			$rs->free();
 		}
-		$rs->free();
+		else{
+			$this->errorMessage = 'ERROR executing observation collections query: ' . $this->conn->error;
+		}
 		return $retVar;
 	}
 
