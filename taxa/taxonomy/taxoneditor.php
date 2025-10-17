@@ -332,14 +332,12 @@ if ($isEditor) {
 							<div class="editfield">
 								<?php
 								$safeSource = $taxonEditorObj->getSource() ?? '';
-								if (stripos($safeSource, '<a ') === false) {
-									$safeSource = htmlspecialchars($safeSource);
-								}
+								$safeSource = strip_tags($safeSource, '<a>');
 								echo $safeSource;
 								?>
 							</div>
 							<div class="editfield" style="display:none;width:90%;">
-								<input type="text" id="source" name="source" style="width:100%;" value="<?php echo htmlspecialchars($safeSource); ?>" />
+								<input type="text" id="source" name="source" style="width:100%;" value="<?php echo $safeSource ?>" />
 							</div>
 						</div>
 						<div class="editDiv">
