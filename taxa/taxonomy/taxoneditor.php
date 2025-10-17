@@ -333,6 +333,7 @@ if ($isEditor) {
 								<?php
 								$safeSource = $taxonEditorObj->getSource() ?? '';
 								$safeSource = strip_tags($safeSource, '<a>');
+								echo $safeSource;
 								?>
 							</div>
 							<div class="editfield" style="display:none;width:90%;">
