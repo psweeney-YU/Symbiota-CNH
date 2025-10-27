@@ -617,9 +617,11 @@ if ($SYMB_UID) {
 				</div>
 				<?php
 			}
+			if(isset($collData['fulldescription'])){
 			?>
-			<div class="coll-description bottom-breathing-room-rel"><?= $collData['fulldescription'] ?></div>
+				<div class="coll-description bottom-breathing-room-rel"><?= $collData['fulldescription'] ?></div>
 			<?php
+			}
 			if(isset($collData['resourcejson'])){
 				if($resourceArr = json_decode($collData['resourcejson'], true)){
 					$title = $LANG['HOMEPAGE'];
