@@ -35,7 +35,7 @@ else include_once($SERVER_ROOT . '/content/lang/misc/aboutproject.' . $LANG_TAG 
 
 			<p>
 				Thematic Collections Network Award:
-				<a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=------" target="_blank">-----</a>
+				<a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=------" target="_blank">-----</a>
 			</p>
 
 		</div>
