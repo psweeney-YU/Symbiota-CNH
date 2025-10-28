@@ -55,10 +55,9 @@ class OccurrenceMapManager extends OccurrenceManager {
 			if(is_numeric($start) && $limit){
 				$sql .= "LIMIT ".$start.",".$limit;
 			}
-			try {
-				$result = QueryUtil::executeQuery($this->conn, $sql);
-			} catch (mysqli_sql_exception $e) {
-				$this->errorMessage = 'ERROR executing coordinate query: ' . $e->getMessage();
+			$result = QueryUtil::tryExecuteQuery($this->conn, $sql);
+			if(!$result) {
+				$this->errorMessage = 'ERROR executing coordinate query: ' . $this->conn->error;
 				return array();
 			}
 			$color = 'e69e67';
@@ -109,10 +108,9 @@ class OccurrenceMapManager extends OccurrenceManager {
 			$sql .= $this->sqlWhere;
 			if(is_numeric($start) && $recLimit && is_numeric($recLimit)) $sql .= "LIMIT ".$start.",".$recLimit;
 			//echo '<div>SQL: ' . $sql . '</div>';
-			try {
-				$rs = QueryUtil::executeQuery($this->conn, $sql);
-			} catch (mysqli_sql_exception $e) {
-				$this->errorMessage = 'ERROR executing mapping data query: ' . $e->getMessage();
+			$rs = QueryUtil::tryExecuteQuery($this->conn, $sql);
+			if(!$rs) {
+				$this->errorMessage = 'ERROR executing mapping data query: ' . $this->conn->error;
 				return array();
 			}
 			$occidArr = array();
@@ -189,14 +187,14 @@ class OccurrenceMapManager extends OccurrenceManager {
 	private function setRecordCnt(){
 		if($this->sqlWhere){
 			$sql = "SELECT COUNT(DISTINCT o.occid) AS cnt FROM omoccurrences o ".$this->getTableJoins($this->sqlWhere).$this->sqlWhere;
-			try {
-				$result = QueryUtil::executeQuery($this->conn, $sql);
+			$result = QueryUtil::tryExecuteQuery($this->conn, $sql);
+			if($result) {
 				if($row = $result->fetch_object()){
 					$this->recordCount = $row->cnt;
 				}
 				$result->free();
-			} catch (mysqli_sql_exception $e) {
-				$this->errorMessage = 'ERROR executing record count query: ' . $e->getMessage();
+			} else {
+				$this->errorMessage = 'ERROR executing record count query: ' . $this->conn->error;
 			}
 		}
 	}
@@ -338,22 +336,23 @@ class OccurrenceMapManager extends OccurrenceManager {
 				'FROM omoccurrences o LEFT JOIN omoccurdatasetlink dl ON o.occid = dl.occid '.
 				'WHERE dl.datasetid = '.$datasetId.' '.
 				'ORDER BY o.sciname ';
-			try {
-				$rs = QueryUtil::executeQuery($this->conn, $sql);
-				while($r = $rs->fetch_object()){
-					$retArr[$r->occid]['occid'] = $r->occid;
-					$retArr[$r->occid]['sciname'] = $r->sciname;
-					$retArr[$r->occid]['catnum'] = $r->catalognumber;
-					$retArr[$r->occid]['coll'] = $r->collector;
-					$retArr[$r->occid]['eventdate'] = $r->eventdate;
-					$retArr[$r->occid]['occid'] = $r->occid;
-					$retArr[$r->occid]['lat'] = $r->DecimalLatitude;
-					$retArr[$r->occid]['long'] = $r->DecimalLongitude;
+				$rs = QueryUtil::tryExecuteQuery($this->conn, $sql);
+				if(!$rs) {
+					$this->errorMessage = 'ERROR executing coordinate query: ' . $this->conn->error;
+					return array();
+				} else{
+					while($r = $rs->fetch_object()){
+						$retArr[$r->occid]['occid'] = $r->occid;
+						$retArr[$r->occid]['sciname'] = $r->sciname;
+						$retArr[$r->occid]['catnum'] = $r->catalognumber;
+						$retArr[$r->occid]['coll'] = $r->collector;
+						$retArr[$r->occid]['eventdate'] = $r->eventdate;
+						$retArr[$r->occid]['occid'] = $r->occid;
+						$retArr[$r->occid]['lat'] = $r->DecimalLatitude;
+						$retArr[$r->occid]['long'] = $r->DecimalLongitude;
+					}
 				}
 				$rs->free();
-			} catch (mysqli_sql_exception $e) {
-				$this->errorMessage = 'ERROR executing occurrence query: ' . $e->getMessage();
-			}
 		}
 		if(count($retArr)>1){
 			return $retArr;
@@ -403,15 +402,15 @@ class OccurrenceMapManager extends OccurrenceManager {
 	public function getObservationIds(){
 		$retVar = array();
 		$sql = 'SELECT collid FROM omcollections WHERE CollType IN("Observations","General Observations") ';
-		try {
-			$rs = QueryUtil::executeQuery($this->conn, $sql);
+			$rs = QueryUtil::tryExecuteQuery($this->conn, $sql);
+			if(!$rs) {
+				$this->errorMessage = 'ERROR executing observation collections query: ' . $this->conn->error;
+				return array();
+			}
 			while($r = $rs->fetch_object()){
 				$retVar[] = $r->collid;
 			}
 			$rs->free();
-		} catch (mysqli_sql_exception $e) {
-			$this->errorMessage = 'ERROR executing observation collections query: ' . $e->getMessage();
-		}
 		return $retVar;
 	}
 
