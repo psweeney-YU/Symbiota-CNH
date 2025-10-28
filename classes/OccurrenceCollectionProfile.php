@@ -310,23 +310,23 @@ class OccurrenceCollectionProfile extends OmCollections{
 		$retArr = Array();
 		$sql = '';
 		if($state){
-			$sql = 'SELECT o.county as termstr, Count(*) AS cnt '.
-				'FROM omoccurrences o '.
-				'WHERE (o.CollID = '.$this->collid.') '.($country?'AND (o.country = "'.$this->cleanInStr($country).'") ':'').
-				'AND (o.stateprovince = "'.$this->cleanInStr($state).'") AND (o.county IS NOT NULL) '.
-				'GROUP BY o.StateProvince, o.county';
+			$sql = 'SELECT o.county as termstr, Count(*) AS cnt
+				FROM omoccurrences o
+				WHERE (o.CollID = '.$this->collid.') '.($country?'AND (o.country = "'.$this->cleanInStr($country).'") ':'').
+				'AND (o.stateprovince = "'.$this->cleanInStr($state).'") AND (o.county IS NOT NULL) AND (o.recordSecurity != 5)
+				GROUP BY o.StateProvince, o.county';
 		}
 		elseif($country){
-			$sql = 'SELECT o.stateprovince as termstr, Count(*) AS cnt '.
-				'FROM omoccurrences o '.
-				'WHERE (o.CollID = '.$this->collid.') AND (o.StateProvince IS NOT NULL) AND (o.country = "'.$this->cleanInStr($country).'") '.
-				'GROUP BY o.StateProvince, o.country';
+			$sql = 'SELECT o.stateprovince as termstr, Count(*) AS cnt
+				FROM omoccurrences o
+				WHERE (o.CollID = '.$this->collid.') AND (o.StateProvince IS NOT NULL) AND (o.country = "'.$this->cleanInStr($country).'") AND (o.recordSecurity != 5)
+				GROUP BY o.StateProvince, o.country';
 		}
 		else{
-			$sql = 'SELECT o.country as termstr, Count(*) AS cnt '.
-				'FROM omoccurrences o '.
-				'WHERE (o.CollID = '.$this->collid.') AND (o.Country IS NOT NULL) '.
-				'GROUP BY o.Country ';
+			$sql = 'SELECT o.country as termstr, Count(*) AS cnt
+				FROM omoccurrences o
+				WHERE (o.CollID = '.$this->collid.') AND (o.Country IS NOT NULL) AND (o.recordSecurity != 5)
+				GROUP BY o.Country ';
 		}
 		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
@@ -347,15 +347,15 @@ class OccurrenceCollectionProfile extends OmCollections{
 
 	public function getTaxonomyStats($famStr){
 		$retArr = Array();
-		$sql = 'SELECT IFNULL(ts.family,o.family) as taxon, count(DISTINCT o.occid) as cnt '.
-			'FROM omoccurrences o LEFT JOIN taxstatus ts ON o.tidinterpreted = ts.tid '.
-			'WHERE (o.collid = '.$this->collid.') AND (ts.taxauthid = 1 OR ts.taxauthid IS NULL) '.
-			'GROUP BY IFNULL(ts.family,o.family)';
+		$sql = 'SELECT IFNULL(ts.family,o.family) as taxon, count(DISTINCT o.occid) as cnt
+			FROM omoccurrences o LEFT JOIN taxstatus ts ON o.tidinterpreted = ts.tid
+			WHERE (o.collid = '.$this->collid.') AND (ts.taxauthid = 1 OR ts.taxauthid IS NULL) AND (o.recordSecurity != 5)
+			GROUP BY IFNULL(ts.family,o.family)';
 		if($famStr){
-			$sql = 'SELECT t.unitname1 as taxon, count(o.occid) as cnt '.
-				'FROM omoccurrences o INNER JOIN taxa t ON o.tidinterpreted = t.tid '.
-				'WHERE (o.family = "'.$this->cleanInStr($famStr).'" OR o.sciname = "'.$this->cleanInStr($famStr).'") AND (o.collid = '.$this->collid.') AND (t.unitname1 IS NOT NULL) AND (t.rankid > 140) '.
-				'GROUP BY t.unitname1';
+			$sql = 'SELECT t.unitname1 as taxon, count(o.occid) as cnt
+				FROM omoccurrences o INNER JOIN taxa t ON o.tidinterpreted = t.tid
+				WHERE (o.family = "'.$this->cleanInStr($famStr).'") AND (o.collid = '.$this->collid.') AND (t.rankid > 140) AND (o.recordSecurity != 5)
+				GROUP BY t.unitname1';
 		}
 		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
