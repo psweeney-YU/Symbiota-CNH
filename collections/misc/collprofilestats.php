@@ -24,14 +24,17 @@ if($statDisplay == 'geography'){
 			<div style="margin:15px;"><?= $LANG['CLICK_ON_SPEC_REC'] ?></div>
 			<ul>
 				<?php
-				foreach($distArr as $term => $cnt){
+				foreach($distArr as $term => $subArr){
+					$cnt = $subArr['cnt'];
+					$hasChild = false;
+					if(!$stateDist && $subArr['hasChild']) $hasChild = true;
 					$countryTerm = htmlspecialchars(($countryDist ? $countryDist : $term), ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
 					$stateTerm = htmlspecialchars(($countryDist ? ($stateDist ? $stateDist : $term) : ''), ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
 					$countyTerm = htmlspecialchars(($countryDist && $stateDist ? $term : ''), ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
 					echo '<li>';
-					if(!$stateDist) echo '<a href="collprofiles.php?collid=' . $collid . '&stat=geography&country=' . $countryTerm . '&state=' . $stateTerm . '#geographystats">';
+					if($hasChild) echo '<a href="collprofiles.php?collid=' . $collid . '&stat=geography&country=' . $countryTerm . '&state=' . $stateTerm . '#geographystats">';
 					echo $term;
-					if(!$stateDist) echo '</a>';
+					if($hasChild) echo '</a>';
 					echo ' (<a href="../list.php?db=' . $collid . '&reset=1&usethes=1&country=' . $countryTerm . '&state=' . $stateTerm . '&county=' . $countyTerm . '" target="_blank">' . $cnt . '</a>)';
 					echo '</li>';
 				}
@@ -53,12 +56,15 @@ elseif($statDisplay == 'taxonomy'){
 		<div style="clear:both;">
 			<ul>
 				<?php
-				foreach($taxArr as $name => $cnt){
+				foreach($taxArr as $name => $subArr){
 					$name = htmlspecialchars($name, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
+					$cnt = $subArr['cnt'];
+					$hasChild = false;
+					if($subArr['hasChild']) $hasChild = true;
 					echo '<li>';
-					if(!$famDist) echo '<a href="collprofiles.php?collid=' . $collid . '&stat=taxonomy&family=' . $name . '#taxonomystats">';
+					if($hasChild) echo '<a href="collprofiles.php?collid=' . $collid . '&stat=taxonomy&family=' . $name . '#taxonomystats">';
 					echo $name;
-					if(!$famDist) echo '</a>';
+					if($hasChild) echo '</a>';
 					echo ' (<a href="../list.php?db=' . $collid . '&taxontype=' . ($famDist?2:3) . '&reset=1&usethes=1&taxa=' . $name . '" target="_blank">' . $cnt . '</a>)';
 					echo '</li>';
 				}
