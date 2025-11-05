@@ -1,8 +1,8 @@
 <?php
 include_once('../config/symbini.php');
-include_once ($SERVER_ROOT.'/classes/UtilityFunctions.php');
+include_once ($SERVER_ROOT . '/classes/utilities/GeneralUtil.php');
 header("Content-Type: text/html; charset=" . $CHARSET);
-$serverHost = UtilityFunctions::getDomain();
+$serverHost = GeneralUtil::getDomain();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,10 +25,10 @@ $serverHost = UtilityFunctions::getDomain();
 		<b>Data Usage Policy</b>
 	</div>
 	<!-- This is inner text! -->
-	<div role="main" id="innertext">
+	<div role="main">
 		<div id="innertext">
 	    <div>
-	        <h3 style="margin-top:10px;">Data Usage Policy<sup>1</sup>: </H3>
+	        <h2>Data Usage Policy<sup>1</sup>: </h2>
 	        <p>The Consortium of Northeastern Herbaria (CNH) provides access to specimen data and related material (e.g., images, floristics lists, etc.; hereafter referred to simply as "data") from multiple institutions. These institutions have agreed to make their data available for scientific research and for public information and education. Use of any data accessed through the CNH Portal requires agreement to the terms and conditions in the following data usage policy:</p>
 	        <ol>
 				<li>The quality and completeness of data cannot be guaranteed. Users employ these data at their own risk. Data users are encouraged to personally verify data before use in critical applications.</li>
@@ -41,13 +41,14 @@ $serverHost = UtilityFunctions::getDomain();
 
 <p>Data providers must agree to the <a href="sharingpolicy.php">Data Sharing Policy.</a></p>
 
-<h3>Citing Data:</h3>
+<h2>Citing Data:</h2>
+<div id="innertext">
 <p>You may use the following format to cite data obtained through the CNH Portal:</p>
 <p>Herbarium specimen data provided by: [list of providers] (Accessed through the Consortium of Northeastern Herbaria web site, www.neherbaria.org, YYYY-MM-DD)</p>
 
 <p>For example:</p>
 <p>Herbarium specimen data provided by: George Safford Torrey Herbarium (CONN), University of Connecticut; Yale University Herbarium (YU), Peabody Museum of Natural History (Accessed through the Consortium of Northeastern Herbaria web site, www.neherbaria.org, 2011-08-27)</p>
-
+</div>
 
 <p><sup>1</sup>Adapted from the Consortium of Pacific Northwest Herbaria web site (www.pnwherbaria.org)</p>
 

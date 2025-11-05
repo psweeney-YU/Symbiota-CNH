@@ -1,8 +1,8 @@
 <?php
 include_once('../config/symbini.php');
-include_once ($SERVER_ROOT.'/classes/UtilityFunctions.php');
+include_once ($SERVER_ROOT . '/classes/utilities/GeneralUtil.php');
 header("Content-Type: text/html; charset=" . $CHARSET);
-$serverHost = UtilityFunctions::getDomain();
+$serverHost = GeneralUtil::getDomain();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,7 +24,7 @@ $serverHost = UtilityFunctions::getDomain();
 	</div>
 	<div id="innertext">
 	    <div style="margin:25px;">
-	        <h3 style="margin-top:10px;">Data Sharing Policy for Data Providers<sup>1</sup>: </H3>
+	        <h2 style="margin-top:10px;">Data Sharing Policy for Data Providers<sup>1</sup>: </h2>
 	        <p>By sharing data through the Consortium of Northeastern Herbaria (CNH), data providers agree to make their data available for scientific research and for public information and education. Data providers must agree to the following terms and conditions:</p>
 	        <ol>
 	        	<li>Specimen data and related material (images, floristic lists, etc.; hereafter referred to simply as "data") accessible through the CNH Portal are openly and universally available to all users within the framework of the Data Usage Policy and within the terms and conditions that the data provider has identified in its metadata (e.g., in the "rights" field for specimen occurrence records).</li>
