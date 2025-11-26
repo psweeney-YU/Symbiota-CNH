@@ -967,13 +967,6 @@ class OccurrenceEditorManager {
 					//If additional identifiers exist, NULL otherCatalogNumbers
 					if ($postArr['idvalue'][0]) $postArr['othercatalognumbers'] = '';
 
-					//If processing status was "unprocessed" and recordEnteredBy is null, populate with user login
-					$oldProcessingStatus = isset($oldValueArr['omoccurrences']['processingstatus']) ? $oldValueArr['omoccurrences']['processingstatus'] : '';
-					$oldRecordEnteredBy = isset($oldValueArr['omoccurrences']['recordenteredby']) ? $oldValueArr['omoccurrences']['recordenteredby'] : '';
-					if (!$oldRecordEnteredBy && ($oldProcessingStatus == 'unprocessed' || $oldProcessingStatus == 'stage 1')) {
-						$postArr['recordenteredby'] = $GLOBALS['USERNAME'];
-						$editFieldArr['omoccurrences'][] = 'recordenteredby';
-					}
 					//Version edits; add edits to omoccuredits
 					$sqlEditsBase = 'INSERT INTO omoccuredits(occid,reviewstatus,appliedstatus,uid,fieldname,fieldvaluenew,fieldvalueold) ' .
 						'VALUES (' . $this->occid . ',1,' . ($autoCommit ? '1' : '0') . ',' . $GLOBALS['SYMB_UID'] . ',';
@@ -1284,12 +1277,11 @@ class OccurrenceEditorManager {
 	public function addOccurrence($postArr) {
 		global $LANG;
 		$status = $LANG['SUCCESS_NEW_OCC_SUBMITTED'];
+
 		if ($postArr) {
 			$postArr = array_merge($postArr, $this->getDatefields($postArr));
 			$guid = UuidFactory::getUuidV4();
 			$sql = 'INSERT IGNORE INTO omoccurrences(collid, recordID, ' . implode(',', array_keys($this->fieldArr['omoccurrences'])) . ') VALUES (' . $postArr['collid'] . ', "' . $guid . '"';
-			//if(array_key_exists('cultivationstatus',$postArr) && $postArr['cultivationstatus']) $postArr['cultivationstatus'] = $postArr['cultivationstatus'];
-			//if(array_key_exists('recordsecurity',$postArr) && $postArr['recordsecurity']) $postArr['recordsecurity'] = $postArr['recordsecurity'];
 			if (!isset($postArr['dateentered']) || !$postArr['dateentered']) $postArr['dateentered'] = date('Y-m-d H:i:s');
 			if (!isset($postArr['basisofrecord']) || !$postArr['basisofrecord']) $postArr['basisofrecord'] = (strpos($this->collMap['colltype'], 'Observations') !== false ? 'HumanObservation' : 'PreservedSpecimen');
 			if (isset($postArr['institutioncode']) && $postArr['institutioncode'] == $this->collMap['institutioncode']) $postArr['institutionCode'] = '';
@@ -1298,7 +1290,7 @@ class OccurrenceEditorManager {
 			foreach ($this->fieldArr['omoccurrences'] as $fieldStr => $fieldType) {
 				$fieldValue = '';
 				if (array_key_exists($fieldStr, $postArr)) $fieldValue = $postArr[$fieldStr];
-				if ($fieldValue) {
+				if ($fieldValue !== '') {
 					if ($fieldType == 'n') {
 						if (is_numeric($fieldValue)) $sql .= ', ' . $fieldValue;
 						else $sql .= ', NULL';
@@ -2257,6 +2249,19 @@ class OccurrenceEditorManager {
 		return $retArr;
 	}
 
+	public function getUserName(){
+		$retStr = '';
+		if(is_numeric($GLOBALS['SYMB_UID'])){
+			$sql = 'SELECT CONCAT_WS(", ",lastname,firstname) AS username FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retStr = $r->username;
+			}
+			$rs->free();
+		}
+		return $retStr;
+	}
+
 	//Duplicate functions
 	private function linkDuplicates($occidStr, $dupTitle) {
 		$status = '';
@@ -2723,6 +2728,34 @@ class OccurrenceEditorManager {
 			}
 			$rs->free();
 		}
+		return $retArr;
+	}
+
+	public function catalogNumberExists($catNum) {
+		$status = false;
+		if($this->collId){
+			$sql = 'SELECT occid FROM omoccurrences WHERE (catalognumber = "'.$this->cleanInStr($catNum).'") AND (collid = '.$this->collId.')';
+			//echo $sql;
+			$rs = $this->conn->query($sql);
+			while ($r = $rs->fetch_object()) {
+				$this->occid = $r->occid;
+				$status = true;
+			}
+			$rs->free();
+		}
+		return $status;
+	}
+
+	public function getLanguageArr() {
+		$retArr = array();
+		$sql = 'SELECT iso639_1, langname '.
+			'FROM adminlanguages ';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->iso639_1] = $r->langname;
+		}
+		$rs->free();
+		asort($retArr);
 		return $retArr;
 	}
 

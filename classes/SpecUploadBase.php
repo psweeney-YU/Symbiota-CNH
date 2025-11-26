@@ -5,6 +5,7 @@ include_once($SERVER_ROOT . '/classes/GuidManager.php');
 include_once($SERVER_ROOT . '/classes/utilities/OccurrenceUtil.php');
 include_once($SERVER_ROOT . '/classes/utilities/Encoding.php');
 include_once($SERVER_ROOT . '/classes/utilities/QueryUtil.php');
+include_once($SERVER_ROOT . '/classes/utilities/UploadUtil.php');
 include_once($SERVER_ROOT . '/classes/Media.php');
 
 class SpecUploadBase extends SpecUpload{
@@ -682,9 +683,11 @@ class SpecUploadBase extends SpecUpload{
 		$this->conn->query($sql);
 
 		//Convert state abbreviations to full spellings
-		$sql = 'UPDATE uploadspectemp u INNER JOIN geographicthesaurus s ON u.stateProvince = s.abbreviation
+		$sql = 'UPDATE uploadspectemp u 
+			INNER JOIN geographicthesaurus s ON u.stateProvince = s.abbreviation AND s.geoLevel = 60
+			INNER JOIN geographicthesaurus c ON s.parentID = c.geoThesID AND c.geoLevel = 50
 			SET u.stateProvince = s.geoTerm
-			WHERE s.geoLevel = 60 AND u.collid IN('.$this->collId.')';
+			WHERE u.collid IN('.$this->collId.') AND (u.country = c.geoterm OR u.countryCode = c.iso2)';
 		$this->conn->query($sql);
 
 		//Fill null country with state matches
@@ -2102,7 +2105,7 @@ class SpecUploadBase extends SpecUpload{
 
 			if(!$parsed_mime) {
 				try {
-					$file = Media::getRemoteFileInfo($testUrl);
+					$file = UploadUtil::getRemoteFileInfo($testUrl);
 					$parsed_mime = $file['type'];
 				} catch(Throwable $error) {
 					error_log('SpecUploadBase: Failed to Parse File: ' . $error->getMessage() . ' ' . $testUrl . ' ' . __LINE__ . ' ');
@@ -2338,19 +2341,12 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	protected function setUploadTargetPath(){
-		$tPath = $GLOBALS['TEMP_DIR_ROOT'];
-		if(!$tPath){
-			$tPath = ini_get('upload_tmp_dir');
-		}
-		if(!$tPath){
-			$tPath = $GLOBALS['SERVER_ROOT'].'/temp';
-		}
-		if(substr($tPath,-1) != '/' && substr($tPath,-1) != '\\'){
-			$tPath .= '/';
-		}
+		$tPath = UploadUtil::getTempDir();
+
 		if(file_exists($tPath.'downloads')){
 			$tPath .= 'data/';
 		}
+
 		$this->uploadTargetPath = $tPath;
 	}
 

@@ -1,5 +1,7 @@
 <?php
 include_once('../config/symbini.php');
+include_once('../classes/utilities/GeneralUtil.php');
+
 if(!empty($THIRD_PARTY_OID_AUTH_ENABLED)){
 	include_once($SERVER_ROOT . '/config/auth_config.php');
 	require_once($SERVER_ROOT . '/vendor/autoload.php');
@@ -7,15 +9,15 @@ if(!empty($THIRD_PARTY_OID_AUTH_ENABLED)){
 use Jumbojett\OpenIDConnectClient;
 
 if($SYMB_UID){
-	if($_SESSION['refurl']){
+	if($_SESSION['refurl'] ?? false){
 		header("Location:" . $_SESSION['refurl']);
 		unset($_SESSION['refurl']);
 	}
-	if ($_REQUEST['refurl']){
+	if ($_REQUEST['refurl'] ?? false){
 		header("Location:" . $_REQUEST['refurl']);
 	}
 	else{
-		header("Location:" . $CLIENT_ROOT . '/profile/viewprofile.php');
+		header("Location:" . GeneralUtil::getDomain() . $CLIENT_ROOT . '/profile/viewprofile.php');
 	}
 }
 
@@ -90,7 +92,7 @@ if($action == 'logout'){
 	}
 	else{
 		$pHandler->reset();
-		header('Location: ../index.php');
+		header('Location: ' . GeneralUtil::getDomain() . $CLIENT_ROOT . '/index.php');
 	}
 }
 elseif($action == 'login'){
@@ -105,6 +107,10 @@ elseif($action == 'login'){
 	else{
 		if($pHandler->getErrorMessage()){
 			$statusStr = $pHandler->getErrorMessage();
+			if(preg_match('/^[A-Z_]+$/', $statusStr)){
+				//Error is a LANG code
+				$statusStr = $LANG[$statusStr].'<ERR/>';
+			}
 		}
 		else{
 			if(isset($LANG['INCORRECT'])) $statusStr = $LANG['INCORRECT'];
@@ -263,7 +269,6 @@ include($SERVER_ROOT.'/includes/header.php');
 		<?php
 			if($THIRD_PARTY_OID_AUTH_ENABLED){
 				$_SESSION['refurl'] = array_key_exists('refurl', $_REQUEST) ? $_REQUEST['refurl'] : '';
-
 		?>
 			<div class="flex-item-login bottom-breathing-room-rel">
 				<form action='<?= $LOGIN_ACTION_PAGE ?>' onsubmit="">
