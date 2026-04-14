@@ -41,7 +41,7 @@ $LANG['TAXONOMIC_CLEANER'] = 'Nettoyeur de Noms Taxonomiques à Collection Multi
 $LANG['CREATENEWCOLL'] = 'Créer Nouvelle Collection ou Nouveau Profil d\'Observation';
 $LANG['GEOTHESAURUS'] = 'Geographic Thesaurus';
 $LANG['COORDVALIDATOR'] = 'Vérifier coordonnées par rapport aux frontières politiques';
-$LANG['GUIDMAP'] = 'Mappeur de GUID de Collection';
+$LANG['GUIDMAP'] = 'Mappeur de GUID';
 $LANG['THUMBNAIL_BUILDER'] = 'Outil de Création de Vignettes';
 $LANG['SALIX'] = 'Gestionnaire WordStat SALIX';
 $LANG['IDKEYS'] = 'Clés d\'Identification';
@@ -97,7 +97,7 @@ $LANG['ABOUT'] = 'À Propos de Symbiota';
 $LANG['CODE'] = 'Version du Dodes';
 $LANG['SCHEMA'] = 'Version du Schéma';
 $LANG['AUTHO'] = 'Vous êtes autorisé à accéder au';
-$LANG['SYN_COM'] = 'Modifier Synonymes / Noms Communs';
+$LANG['VERNAC_COM'] = 'Modifier Noms Vernaculaires/Communs';
 $LANG['TEXTDESC'] = 'Modifier Descriptions Textuelles';
 $LANG['EDITIMG'] = 'Modifier le multimédia';
 $LANG['IMGSORTORD'] = 'Modifier l\'ordre de tri multimédia';
@@ -108,5 +108,6 @@ $LANG['DATMANPAG'] = 'Page de Gestion des Ensembles de Données';
 $LANG['DATA_AUTHORIZED_TO_EDIT'] = 'ensembles de données que vous êtes autorisé à modifier';
 $LANG['MANAGE_TAXON_THUMBNAILS'] = 'Gérer les miniatures de la carte du profil de taxonomie';
 $LANG['TAXINTER'] = 'Autorisations des Utilisateurs d\'Intérêt Taxonomique';
+$LANG['OTHER_CAT_TRANSFER'] = 'Outil de transfert de numéro de catalogue autre';
 
 ?>
