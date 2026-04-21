@@ -224,7 +224,13 @@ $creatorArray = Media::getCreatorArray();
 									echo '<div style="font-weight:bold;font-size:140%">'.$imgArr['error'].'</div>';
 								}
 								else{
-									echo '<img src="' . $displayUrl . '" style="width:250px;" title="'.$imgArr["caption"].'" />';
+									echo '<img src="' . $displayUrl . '" style="width:250px;" title="'.$imgArr["caption"].'"
+									alt="Link and description of image '. $displayUrl .
+									', Caption: ' . $imgArr["caption"] . 
+									', Notes: ' . $imgArr["notes"] . 
+									', Tags: ' . implode(', ',$imgArr['tags']) .
+									'
+									"/>';
 								}
 								echo '</a>';
 								if($imgUrl != $origUrl) echo '<div><a href="' . $imgUrl .'" target="_blank">' . $LANG['OPEN_MED'] . '</a></div>';
