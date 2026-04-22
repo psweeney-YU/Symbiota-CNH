@@ -224,13 +224,18 @@ $creatorArray = Media::getCreatorArray();
 									echo '<div style="font-weight:bold;font-size:140%">'.$imgArr['error'].'</div>';
 								}
 								else{
-									echo '<img src="' . $displayUrl . '" style="width:250px;" title="'.$imgArr["caption"].'"
-									alt="Link and description of image '. $imgArr["url"] .
-									', Caption: ' . $imgArr["caption"] . 
-									', Notes: ' . $imgArr["notes"] . 
-									', Tags: ' . implode(', ',$imgArr['tags']) .
-									'
-									"/>';
+									$matchedTags = [];
+									foreach ($imageTagKeys as $tagKey => $tagDescr) {
+										if (isset($imgArr['tags'][$tagKey])) {
+											$matchedTags[] = rtrim(preg_replace('/^image\s+\S+\s+/i', '', $tagDescr), '.'); // Removes "Image shows/has/contains" from beginning
+										}
+									}
+
+									echo '<img src="' . $displayUrl . '" style="width:250px;" title="'.$imgArr['caption'].'"
+									alt="Link of image '. $imgArr['url'] .
+									'; Caption: ' . $imgArr['caption'] . 
+									'; Notes: ' . $imgArr['notes'] . 
+									'; Tags: Image has ' . implode(', ', $matchedTags) .'"/>';
 								}
 								echo '</a>';
 								if($imgUrl != $origUrl) echo '<div><a href="' . $imgUrl .'" target="_blank">' . $LANG['OPEN_MED'] . '</a></div>';
