@@ -75,7 +75,7 @@ $creatorArray = Media::getCreatorArray();
 	});
 </script>
 <div id="imagediv" style="width:795px;">
-	<div style="float:right;cursor:pointer;" onclick="toggle('addimgdiv');" title="<?php echo $LANG['ADD_IMG']; ?>">
+	<div style="float:right;cursor:pointer;" onclick="toggle('addimgdiv');" title="<?php echo $LANG['ADD_IMG']; ?>" role="button" tabindex="0">
 		<img style="border:0px;width:1.5em;" src="../../images/add.png" />
 	</div>
 	<div id="addimgdiv" style="display:<?php echo ($specImgArr?'none':''); ?>;">
@@ -225,7 +225,7 @@ $creatorArray = Media::getCreatorArray();
 								}
 								else{
 									echo '<img src="' . $displayUrl . '" style="width:250px;" title="'.$imgArr["caption"].'"
-									alt="Link and description of image '. $displayUrl .
+									alt="Link and description of image '. $imgArr["url"] .
 									', Caption: ' . $imgArr["caption"] . 
 									', Notes: ' . $imgArr["notes"] . 
 									', Tags: ' . implode(', ',$imgArr['tags']) .
@@ -246,7 +246,7 @@ $creatorArray = Media::getCreatorArray();
 							</td>
 						<?php endif?>
 						<td class="imgInfo" style="text-align:left;padding:10px;">
-							<div style="float:right;cursor:pointer;" onclick="toggle('img<?php echo $imgId; ?>editdiv');" title="<?php echo $LANG['EDIT_METADATA']; ?>">
+							<div style="float:right;cursor:pointer;" onclick="toggle('img<?php echo $imgId; ?>editdiv');" title="<?php echo $LANG['EDIT_METADATA']; ?> " role="button" tabindex="0">
 								<img style="border:0px;width:1.2em;" src="../../images/edit.png" />
 							</div>
 							<div style="margin-top:30px;overflow-wrap: anywhere;">
