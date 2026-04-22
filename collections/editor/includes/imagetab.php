@@ -226,16 +226,17 @@ $creatorArray = Media::getCreatorArray();
 								else{
 									$matchedTags = [];
 									foreach ($imageTagKeys as $tagKey => $tagDescr) {
-										if (isset($imgArr['tags'][$tagKey])) {
+										if (isset($imgArr['tags'][$tagKey]) && $tagKey !== 'HasProblem') {
 											$matchedTags[] = rtrim(preg_replace('/^image\s+\S+\s+/i', '', $tagDescr), '.'); // Removes "Image shows/has/contains" from beginning
 										}
 									}
 
 									echo '<img src="' . $displayUrl . '" style="width:250px;" title="'.$imgArr['caption'].'"
-									alt="Link of image '. $imgArr['url'] .
+									alt="Link of image '. $displayUrl .
 									'; Caption: ' . $imgArr['caption'] . 
 									'; Notes: ' . $imgArr['notes'] . 
-									'; Tags: Image has ' . implode(', ', $matchedTags) .'"/>';
+									'; Tags: '. (isset($imgArr['tags']['HasProblem']) ? str_replace('.', ', ', $imageTagKeys['HasProblem']) : '') . 
+									'Image contains ' . implode(', ', $matchedTags) . '.' . '"/>';
 								}
 								echo '</a>';
 								if($imgUrl != $origUrl) echo '<div><a href="' . $imgUrl .'" target="_blank">' . $LANG['OPEN_MED'] . '</a></div>';
