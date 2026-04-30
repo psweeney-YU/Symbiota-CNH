@@ -66,22 +66,6 @@ $specList = $loanManager->getSpecimenList($loanId, $sortTag);
 		});
 	}
 
-	function verifyLoanDet(){
-		if(document.getElementById('dafsciname').value == ""){
-			alert("<?php echo $LANG['SCINAME_NEEDS_VALUE']; ?>");
-			return false;
-		}
-		if(document.getElementById('identifiedby').value == ""){
-			alert("<?php echo $LANG['DET_NEEDS_VALUE']; ?>");
-			return false;
-		}
-		if(document.getElementById('dateidentified').value == ""){
-			alert("<?php echo $LANG['DET_DATE_NEEDS_VALUE']; ?>");
-			return false;
-		}
-		return true;
-	}
-
 	function verifySpecEditForm(f){
 		var cbChecked = false;
 		var dbElements = document.getElementsByName("occid[]");
@@ -387,7 +371,7 @@ $specList = $loanManager->getSpecimenList($loanId, $sortTag);
 					</div>
 					<div style='margin:15px;'>
 						<div style="float:left;">
-							<button type="submit" name="formsubmit" value="addDeterminations" onclick="return verifyLoanDet();"><?php echo $LANG['ADD_NEW_DET']; ?></button>
+							<button type="submit" name="formsubmit" value="addDeterminations"><?php echo $LANG['ADD_NEW_DET']; ?></button>
 						</div>
 					</div>
 				</fieldset>
