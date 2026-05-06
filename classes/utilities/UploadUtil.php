@@ -81,7 +81,7 @@ class UploadUtil {
 			$allowed_mimes = self::ALLOWED_IMAGE_MIMES;
 		}
 
-		if(!in_array($uploaded_file['type'], $allowed_mimes)) {
+		if(!self::mimeAllowed($uploaded_file['type'], $allowed_mimes)) {
 			throw new MediaException(MediaException::FileTypeNotAllowed, ' ' . $uploaded_file['type']);
 		}
 
@@ -280,7 +280,7 @@ class UploadUtil {
 		// Sanity Check files extension and claimed type before uploading
 		// This does not guarantee the file is safe but weeds out simple
 		// malicous file upload attempts. Actual file should also be checked after download.
-		if(!in_array($info['type'], $allowed_mimes)) {
+		if(!self::mimeAllowed($info['type'], $allowed_mimes)) {
 			throw new MediaException(MediaException::FileTypeNotAllowed, ' ' . $info['type']);
 		} else if(self::mime2ext($info['type']) !== $info['extension']) {
 			throw new MediaException(MediaException::SuspiciousFile);
@@ -361,10 +361,7 @@ class UploadUtil {
 		}
 
 		$parsed_file['name'] = Media::cleanFileName($parsed_file['name']);
-
-		if(!$parsed_file['extension'] && $file_type_mime) {
-			$parsed_file['extension'] = self::mime2ext($file_type_mime);
-		}
+		$parsed_file['extension'] = self::mime2ext($file_type_mime);
 
 		return [
 			'name' => $parsed_file['name'] . ($parsed_file['extension'] ? '.' .$parsed_file['extension']: ''),
@@ -396,6 +393,25 @@ class UploadUtil {
 			Media::ext2Mime($extensionA) === Media::ext2Mime($extensionB);
 	}
 
+	/**
+	 * @param string $mime
+	 * @param array $allowed_mimes
+	 * @return bool
+	 */
+	public static function mimeAllowed(string $mime, array $allowed_mimes): bool {
+		foreach($allowed_mimes as $allowed_mime) {
+			if(self::mimesEqual($mime, $allowed_mime)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param string $mimeA
+	 * @param string $mimeB
+	 * @return bool
+	 */
 	public static function mimesEqual(string $mimeA, string $mimeB): bool {
 		$mimeA = strtolower($mimeA);
 		$mimeB = strtolower($mimeB);
@@ -403,11 +419,17 @@ class UploadUtil {
 		return self::mime2ext($mimeA) === self::mime2ext($mimeB);
 	}
 
+	private static function stripCharset(string $mime): string {
+		$parts = explode(';', $mime);
+		return trim($parts[0]);
+	}
+
 	/**
 	 * @param string $mime
 	 * @return string | bool
 	 */
 	public static function mime2ext(string $mime) {
+		$mime = self::stripCharset($mime);
 		$mime_map = [
 			'video/3gpp2' => '3g2',
 			'video/3gp'=> '3gp',
