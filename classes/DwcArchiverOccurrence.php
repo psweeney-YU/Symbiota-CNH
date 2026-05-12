@@ -50,13 +50,13 @@ class DwcArchiverOccurrence extends Manager{
 		$this->occurDefArr['terms']['order'] = 'http://rs.tdwg.org/dwc/terms/order';
 		$this->occurDefArr['fields']['order'] = 'x.order';
 		$this->occurDefArr['terms']['family'] = 'http://rs.tdwg.org/dwc/terms/family';
-		$this->occurDefArr['fields']['family'] = 'IFNULL(o.family,x.family) AS family';
+		$this->occurDefArr['fields']['family'] = 'x.family';
 		$this->occurDefArr['terms']['scientificName'] = 'http://rs.tdwg.org/dwc/terms/scientificName';
 		$this->occurDefArr['fields']['scientificName'] = 'o.sciname AS scientificName';
 		$this->occurDefArr['terms']['taxonID'] = 'http://rs.tdwg.org/dwc/terms/taxonID';
 		$this->occurDefArr['fields']['taxonID'] = 'o.tidinterpreted as taxonID';
 		$this->occurDefArr['terms']['scientificNameAuthorship'] = 'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship';
-		$this->occurDefArr['fields']['scientificNameAuthorship'] = 'IFNULL(o.scientificNameAuthorship, x.scientificNameAuthorship) AS scientificNameAuthorship';
+		$this->occurDefArr['fields']['scientificNameAuthorship'] = 'x.scientificNameAuthorship';
 		$this->occurDefArr['terms']['genus'] = 'http://rs.tdwg.org/dwc/terms/genus';
 		$this->occurDefArr['fields']['genus'] = 'x.genus';
 		$this->occurDefArr['terms']['subgenus'] = 'http://rs.tdwg.org/dwc/terms/subgenus';
