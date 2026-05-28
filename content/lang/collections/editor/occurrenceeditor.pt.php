@@ -99,6 +99,7 @@ $LANG['NON_SANCTIONED'] = 'Valor não sancionado';
 $LANG['INST_CODE_EXPLAIN'] = 'Substitui o código da instituição definido no formulário de metadados da coleção';
 $LANG['COLL_CODE_EXPLAIN'] = 'Substitui o código da coleção definido no formulário de metadados da coleção';
 $LANG['OWNER_CODE_EXPLAIN'] = 'Se for diferente do código da instituição';
+$LANG['STORAGELOCATION_EXPLAIN'] = 'Localização dentro do local onde o espécime é armazenado';
 $LANG['NO_SET_STATUS'] = 'Nenhum status definido';
 $LANG['AKA_GENERAL'] = 'também conhecido como generalizações de dados';
 $LANG['PRIMARY_KEY'] = 'Registro de ocorrência interna Chave Primária (occid)';
@@ -197,5 +198,6 @@ $LANG['ERROR_ARCHIVING_ASSOC'] = 'ERRO - Arquivando informações de associaçõ
 $LANG['ERROR_ARCHIVING_MAT_SAMPLE'] = 'ERRO - Arquivando informações de amostra de material';
 $LANG['ERROR_CREATING_ARCHIVE'] = 'ERRO - Criando Arquivo';
 $LANG['ERROR_DELETING_OCCURRENCE'] = 'ERRO - Falha ao excluir a ocorrência de origem';
+$LANG['OPENS_NEW_TAB'] = ' (abre em nova guia)';
 
 ?>

@@ -36,7 +36,7 @@ if($IS_ADMIN) $isEditor = 1;
 
 			<?php
 			foreach($indexArr as $pid => $portalObj){
-				echo 'portalObj['.$pid.'] = {"name": "'.$portalObj['portalName'].'","url": "'.$portalObj['urlRoot'].'"};'."\n";
+				echo 'portalObj[' . $pid . '] = {"name": "' . $portalObj['portalName'] . '","url": "' . $portalObj['urlRoot'] . '","symbiotaVersion": "' . $portalObj['symbiotaVersion'] . '"};' . "\n";
 			}
 
 			if($portalID) echo 'displayPortalDetails('.$portalID.');';
@@ -86,7 +86,7 @@ if($IS_ADMIN) $isEditor = 1;
 						method: "GET",
 						data: ajaxSearchObj,
 						dataType: "json",
-						url: portalUrl + "/api/v2/occurrence/search"
+						url: portalUrl + "/api/v2/occurrence"
 					})
 					.done(function(jsonRes) {
 						$("#occur-div-"+portalID).append('<div class="occur-sub-div">' + jsonRes.count.toLocaleString() + " occurrences</div>");
@@ -99,7 +99,8 @@ if($IS_ADMIN) $isEditor = 1;
 						}
 					})
 					.fail(function( jqXHR, textStatus ) {
-						$("#occur-div-"+portalID).append(" ERROR ("+textStatus+")");
+						if(textStatus == "error") textStatus = "Undefined error";
+						$("#occur-div-" + portalID).append(" ERROR (" + textStatus + ")");
 					});
 				}
 			}
@@ -124,7 +125,7 @@ if($IS_ADMIN) $isEditor = 1;
 					method: "GET",
 					data: ajaxSearchObj,
 					dataType: "json",
-					url: portalUrl + "/api/v2/occurrence/search"
+					url: portalUrl + "/api/v2/occurrence"
 				})
 				.done(function(jsonRes) {
 					collSpan.textContent = jsonRes.count.toLocaleString();
@@ -158,27 +159,71 @@ if($IS_ADMIN) $isEditor = 1;
 					dataTime = yyyy + "-" + mm + "-" + dd + " " + today.toLocaleTimeString();
 				}
 				$('#portal-div-'+pid).show();
-				setPortalDetails(pid);
+				setPortalDetails(pid, "status", false);
 			}
 
-			function setPortalDetails(pid){
+			function setPortalDetails(pid, urlSuffix, installationUpdated){
+				let targetUrl = portalObj[pid].url + "/api/v2/installation/" + urlSuffix;
 				$.ajax({
 					method: "GET",
 					dataType: "json",
-					url: portalObj[pid].url + "/api/v2/installation/ping"
+					url: targetUrl
 				})
 				.done(function(jsonRes) {
-					$("#status-div-"+pid+" span").text("Success, online!");
-					$("#status-div-"+pid+" span").css("color", "green");
+					if(jsonRes.symbiotaVersion == portalObj[pid].symbiotaVersion){
+						$("#status-div-"+pid+" span").text("Success, installation online!");
+						$("#status-div-"+pid+" span").css("color", "green");
+					}
+					else{
+						if(installationUpdated){
+							$("#status-div-"+pid+" span").text("Success, installation updated and online!");
+							$("#status-div-"+pid+" span").css("color", "green");
+						}
+						else{
+							$("#status-div-"+pid+" span").text("Updating registry...");
+							$("#status-div-"+pid+" span").css("color", "blue");
+							updatePortalIndex(pid, urlSuffix);
+						}
+					}
 					$("#guid-div-"+pid+" span").text(jsonRes.guid);
 					$("#manager-div-"+pid+" span").text(jsonRes.managerEmail);
 					$("#version-div-"+pid+" span").text(jsonRes.symbiotaVersion);
 					$("#lastupdate-div-"+pid+" span").text(dataTime);
 				})
 				.fail(function( jqXHR, textStatus ) {
-					$("#status-div-"+pid+" span").text("Failed!");
-					$("#status-div-"+pid+" span").css("color", "red");
+					if(urlSuffix == "status"){
+						setPortalDetails(pid, "ping", installationUpdated);
+					}
+					else{
+						$("#status-div-"+pid+" span").text("Failed!");
+						$("#status-div-"+pid+" span").css("color", "red");
+					}
 				});
+			}
+
+			function updatePortalIndex(pid, urlSuffix){
+				let url = portalObj[pid].url;
+				if(url){
+					$.ajax({
+						method: "POST",
+						url: "rpc/updateinstallation.php",
+						dataType: "json",
+						data: { portalID: pid, remoteUrl: url }
+					})
+					.done(function(jsonRes) {
+						if(jsonRes == 1){
+							setPortalDetails(pid, urlSuffix, true);
+						}
+						else{
+							$("#status-div-"+pid+" span").text("Failed to update registry");
+							$("#status-div-"+pid+" span").css("color", "orange");
+						}
+					})
+					.fail(function( jqXHR, textStatus ) {
+						$("#status-div-"+pid+" span").text("Registry update failed");
+						$("#status-div-"+pid+" span").css("color", "orange");
+					});
+				}
 			}
 
 			function displayFullPortalDetails(pid){
@@ -462,45 +507,50 @@ if($IS_ADMIN) $isEditor = 1;
 									<?php
 								}
 								else{
-									?>
-									<div id="table-div">
-										<div><label>Collection Count</label>: <?= count($collList) ?></div>
-										<table class="styledtable">
-											<tr>
-												<th>ID</th>
-												<th>Institution Code</th>
-												<th>Collection Code</th>
-												<th>Collection Name</th>
-												<th>Dataset Type</th>
-												<th>Management</th>
-												<th>Mapped Internally</th>
-												<th>Occurrence Count</th>
-											</tr>
-											<?php
-											foreach($collList as $collArr){
-												?>
+									if($collList){
+										?>
+										<div id="table-div">
+											<div><label>Collection Count</label>: <?= count($collList) ?></div>
+											<table class="styledtable">
 												<tr>
-													<td><a href="#" onclick="displayCollectionDetails(<?= $collArr['collID'] ?>)"><?= $collArr['collID'] ?></a></td>
-													<td><?= $collArr['institutionCode'] ?></td>
-													<td><?= $collArr['collectionCode'] ?></td>
-													<td><?= $collArr['collectionName'] ?></td>
-													<td><?= $collArr['collType'] ?></td>
-													<td><?= $collArr['managementType'] ?></td>
-													<?php
-													$internal = 'No';
-													if(isset($collArr['internal']) && $collArr['internal']){
-														$internal = '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.key($collArr['internal']).'" target="_blank">Yes</a>';
-													}
-													?>
-													<td><?= $internal ?></td>
-													<td><span class="occur-count"><?= $collArr['collID'] ?></span></td>
+													<th>ID</th>
+													<th>Institution Code</th>
+													<th>Collection Code</th>
+													<th>Collection Name</th>
+													<th>Dataset Type</th>
+													<th>Management</th>
+													<th>Mapped Internally</th>
+													<th>Occurrence Count</th>
 												</tr>
 												<?php
-											}
-											?>
-										</table>
-									</div>
-									<?php
+												foreach($collList as $collArr){
+													?>
+													<tr>
+														<td><a href="#" onclick="displayCollectionDetails(<?= $collArr['collID'] ?>)"><?= $collArr['collID'] ?></a></td>
+														<td><?= $collArr['institutionCode'] ?></td>
+														<td><?= $collArr['collectionCode'] ?></td>
+														<td><?= $collArr['collectionName'] ?></td>
+														<td><?= $collArr['collType'] ?></td>
+														<td><?= $collArr['managementType'] ?></td>
+														<?php
+														$internal = 'No';
+														if(isset($collArr['internal']) && $collArr['internal']){
+															$internal = '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.key($collArr['internal']).'" target="_blank">Yes</a>';
+														}
+														?>
+														<td><?= $internal ?></td>
+														<td><span class="occur-count"><?= $collArr['collID'] ?></span></td>
+													</tr>
+													<?php
+												}
+												?>
+											</table>
+										</div>
+										<?php
+									}
+									else{
+										echo '<h3>Unable to retrieve list of collections</h3>';
+									}
 								}
 							}
 						}
