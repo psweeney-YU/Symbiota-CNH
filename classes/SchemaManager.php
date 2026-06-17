@@ -126,6 +126,7 @@ class SchemaManager extends Manager{
 									$this->logOrEcho('Success!', 1);
 								}
 								else{
+									$this->logOrEcho($this->conn->error, 2);
 									$this->logOrEcho($sql, 1);
 								}
 							}
