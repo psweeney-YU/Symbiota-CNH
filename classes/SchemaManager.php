@@ -456,7 +456,7 @@ class SchemaManager extends Manager{
 			return false;
 		}
 		if(!$this->checkPermissions()){
-			$this->logOrEcho('Connection error: Login has insignificant permissions; missing: ' . implode(', ', $this->warningArr));
+			$this->logOrEcho('Error: Login has insignificant permissions - missing: ' . implode(', ', $this->warningArr));
 			$this->conn = null;
 			return false;
 		}
