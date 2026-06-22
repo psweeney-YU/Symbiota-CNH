@@ -341,6 +341,7 @@ if ($SYMB_UID) {
 
 				$ch = curl_init($gbifUrl);
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_TIMEOUT_MS, 2500);
 					$response = curl_exec($ch);
 					curl_close($ch);
 
@@ -359,7 +360,7 @@ if ($SYMB_UID) {
 								display:inline-flex;
 								height:23.5px;
 								font-family:Verdana,Geneva,sans-serif;
-								font-size:14px;
+								font-size:13px;
 								line-height:24px;
 								border-radius:4px;
 								overflow:hidden;
