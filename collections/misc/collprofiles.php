@@ -337,8 +337,67 @@ if ($SYMB_UID) {
 			// GBIF citations widget
 			if ($datasetKey) {
 				echo '<div style="margin-left: 10px; margin-bottom: 20px;">';
-				echo '<iframe title="GBIF citation" src="https://www.gbif.org/api/widgets/literature/button?gbifDatasetKey=' . $datasetKey . '" frameborder="0" allowtransparency="true" style="width: 140px; height: 24px;"></iframe>';
-    			echo '<a href="https://bionomia.net/dataset/' . $datasetKey . '"><img src="https://api.bionomia.net/dataset/' . $datasetKey . '/badge.svg" onerror="this.style.display=\'none\'" alt="Bionomia dataset badge" style="width:262px; height:24px; padding-left:10px;"></a>';
+				$gbifUrl = "https://api.gbif.org/v1/literature/search?gbifDatasetKey={$datasetKey}&limit=0";
+
+				$ch = curl_init($gbifUrl);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					$response = curl_exec($ch);
+					curl_close($ch);
+
+					$publicationCount = 0;
+
+					if ($response) {
+						$json = json_decode($response, true);
+						$publicationCount = $json['count'] ?? 0;
+					}
+					if ($publicationCount > 0) {
+						echo '
+						<a href="https://www.gbif.org/resource/search?contentType=literature&gbifDatasetKey=' . $datasetKey . '"
+						target="_blank"
+						style="text-decoration:none;">
+							<span style="
+								display:inline-flex;
+								height:23.5px;
+								font-family:Verdana,Geneva,sans-serif;
+								font-size:14px;
+								line-height:24px;
+								border-radius:4px;
+								overflow:hidden;
+								box-shadow: inset 0 -1px 0 rgba(0,0,0,.1);
+								">
+								<span style="
+									width:28px;
+									background:#396e36;
+									display:flex;
+									align-items:center;
+									justify-content:center;
+								">
+									<img src="../../images/gbif-mark-white-logo.svg"
+									alt="GBIF"
+									style="width:22px;height:22px;">
+								</span>
+								<span style="
+									background:#5a5a5a;
+									color:#fff;
+									padding:0 8px;
+									font-weight:175;
+									text-shadow: 0 1.25px 0 rgb(66, 66, 66);
+								">
+									GBIF citations
+								</span>
+								<span style="
+									background:#26a644;
+									color:#fff;
+									padding:0 8px;
+									font-weight:200;
+									text-shadow: 0 1.25px 0 rgb(32, 129, 53);
+								">
+									' . number_format($publicationCount) . '
+								</span>
+							</span>
+						</a>';
+					}
+				echo '<a href="https://bionomia.net/dataset/' . $datasetKey . '"><img src="https://api.bionomia.net/dataset/' . $datasetKey . '/badge.svg" onerror="this.style.display=\'none\'" alt="Bionomia dataset badge" style="width:262px; height:24px; padding-left:10px;"></a>';
 				echo '</div>';
 			}
 
