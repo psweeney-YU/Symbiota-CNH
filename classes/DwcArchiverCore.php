@@ -36,7 +36,7 @@ class DwcArchiverCore extends Manager{
 	private $delimiter = ',';
 	private $fileExt = '.csv';
 	private $occurrenceFieldArr = array();
-	private $extensionFieldMap = array();
+	protected $extensionFieldMap = array();
 	private $isPublicDownload = false;
 	private $publicationGuid;
 	private $requestPortalGuid;
