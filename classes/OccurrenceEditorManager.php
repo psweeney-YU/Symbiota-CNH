@@ -110,6 +110,7 @@ class OccurrenceEditorManager {
 	public function getDownloadQuery(): string {
 		$queryArr = $this->getQueryVariables();
 		$retArr = [ 'db' => $this->collId ];
+		$includeCultivated = false;
 
 		$map = 	['rb' => 'collector','rn' => 'collnum','ed' => 'eventdate1','cn' => 'catnum','ocn' => 'othercatalognumbers','eb' => 'recordenteredby','de' => 'dateentered',
 				'dm' => 'datelastmodified','ps' => 'processingstatus','traitid' => 'traitid','stateid' => 'stateid','exsid' => 'exsiccatiid'];
@@ -136,7 +137,20 @@ class OccurrenceEditorManager {
 			}
 		}
 
-		return http_build_query($retArr, "&amp");
+		for ($i = 1; $i < 11; $i++) {
+			if (($queryArr['cf' . $i] ?? '') === 'cultivationStatus') {
+				$customValue = trim((string)($queryArr['cv' . $i] ?? ''));
+				if ($customValue !== '' && $customValue !== '0') {
+					$includeCultivated = true;
+					break;
+				}
+			}
+		}
+		if ($includeCultivated) {
+			$retArr['includecult'] = 1;
+		}
+
+		return http_build_query($retArr, '', '&');
 	}
 
 	//Query functions
