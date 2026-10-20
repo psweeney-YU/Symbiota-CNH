@@ -123,7 +123,7 @@ class DwcArchiverOccurrence extends Manager{
 		$this->occurDefArr['fields']['occurrenceRemarks'] = 'x.occurrenceRemarks';
 		$this->occurDefArr['terms']['habitat'] = 'http://rs.tdwg.org/dwc/terms/habitat';
 		$this->occurDefArr['fields']['habitat'] = 'o.habitat';
-		$this->occurDefArr['terms']['substrate'] = 'https://symbiota.org/terms/substrate';
+		$this->occurDefArr['terms']['substrate'] = 'http://rs.tdwg.org/dwc/terms/substrate';
 		$this->occurDefArr['fields']['substrate'] = 'o.substrate';
 		$this->occurDefArr['terms']['verbatimAttributes'] = 'https://symbiota.org/terms/verbatimAttributes';
 		$this->occurDefArr['fields']['verbatimAttributes'] = 'o.verbatimAttributes';
