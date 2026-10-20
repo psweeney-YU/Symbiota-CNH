@@ -327,7 +327,7 @@ class DwcArchiverOccurrence extends Manager{
 		//Trim out fields depending on schema settings
 		$trimArr = array();
 		if($this->schemaType == 'dwc' || $this->schemaType == 'pensoft'){
-			$trimArr = array('recordedByID','associatedCollectors','substrate','verbatimAttributes','cultivationStatus','securityReason','genericcolumn1','genericcolumn2',
+			$trimArr = array('recordedByID','associatedCollectors','verbatimAttributes','cultivationStatus','securityReason','genericcolumn1','genericcolumn2',
 				'observerUid','processingStatus','duplicateQuantity','labelProject','dateEntered','dateLastModified','sourcePrimaryKey-dbpk');
 			if($this->includePaleo){
 				$trimArr = array_merge($trimArr, array('absoluteAge','stage','localStage','biostratigraphy','taxonEnvironment','stratRemarks','element','slideProperties', 'lithology'));
@@ -367,7 +367,6 @@ class DwcArchiverOccurrence extends Manager{
 		if($this->schemaType == 'dwc' || $this->schemaType == 'pensoft'){
 			$this->occurDefArr['fields']['recordedBy'] = 'CONCAT_WS("; ",o.recordedBy,o.associatedCollectors) AS recordedBy';
 			$this->occurDefArr['fields']['occurrenceRemarks'] = 'CONCAT_WS("; ",x.occurrenceRemarks,o.verbatimAttributes) AS occurrenceRemarks';
-			$this->occurDefArr['fields']['habitat'] = 'CONCAT_WS("; ",o.habitat, o.substrate) AS habitat';
 		}
 		return $this->occurDefArr;
 	}
